@@ -1,4 +1,8 @@
-Cb
-==
+Cb: Musical Programming Language
+================================
+Matt Cowan 
+Cole Diamon 
+Mehmet Erkilic 
+Marscellin Nshimiyimana
+================================
 
-Musical Programming Language
