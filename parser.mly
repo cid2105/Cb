@@ -23,16 +23,33 @@ program:
 | program vdecl {}
 | program fedcl {}
 
-expr:
-  expr OR  expr       { Or($1, $3)  }
-| expr AND expr       { And($1, $3) }
-| product             { $1 }
+fdecl:
+  ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+  	{{ fnace = $1;
+  		formals = $3;
+  		locals = List.rev $6;
+  		body = List.rev $7}}
 
-product:
-| product term        { And($1, $2) }
-| term                { $1 }
+formals_opt:
+  /* nothing */ { [] }
+| formal_list {List.rev $1 }
 
-term:
-  NOT term         { Not($2) }
-| ID               { Id($1)  }
-| LPAREN expr RPAREN { $2 }
+formal_list:
+  ID	{ [$1] }
+ | formal_list COMMA ID { $3 :: $1 }
+
+vdecl_list:
+  /* nothing */ { [] }
+| vdecl_list vdecl_list	{ $2 :: $1 }
+
+vdecl:
+  INT ID SEMI	{ $2 }
+
+stmt_list:
+  /* nothing */	{ [] }
+| stmt_list stmt_list { $2 :: $1 }
+
+stmt:
+  expr SEMI				{ Expr($1) }
+| RETURN expr SEMI		{ Return($2) }
+| LBRACE stmt_list RBRACE	{ Block(List.rev $2) }
