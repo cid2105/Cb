@@ -26,13 +26,28 @@
 %left P M 
 %left TIMES DIV MOD
 %left PP MM 
+
 %start program 
 %type <Ast.program> program 
-%% 
+
+%%
+
+td_type:
+  | INT      { Int }
+  | NOTE   { Note }
+  | CHORD     { Chord }
+  | SCORE    { Score }
+  | STANZA { Stanza }
+  | SCALE     { Scale }
+
+typed_id:
+  td_type IDENT { ($1, $2) }
+
 program: 
   /* nothing */ { [], [] }
   | program vdecl { ($2 :: fst $1), snd $1 } 
   | program fdecl { fst $1, ($2 :: snd $1) } 
+
 fdecl: 
   DATATYPE ID LPAREN formals_opt RPAREN LBRAC vdecl_list stmt_list RBRAC 
             { { fname = $2; 
@@ -40,6 +55,7 @@ fdecl:
                 formals = $4; 
                 locals = List.rev $7; 
                 body = List.rev $8 } } 
+
 formals_opt:
   /* nothing */ { [] }
   | formal_list { List.rev $1 }
@@ -59,12 +75,39 @@ stmt_list:
   /* nothing */ { [] }
   | stmt_list stmt { $2 :: $1 }
 
+object: Note {} | Chord {} | Stanza {}
+
+collection: Chord {} | Stanza {} | Scale {} | Score {}
+
 stmt:
   expr SEMI { Expr($1) }
   | LBRAC stmt_list RBRAC { Block(List.rev $2) }
   | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
   | IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
+  | FOREACH LPAREN object IN collection RPAREN stmt { Foreach($3, $5, $7) }
+  /* NEW STATEMENTS*/
+  | expr SEMICOLON
+      { Execute($1) }
+  | typed_id SEMICOLON
+      { VarDecl($1) }
+  | IF OPENPAREN expr CLOSEPAREN stmt ELSE stmt
+      { IfThenElse($3, $5, $7) }
+  | IF OPENPAREN expr CLOSEPAREN stmt %prec NOELSE
+      { IfThenElse($3, $5, Block([])) }
+  | FOR OPENPAREN expr SEMICOLON expr SEMICOLON expr CLOSEPAREN stmt
+      { For($3, $5, $7, $9) }
+  | FOREACH OPENPAREN typed_id IN expr CLOSEPAREN stmt
+      { Foreach($3, $5, $7) }
+  | WHILE OPENPAREN expr CLOSEPAREN stmt
+      { While($3, $5) }
+  | RETURN expr SEMICOLON
+      { Return(Some($2)) }
+  | RETURN SEMICOLON
+      { Return(None) }
+  | OPENBRAC stmts CLOSEBRAC
+      { Block(List.rev $2) }
+
 
 expr:
   LITERAL { Literal($1) }
@@ -84,6 +127,10 @@ expr:
   | ID ASSIGN expr { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
+
+expr_opt:
+/* nothing */ { Noexpr }
+| expr { $1 }
 
 actuals_opt:
   /* nothing */ { [] }
