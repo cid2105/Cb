@@ -127,6 +127,11 @@ expr:
   | ID ASSIGN expr { Assign($1, $3) }                 /* x = y    */
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }     /* x(...)   */
   | LPAREN expr RPAREN { $2 }                         /* (x)      */
+  /* WHICH A SHARP?? */
+  | ID SHARP { $1 }                                   /* A#       */ 
+  | A SHARP { $1 }                                    /* A#       */ 
+
+
 
 expr_opt:
 /* nothing */ { Noexpr }
