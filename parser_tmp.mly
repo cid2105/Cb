@@ -5,8 +5,8 @@
 %token P M TIMES DIV MOD PP MM SHARP FLAT
 %token ASSIGN PEQ MEQ TEQ DIVEQ MODEQ LOWER RAISE  /* = += -= *= /= %= ^- ^+ */
 %token IS ISNT LT LQT GT GEQ                       /* COMPARE > < >= <= "is" "isnt" */
-%token IF ELSE NOELSE ELIF FOREACH IN WHILE RETURN /* foreach in,  RETURN is to be removed */  
-%token INT BOOL NOTE CHORD SCORE STANZAS SCALE
+%token IF ELSE NOELSE ELIF FOR FOREACH IN WHILE RETURN /* foreach in,  RETURN is to be removed */  
+%token INT BOOL NOTE CHORD SCORE STANZA SCALE
 %token A B C D E F G
 %token WHOLE HALF QUARTER EIGHT SIXTEENTH 
 %token <int> LITERAL
@@ -84,31 +84,31 @@ stmt:
   expr SEMI { Expr($1) }
   | LBRAC stmt_list RBRAC { Block(List.rev $2) }
   /* NEW STATEMENTS*/
-  | expr SEMICOLON
+  | expr SEMI
       { Execute($1) }
-  | typed_id SEMICOLON
+  | typed_id SEMI
       { VarDecl($1) }
   | IF LPAREN expr RPAREN stmt ELSE stmt
       { IfThenElse($3, $5, $7) }
   | IF LPAREN expr RPAREN stmt %prec NOELSE
       { IfThenElse($3, $5, Block([])) }
-  | FOR LPAREN expr SEMICOLON expr SEMICOLON expr RPAREN stmt
+  | FOR LPAREN expr SEMI expr SEMI expr RPAREN stmt
       { For($3, $5, $7, $9) }
-  | FOREACH LPAREN iterable IN collection RPAREN stmt
+  | FOREACH LPAREN iterable_id IN expr RPAREN stmt
       { Foreach($3, $5, $7) }
   | WHILE LPAREN expr RPAREN stmt
       { While($3, $5) }
-  | RETURN expr SEMICOLON
+  | RETURN expr SEMI
       { Return(Some($2)) }
-  | RETURN SEMICOLON
+  | RETURN SEMI
       { Return(None) }
-  | OPENBRAC stmts CLOSEBRAC
+  | LBRAC stmt_list RBRAC
       { Block(List.rev $2) }
 
 
 expr:
   ID { Id($1) }
-  | INTLITERAL { IntLiteral($1) }
+  | LITERAL { Literal($1) }
   | expr P expr { Binop($1, Add, $3) }
   | expr M expr { Binop($1, Sub, $3) }
   | expr TIMES expr { Binop($1, Mult, $3) }
