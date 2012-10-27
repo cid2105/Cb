@@ -110,23 +110,23 @@ stmt:
 
 
 expr:
-  ID { Id($1) }
-  | INTLITERAL { IntLiteral($1) }
-  | expr P expr { Binop($1, Add, $3) }
-  | expr M expr { Binop($1, Sub, $3) }
-  | expr TIMES expr { Binop($1, Mult, $3) }
-  | expr DIV expr { Binop($1, Div, $3) }
-  | expr IS expr { Binop($1, Is, $3) }
-  | expr ISNT expr { Binop($1, Isnt, $3) }
-  | expr LT expr { Binop($1, Less, $3) }
-  | expr LEQ expr { Binop($1, Leq, $3) }
-  | expr GT expr { Binop($1, Greater, $3) }
-  | expr GEQ expr { Binop($1, Geq, $3) }
-  | LOWER expr    { Lower($2) }
-  | RAISE expr    { Raise($2) }
-  | ID ASSIGN expr { Assign($1, $3) }
-  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
-  | LPAREN expr RPAREN { $2 }
+  ID { Id($1) }                                       /* x        */
+  | INTLITERAL { IntLiteral($1) }                     /* 1        */
+  | expr P expr { Binop($1, Add, $3) }                /* x + y    */
+  | expr M expr { Binop($1, Sub, $3) }                /* x - y    */
+  | expr TIMES expr { Binop($1, Mult, $3) }           /* x * y    */
+  | expr DIV expr { Binop($1, Div, $3) }              /* x / y    */
+  | expr IS expr { Binop($1, Is, $3) }                /* x == y   */
+  | expr ISNT expr { Binop($1, Isnt, $3) }            /* x != y   */
+  | expr LT expr { Binop($1, Less, $3) }              /* x < y    */
+  | expr LEQ expr { Binop($1, Leq, $3) }              /* x <= y   */
+  | expr GT expr { Binop($1, Greater, $3) }           /* x > y    */
+  | expr GEQ expr { Binop($1, Geq, $3) }              /* x >= y   */
+  | LOWER expr    { Lower($2) }                       /* ^- x     */
+  | RAISE expr    { Raise($2) }                       /* ^+ x     */
+  | ID ASSIGN expr { Assign($1, $3) }                 /* x = y    */
+  | ID LPAREN actuals_opt RPAREN { Call($1, $3) }     /* x(...)   */
+  | LPAREN expr RPAREN { $2 }                         /* (x)      */
 
 expr_opt:
 /* nothing */ { Noexpr }
