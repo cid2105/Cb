@@ -17,6 +17,9 @@ type token =
   | SCALE
   | STANZA
   | SCORE
+  | METH
+  | RETURN
+  | END
   | PLUS
   | MINUS
   | TIMES

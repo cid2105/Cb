@@ -11,9 +11,9 @@
 %token <string> ID
 
 %token LEFTPAREN RIGHTPAREN LBRAC RBRAC
-
 %token INT NOTE CHORD SCALE STANZA SCORE
 
+%token METH RETURN END
 %token PLUS MINUS TIMES DIV
 
 %token ASSIGN
@@ -32,6 +32,25 @@
 program:
 { [], [] }  									/* nothing 					*/
 | program vdecl { ($2 :: fst $1), snd $1 }		/* variable declerations 	*/
+| program methdecl { TODO() }					/* function declerations	*/
+
+methdecl:
+	METH DATATYPE ID LEFTPAREN meth_params RIGHTPAREN statement_list END { create() }
+
+meth_params:
+	{ [] }
+	| param_list { List.rev($1) }
+
+param_list:
+	param_decl { [$1] }
+	| param_list COMMA param_decl { $3 :: $1 }
+
+param_decl:
+	DATATYPE ID
+		{ {	create{} } }
+
+statement_list:
+	ID { create{} }
 
 vdecl: 
 	DATATYPE ID SEMICOLON {{ vartype = $1; varname = $2}}
