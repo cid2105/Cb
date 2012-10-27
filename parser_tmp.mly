@@ -2,8 +2,8 @@
 %token LPAREN RPAREN LBRAC RBRAC LSBRACK RSBRACK 
 %token SEMI COMMA DOT 
 %token P M TIMES DIV MOD PP MM POUND
-%token ASSIGN PQ MEQ TEQ DIVEQ MODEQ LOWER RAISE /* = += -= *= /= %= */
-%token IS ISNT LT LQT GT GEQ AND OR              /* COMPARE > < >= <= "is" "isnt" */
+%token ASSIGN PEQ MEQ TEQ DIVEQ MODEQ LOWER RAISE /* = += -= *= /= %= */
+%token IS ISNT LT LQT GT GEQ                     /* COMPARE > < >= <= "is" "isnt" */
 %token IF ELSE ELIF FOR IN WHILE RETURN          /* foreach in,  RETURN is to be removed */  
 %token INT BOOL NOTE CHORD SCORE STANZAS SCALE
 %token A B C D E F G
@@ -16,16 +16,12 @@
 %nonassoc ELSE  
 %nonassoc ELIF 
 %nonassoc LPAREN 
-%left PLUSEQ MINUSEQ 
-%left TIMESEQ DIVIDEEQ MODEQ 
-%right ASSIGN 
-%left OR 
-%left AND  
-%left IS ISNT 
-%left LT GT LEQ GEQ
+%left PEQ MEQ 
+%left TIMESEQ DIVEQ MODEQ 
+%right ASSIGN  
+%left IS ISNT LT GT LEQ GEQ
 %left P M 
-%left TIMES DIV MOD 
-%right UPLUS UMINUS 
+%left TIMES DIV MOD
 %left PP MM 
 %start program 
 %type <Ast.program> program 
