@@ -1,16 +1,13 @@
 
 
 type op =
-    Add | Sub | Mult | Div | Mod
-    | And | Or | Eq | NEq | Less | LEq | Greater | GEq
+    Add | Sub | Mult | Div | Mod 
+    | Is | Isnt | Less | LEq | Greater | GEq 
    
 type expr = (* Expressions *)
     Id of string (* foo *)
     | MemberAccess of string * string (* foo.intensity *)   
-    | IntLiteral of int (* 42 *)
-    | FloatLiteral of float (* 42.0 *)
-    | BoolLiteral of bool (* true *)
-    | PitchLiteral of string (* As7 *)
+    | Literal of int (* 42 *)
     | Assign of expr * expr (* x = y *)
     | BinOp of expr * op * expr (* x + y *)
     | Not of expr (* !x *)
