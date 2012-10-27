@@ -5,7 +5,7 @@
 %token P M TIMES DIV MOD PP MM POUND
 %token ASSIGN PEQ MEQ TEQ DIVEQ MODEQ LOWER RAISE /* = += -= *= /= %= */
 %token IS ISNT LT LQT GT GEQ                     /* COMPARE > < >= <= "is" "isnt" */
-%token IF ELSE NOELSE ELIF FOR IN WHILE RETURN          /* foreach in,  RETURN is to be removed */  
+%token IF ELSE NOELSE ELIF FOREACH IN WHILE RETURN          /* foreach in,  RETURN is to be removed */  
 %token INT BOOL NOTE CHORD SCORE STANZAS SCALE
 %token A B C D E F G
 %token WHOLE HALF QUARTER 
@@ -59,12 +59,18 @@ stmt_list:
   /* nothing */ { [] }
   | stmt_list stmt { $2 :: $1 }
 
+object: Note {} | Chord {} | Stanza {}
+
+collection: Chord {} | Stanza {} | Scale {} | Score {}
+
 stmt:
   expr SEMI { Expr($1) }
   | LBRAC stmt_list RBRAC { Block(List.rev $2) }
   | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
   | IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
+  | FOREACH LPAREN object IN collection RPAREN stmt { Foreach($3, $5, $7) }
+
 
 expr:
   LITERAL { Literal($1) }
@@ -82,6 +88,10 @@ expr:
   | ID ASSIGN expr { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
+
+expr_opt:
+/* nothing */ { Noexpr }
+| expr { $1 }
 
 actuals_opt:
   /* nothing */ { [] }
