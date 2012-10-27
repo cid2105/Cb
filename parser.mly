@@ -1,10 +1,8 @@
 %{ open Ast %}
-
-%token SEMI LPAREN REPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE
+%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE
 %token ASSIGN EQ NEQ LT LEQ GT GEQ RETURN IF ELSE FOR WHILE INT EOF
 %token <int> LITERAL
 %token <string> ID
-
 %nonassoc NOELSE
 %nonassoc ELSE
 %right ASSIGN
@@ -12,45 +10,38 @@
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE
-
 %start program
-%type < Ast.program> program
-
+%type <Ast.program> program
 %%
 
 program:
-  /* nothing */ { [], [] }
-| program vdecl {}
-| program fdecl {}
+/* nothing */ { [], [] }
+| program vdecl { ($2 :: fst $1), snd $1 }
+| program fdecl { fst $1, ($2 :: snd $1) }
 
 fdecl:
-  ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-  	{{ fnace = $1;
-  		formals = $3;
-  		locals = List.rev $6;
-  		body = List.rev $7}}
-
+ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+{ { fname = $1;
+formals = $3;
+locals = List.rev $6;
+body = List.rev $7 } }
 formals_opt:
-  /* nothing */ { [] }
-| formal_list {List.rev $1 }
-
+/* nothing */ { [] }
+| formal_list { List.rev $1 }
 formal_list:
-  ID	{ [$1] }
- | formal_list COMMA ID { $3 :: $1 }
-
+ID { [$1] }
+| formal_list COMMA ID { $3 :: $1 }
 vdecl_list:
-  /* nothing */ { [] }
-| vdecl_list vdecl_list	{ $2 :: $1 }
-
+/* nothing */ { [] }
+| vdecl_list vdecl { $2 :: $1 }
 vdecl:
-  INT ID SEMI	{ $2 }
-
+INT ID SEMI { $2 }
 stmt_list:
-  /* nothing */	{ [] }
-| stmt_list stmt_list { $2 :: $1 }
+/* nothing */ { [] }
+| stmt_list stmt { $2 :: $1 }
 
 stmt:
-  expr SEMI { Expr($1) }
+expr SEMI { Expr($1) }
 | RETURN expr SEMI { Return($2) }
 | LBRACE stmt_list RBRACE { Block(List.rev $2) }
 | IF LPAREN expr RPAREN stmt %prec NOELSE { If($3, $5, Block([])) }
@@ -58,9 +49,8 @@ stmt:
 | FOR LPAREN expr_opt SEMI expr_opt SEMI expr_opt RPAREN stmt
 { For($3, $5, $7, $9) }
 | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
-
 expr:
-  LITERAL { Literal($1) }
+LITERAL { Literal($1) }
 | ID { Id($1) }
 | expr PLUS expr { Binop($1, Add, $3) }
 | expr MINUS expr { Binop($1, Sub, $3) }
@@ -77,13 +67,11 @@ expr:
 | LPAREN expr RPAREN { $2 }
 
 expr_opt:
-  /* nothing */ { Noexpr }
+/* nothing */ { Noexpr }
 | expr { $1 }
-
 actuals_opt:
-  /* nothing */ { [] }
+/* nothing */ { [] }
 | actuals_list { List.rev $1 }
-
 actuals_list:
-  expr { [$1] }
+expr { [$1] }
 | actuals_list COMMA expr { $3 :: $1 }
