@@ -110,8 +110,8 @@ stmt:
 
 
 expr:
-  LITERAL { Literal($1) }
-  | ID { Id($1) }
+  ID { Id($1) }
+  | INTLITERAL { IntLiteral($1) }
   | expr P expr { Binop($1, Add, $3) }
   | expr M expr { Binop($1, Sub, $3) }
   | expr TIMES expr { Binop($1, Mult, $3) }
