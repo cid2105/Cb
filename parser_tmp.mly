@@ -4,12 +4,14 @@
 %token P M TIMES DIV MOD PP MM POUND
 %token ASSIGN PQ MEQ TEQ DIVEQ MODEQ LOWER RAISE /* = += -= *= /= %= */
 %token IS ISNT LT LQT GT GEQ AND OR              /* COMPARE > < >= <= "is" "isnt" */
-%token IF ELSE ELIF FOR IN WHILE RETURN          /* RETURN is to be removed */  
+%token IF ELSE ELIF FOR IN WHILE RETURN          /* foreach in,  RETURN is to be removed */  
 %token INT BOOL NOTE CHORD SCORE STANZAS SCALE
 %token A B C D E F G
 %token <int> LITERAL
 %token <string> ID
 %token <string> DATATYPE
+%token LCOMM
+%token RCOMM
 %token EOF 
 %nonassoc ELSE  
 %nonassoc ELIF 
