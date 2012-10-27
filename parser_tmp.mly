@@ -87,10 +87,8 @@ stmt:
   | WHILE LPAREN expr RPAREN stmt { While($3, $5) }
   | FOREACH LPAREN object IN collection RPAREN stmt { Foreach($3, $5, $7) }
   /* NEW STATEMENTS*/
-  | expr SEMICOLON
-      { Execute($1) }
-  | typed_id SEMICOLON
-      { VarDecl($1) }
+  | expr SEMICOLON { Execute($1) }
+  | typed_id SEMICOLON { VarDecl($1) }
   | IF OPENPAREN expr CLOSEPAREN stmt ELSE stmt
       { IfThenElse($3, $5, $7) }
   | IF OPENPAREN expr CLOSEPAREN stmt %prec NOELSE
