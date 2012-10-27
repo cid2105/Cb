@@ -21,7 +21,7 @@
 program:
   /* nothing */ { [], [] }
 | program vdecl {}
-| program fdcl {}
+| program fdecl {}
 
 fdecl:
   ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
