@@ -2,11 +2,11 @@
 
 %token LPAREN RPAREN LBRAC RBRAC LSBRACK RSBRACK 
 %token SEMI COMMA DOT 
-%token P M TIMES DIV MOD PP MM POUND
+%token P M TIMES DIV MOD PP MM SHARP FLAT
 %token ASSIGN PEQ MEQ TEQ DIVEQ MODEQ LOWER RAISE /* = += -= *= /= %= ^- ^+ */
 %token IS ISNT LT LQT GT GEQ                     /* COMPARE > < >= <= "is" "isnt" */
-%token IF ELSE NOELSE ELIF FOR IN WHILE RETURN          /* foreach in,  RETURN is to be removed */  
-%token INT BOOL NOTE CHORD SCORE STANZAS SCALE
+%token IF ELSE NOELSE ELIF FOREACH IN WHILE RETURN          /* foreach in,  RETURN is to be removed */  
+%token INT NOTE CHORD SCORE STANZA SCALE
 %token A B C D E F G
 %token WHOLE HALF QUARTER EIGHT SIXTEENTH 
 %token <int> LITERAL

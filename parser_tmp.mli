@@ -15,7 +15,8 @@ type token =
   | MOD
   | PP
   | MM
-  | POUND
+  | SHARP
+  | FLAT
   | ASSIGN
   | PEQ
   | MEQ
@@ -34,16 +35,15 @@ type token =
   | ELSE
   | NOELSE
   | ELIF
-  | FOR
+  | FOREACH
   | IN
   | WHILE
   | RETURN
   | INT
-  | BOOL
   | NOTE
   | CHORD
   | SCORE
-  | STANZAS
+  | STANZA
   | SCALE
   | A
   | B
