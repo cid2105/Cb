@@ -108,7 +108,7 @@ stmt:
 
 expr:
   ID { Id($1) }                                       /* x        */
-  | INTLITERAL { IntLiteral($1) }                     /* 1        */
+  | Literal { Literal($1) }                     /* 1        */
   | expr P expr { Binop($1, Add, $3) }                /* x + y    */
   | expr M expr { Binop($1, Sub, $3) }                /* x - y    */
   | expr TIMES expr { Binop($1, Mult, $3) }           /* x * y    */
@@ -126,7 +126,7 @@ expr:
   | LPAREN expr RPAREN { $2 }                         /* (x)      */
   /* WHICH A SHARP?? */
   | ID SHARP { $1 }                                   /* A#       */ 
-  | A SHARP { $1 }                                    /* A#       */ 
+  | ID FLAT { $1 }                                    /* A#       */ 
 
 expr_opt:
 /* nothing */ { Noexpr }
