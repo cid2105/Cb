@@ -55,6 +55,8 @@ type token =
   | WHOLE
   | HALF
   | QUARTER
+  | EIGHT
+  | SIXTEENTH
   | LITERAL of (int)
   | ID of (string)
   | DATATYPE of (string)

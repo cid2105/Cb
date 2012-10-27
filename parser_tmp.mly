@@ -3,12 +3,12 @@
 %token LPAREN RPAREN LBRAC RBRAC LSBRACK RSBRACK 
 %token SEMI COMMA DOT 
 %token P M TIMES DIV MOD PP MM POUND
-%token ASSIGN PEQ MEQ TEQ DIVEQ MODEQ LOWER RAISE /* = += -= *= /= %= */
+%token ASSIGN PEQ MEQ TEQ DIVEQ MODEQ LOWER RAISE /* = += -= *= /= %= ^- ^+ */
 %token IS ISNT LT LQT GT GEQ                     /* COMPARE > < >= <= "is" "isnt" */
 %token IF ELSE NOELSE ELIF FOR IN WHILE RETURN          /* foreach in,  RETURN is to be removed */  
 %token INT BOOL NOTE CHORD SCORE STANZAS SCALE
 %token A B C D E F G
-%token WHOLE HALF QUARTER 
+%token WHOLE HALF QUARTER EIGHT SIXTEENTH 
 %token <int> LITERAL
 %token <string> ID
 %token <string> DATATYPE
@@ -73,12 +73,14 @@ expr:
   | expr M expr { Binop($1, Sub, $3) }
   | expr TIMES expr { Binop($1, Mult, $3) }
   | expr DIV expr { Binop($1, Div, $3) }
-  | expr IS expr { Binop($1, Equal, $3) }
-  | expr ISNT expr { Binop($1, Neq, $3) }
+  | expr IS expr { Binop($1, Is, $3) }
+  | expr ISNT expr { Binop($1, Isnt, $3) }
   | expr LT expr { Binop($1, Less, $3) }
   | expr LEQ expr { Binop($1, Leq, $3) }
   | expr GT expr { Binop($1, Greater, $3) }
   | expr GEQ expr { Binop($1, Geq, $3) }
+  | LOWER expr    { Lower($2) }
+  | RAISE expr    { Raise($2) }
   | ID ASSIGN expr { Assign($1, $3) }
   | ID LPAREN actuals_opt RPAREN { Call($1, $3) }
   | LPAREN expr RPAREN { $2 }
