@@ -2,6 +2,7 @@ type token =
   | INTLITERAL of (int)
   | OCTAVE of (int)
   | DURATIONINT of (int)
+  | BOOL of (bool)
   | DURATIONCONST of (string)
   | STRING of (string)
   | DATATYPE of (string)
@@ -14,6 +15,8 @@ type token =
   | WHILE
   | FOREACH
   | ASSIGN
+  | OR
+  | AND
   | PLUSEQ
   | MINUSEQ
   | TIMESEQ
@@ -24,6 +27,8 @@ type token =
   | MINUS
   | TIMES
   | DIVIDE
+  | VERACITY
+  | NOT
   | IS
   | ISNT
   | LT

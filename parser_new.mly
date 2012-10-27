@@ -3,7 +3,7 @@
 %token <int> INTLITERAL
 %token <int> OCTAVE /* integer between -5 and 5 */
 %token <int> DURATIONINT /* positive intege x>0 */
-
+%token <bool> BOOL 
 %token <string> DURATIONCONST /* whole half etc. */
 %token <string> STRING
 %token <string> DATATYPE
@@ -15,6 +15,7 @@
 %token ELSE NOELSE
 %token WHILE FOREACH
 %token ASSIGN
+%token OR AND
 %token PLUSEQ
 %token MINUSEQ
 %token TIMESEQ
@@ -25,6 +26,8 @@
 %token MINUS
 %token TIMES
 %token DIVIDE
+%token VERACITY
+%token NOT
 %token IS
 %token ISNT
 %token LT
@@ -54,8 +57,11 @@
 %left PLUSEQ MINUSEQ
 %left TIMESEQ DIVIDEEQ MODEQ
 %right ASSIGN
+%left OR 
+%left AND
 %left IS ISNT
 %left LT GT LEQ GEQ
+%right NOT
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
 %left PLUSPLUS MINUSMINUS RAISE LOWER
@@ -72,7 +78,7 @@ program:
 | program methdecl { TODO() }					/* function declerations	*/
 
 methdecl:
-	METH DATATYPE ID LEFTPAREN meth_params RIGHTPAREN statement_list END { create() }
+	METH DATATYPE ID LEFTPAREN meth_params RIGHTPAREN statement_list END { TODO() }
 
 meth_params:
 	{ [] }
@@ -99,12 +105,13 @@ statement:
 
 vdecl: 
 	DATATYPE ID SEMICOLON {{ vartype = $1; varname = $2}}
-	| NOTE ID VASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN SEMICOLON { create() }
-	| INT ID VASSIGN INTLITERAL SEMICOLON { create($2) }/* int x = 5; */
-	| CHORD ID VASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN SEMICOLON  { create() }
-	| SCALE ID VASSIGN LBRAC generic_list RBRAC { create{} }
-	| STANZA ID VASSIGN LBRAC generic_list RBRAC { create{} } /* Add fancy shit about multiplying notes and chords dawg */
-	| SCORE ID VASSIGN LBRAC generic_list RBRAC { create{} } /* Implement list of stanzas*/
+	| BOOL ID VASSIGN VERACITY SEMICOLON { TODO($2) }
+	| NOTE ID VASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN SEMICOLON { TODO() }
+	| INT ID VASSIGN INTLITERAL SEMICOLON { TODO($2) }/* int x = 5; */
+	| CHORD ID VASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN SEMICOLON  { TODO() }
+	| SCALE ID VASSIGN LBRAC generic_list RBRAC { TODO{} }
+	| STANZA ID VASSIGN LBRAC generic_list RBRAC { TODO{} } /* Add fancy shit about multiplying notes and chords dawg */
+	| SCORE ID VASSIGN LBRAC generic_list RBRAC { TODO{} } /* Implement list of stanzas*/
 
 generic_list:
 	{ [%1] } /* cannot have empty */
@@ -139,6 +146,9 @@ expr:
 	| expr MOD expr { BinOp($1, Mod, $3) }								/* x % y		*/
 	| expr IS expr { BinOp($1, Eq, $3) }								/* x is y		*/
 	| expr ISNT expr { BinOp($1, NEq, $3) }								/* x isnt y		*/
+	| expr AND expr { BinOp($1, And, $3) }								/* x isnt y		*/
+	| expr OR expr { BinOp($1, Or, $3) }								/* x isnt y		*/
+	| expr NOT expr { BinOp($1, Not, $3) }								/* x isnt y		*/
 	| expr LT expr { BinOp($1, Less, $3) }								/* x < y		*/
 	| expr LEQ expr { BinOp($1, LEq, $3) }								/* x <= y		*/
 	| expr GT expr { BinOp($1, Greater, $3) }							/* x > y		*/
