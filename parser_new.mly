@@ -10,19 +10,56 @@
 %token <string> NOTECONST  /* Goes to string A or B or any note*/
 %token <string> ID
 
+%token IN
+%token IF
+%token ELSE NOELSE
+%token WHILE FOREACH
+%token ASSIGN
+%token PLUSEQ
+%token MINUSEQ
+%token TIMESEQ
+%token DIVIDEEQ
+%token MOD
+%token MODEQ
+%token PLUS
+%token MINUS
+%token TIMES
+%token DIVIDE
+%token IS
+%token ISNT
+%token LT
+%token LEQ
+%token GT
+%token GEQ
+%token PLUSPLUS
+%token MINUSMINUS
+%token SHARP
+%token FLAT
+%token RAISE
+%token LOWER
+
 %token LEFTPAREN RIGHTPAREN LBRAC RBRAC
 %token INT NOTE CHORD SCALE STANZA SCORE
 
 %token METH RETURN END
-%token PLUS MINUS TIMES DIV
+%token PLUS MINUS TIMES DIVIDE
 
 %token ASSIGN
 %token VASSIGN 	/* Variable Assign  only used for variable decleration */
 %token SEMICOLON
-%token COMMA
+%token COMMA DOT
 
+%nonassoc NOELSE
+%nonassoc ELSE
+%left PLUSEQ MINUSEQ
+%left TIMESEQ DIVIDEEQ MODEQ
+%right ASSIGN
+%left IS ISNT
+%left LT GT LEQ GEQ
 %left PLUS MINUS
-%left TIMES DIV
+%left TIMES DIVIDE MOD
+%left PLUSPLUS MINUSMINUS RAISE LOWER
+%left SHARP FLAT
 
 %start program 
 %type <Ast_tmp.program> program		/* ocamlyacc: e - no type has been declared for the start symbol `program'*/
@@ -46,11 +83,19 @@ param_list:
 	| param_list COMMA param_decl { $3 :: $1 }
 
 param_decl:
-	DATATYPE ID
-		{ {	create{} } }
+	DATATYPE ID { TODO() }
 
 statement_list:
-	ID { create{} }
+	{ [] }
+	| statement_list statement { $2 :: $1 }
+
+statement:
+	expr SEMICOLON { TODO() }
+	| RETURN expr_opt SEMICOLON { Return($2) }
+	| IF LEFTPAREN expr RIGHTPAREN statement %prec NOELSE END { If($3, $5, Block([])) }
+	| IF LEFTPAREN expr RIGHTPAREN statement ELSE statement END { If($3, $5, $7) }
+	| WHILE LEFTPAREN expr RIGHTPAREN statement END { While($3, $5) }
+	| FOREACH LEFTPAREN param_decl IN ID RIGHTPAREN statement END {TODO()}
 
 vdecl: 
 	DATATYPE ID SEMICOLON {{ vartype = $1; varname = $2}}
@@ -71,22 +116,46 @@ duration_expr:
 	| duration_expr PLUS duration_expr { Binop($1, Add, $3)  } 
 	| duration_expr MINUS duration_expr { Binop($1, Sub, $3)  }
 	| duration_expr TIMES duration_expr { Binop($1, Mult, $3)  }
-	| duration_expr DIV duration_expr { Binop($1, Div, $3)  }
+	| duration_expr DIVIDE duration_expr { Binop($1, Div, $3)  }
 
+expr_opt:
+	{ NoExpr }
+	| expr { $1 }	
 
+expr:
+	ID { Id($1) }														/* x 			*/
+	| ID DOT ID { TODO() }												/* score.put 	*/
+	| INTLITERAL { TODO() }												/* 5 			*/
+	| expr ASSIGN expr { TODO() }										/* x = y 		*/
+	| expr PLUSEQ expr { Assign($1, BinOp($1, Add, $3)) }				/* x += y		*/
+	| expr MINUSEQ expr { Assign($1, BinOp($1, Sub, $3)) }				/* x -= y		*/
+	| expr TIMESEQ expr { Assign($1, BinOp($1, Mult, $3)) }				/* x *= y		*/
+	| expr DIVIDEEQ expr { Assign($1, BinOp($1, Div, $3)) }				/* x /=	y 		*/
+	| expr MODEQ expr { Assign($1, BinOp($1, Mod, $3)) }				/* x %= y		*/
+	| expr PLUS expr { BinOp($1, Add, $3) }								/* x + y		*/
+	| expr MINUS expr { BinOp($1, Sub, $3) }							/* x - y		*/
+	| expr TIMES expr { BinOp($1, Mult, $3) }							/* x * y		*/
+	| expr DIVIDE expr { BinOp($1, Div, $3) }							/* x / y		*/
+	| expr MOD expr { BinOp($1, Mod, $3) }								/* x % y		*/
+	| expr IS expr { BinOp($1, Eq, $3) }								/* x is y		*/
+	| expr ISNT expr { BinOp($1, NEq, $3) }								/* x isnt y		*/
+	| expr LT expr { BinOp($1, Less, $3) }								/* x < y		*/
+	| expr LEQ expr { BinOp($1, LEq, $3) }								/* x <= y		*/
+	| expr GT expr { BinOp($1, Greater, $3) }							/* x > y		*/
+	| expr GEQ expr { BinOp($1, GEq, $3) }								/* x >= y		*/										/* !x	        */  	                            					 
+	| expr PLUSPLUS { Assign($1, BinOp($1, Add, IntLiteral(1))) }		/* x++			*/
+	| expr MINUSMINUS { Assign($1, BinOp($1, Sub, IntLiteral(1))) }		/* x--			*/
+	| expr SHARP { TODO() }												/* A#			*/
+	| expr FLAT { TODO() }												/* Bb			*/
+	| expr RAISE { TODO() }												/* x^-			*/
+	| expr LOWER { TODO() }												/* x^+			*/
+	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)			*/ 
+	| ID LEFTPAREN actuals_opt RIGHTPAREN { TODO() }					/* x(...)		*/
 
+actuals_opt:
+	{ [] }
+	| actuals_list { List.rev $1 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+actuals_list:
+	expr { [$1] }
+	| actuals_list COMMA expr { $3 :: $1 }
