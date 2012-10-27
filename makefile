@@ -10,13 +10,13 @@ OBJS = parser.cmo
 parser.ml parser.mli : parser.mly
 	ocamlyacc parser.mly
 
-%.cmo : %.ml
+#%.cmo : %.ml
 	ocamlc -c $<
 
-%.cmi : %.mli
+#%.cmi : %.mli
 	ocamlc -c $<
 
-TARFILES = Makefile parser.mly
+#TARFILES = Makefile parser.mly
 
 #cb.tar.gz : $(TARFILES)
 #	cd .. && tar zcf src/cb.tar.gz $(TARFILES:%=cb/%)
