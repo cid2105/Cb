@@ -54,7 +54,7 @@
 %left PLUSEQ MINUSEQ
 %left TIMESEQ DIVIDEEQ MODEQ
 %right ASSIGN
-%left IS ISNT
+%left IS ISNT AND OR
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
@@ -151,6 +151,8 @@ expr:
 	| expr LOWER { TODO() }												/* x^+			*/
 	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)			*/ 
 	| ID LEFTPAREN actuals_opt RIGHTPAREN { TODO() }					/* x(...)		*/
+	| ID LBRAC expr RBRAC { ChordOp($1, $3) }						/* x[i]			*/
+
 
 actuals_opt:
 	{ [] }
