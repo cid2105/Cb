@@ -51,6 +51,7 @@
 
 %nonassoc NOELSE
 %nonassoc ELSE
+%nonassoc ELSIF
 %left PLUSEQ MINUSEQ
 %left TIMESEQ DIVIDEEQ MODEQ
 %right ASSIGN
@@ -92,10 +93,14 @@ statement_list:
 statement:
 	expr SEMICOLON { TODO() }
 	| RETURN expr SEMICOLON { Return($2) }
-	| IF LEFTPAREN expr RIGHTPAREN statement %prec NOELSE END { If($3, $5, Block([])) }
-	| IF LEFTPAREN expr RIGHTPAREN statement ELSE statement END { If($3, $5, $7) }
-	| WHILE LEFTPAREN expr RIGHTPAREN statement END { While($3, $5) }
+	| IF LEFTPAREN expr RIGHTPAREN statement elsif_statement %prec NOELSE END { TODO() }
+	| IF LEFTPAREN expr RIGHTPAREN statement elsif_statement ELSE statement END { TODO() }
+	| WHILE LEFTPAREN expr RIGHTPAREN statement END { TODO() }
 	| FOREACH LEFTPAREN param_decl IN ID RIGHTPAREN statement END {TODO()}
+
+elsif_statement:
+      /* nothing */ { [] }
+	| elsif_statement ELSIF LEFTPAREN expr RIGHTPAREN statement { TODO() }
 
 vdecl: 
 	DATATYPE ID SEMICOLON {{ vartype = $1; varname = $2}}
