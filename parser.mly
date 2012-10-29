@@ -91,7 +91,7 @@ statement_list:
 
 statement:
 	expr SEMICOLON { TODO() }
-	| RETURN expr_opt SEMICOLON { Return($2) }
+	| RETURN expr SEMICOLON { Return($2) }
 	| IF LEFTPAREN expr RIGHTPAREN statement %prec NOELSE END { If($3, $5, Block([])) }
 	| IF LEFTPAREN expr RIGHTPAREN statement ELSE statement END { If($3, $5, $7) }
 	| WHILE LEFTPAREN expr RIGHTPAREN statement END { While($3, $5) }
@@ -105,15 +105,7 @@ vdecl:
 	| SCALE ID VASSIGN LBRAC generic_list RBRAC { TODO() }
 	| STANZA ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Add fancy shit about multiplying notes and chords dawg */
 	| SCORE ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Implement list of stanzas*/
-
-v_assign:
-	ID VASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN SEMICOLON { TODO() }
-	| ID VASSIGN INTLITERAL SEMICOLON { TODO() }/* int x = 5; */
-	| ID VASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN SEMICOLON  { TODO() }
-	| ID VASSIGN LBRAC generic_list RBRAC { TODO() }
-	| ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Add fancy shit about multiplying notes and chords dawg */
-	| ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Implement list of stanzas*/
-
+	
 generic_list:
 	{ [%1] } /* cannot have empty */
 	| generic_list COMMA ID { $3 :: $1 } /* Depends on the type of id */
@@ -126,16 +118,11 @@ duration_expr:
 	| duration_expr TIMES duration_expr { Binop($1, Mult, $3)  }
 	| duration_expr DIVIDE duration_expr { Binop($1, Div, $3)  }
 
-expr_opt:
-	{ NoExpr }
-	| expr { $1 }	
-
 expr:
 	ID { Id($1) }														/* x 			*/
 	| ID DOT ID { TODO() }												/* score.put 	*/
 	| INTLITERAL { TODO() }												/* 5 			*/
-	| v_assign { TODO() }												/* n=(A,0,whole)*/
-	| expr ASSIGN expr { TODO() }										/* x = y 		*/
+	| ID ASSIGN expr { TODO() }											/* x = y 		*/
 	| expr PLUSEQ expr { Assign($1, BinOp($1, Add, $3)) }				/* x += y		*/
 	| expr MINUSEQ expr { Assign($1, BinOp($1, Sub, $3)) }				/* x -= y		*/
 	| expr TIMESEQ expr { Assign($1, BinOp($1, Mult, $3)) }				/* x *= y		*/
