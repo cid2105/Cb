@@ -5,7 +5,6 @@
 %token <int> DURATIONINT /* positive intege x>0 */
 
 %token <string> DURATIONCONST /* whole half etc. */
-%token <string> STRING
 %token <string> DATATYPE
 %token <string> NOTECONST  /* Goes to string A or B or any note*/
 %token <string> ID
