@@ -54,8 +54,7 @@
 %left PLUSEQ MINUSEQ
 %left TIMESEQ DIVIDEEQ MODEQ
 %right ASSIGN
-%left LBRAC RBRAC
-%left IS ISNT AND OR
+%left IS ISNT
 %left LT GT LEQ GEQ
 %left PLUS MINUS
 %left TIMES DIVIDE MOD
@@ -100,12 +99,20 @@ statement:
 
 vdecl: 
 	DATATYPE ID SEMICOLON {{ vartype = $1; varname = $2}}
-	| NOTE ID VASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN SEMICOLON { create() }
+	| NOTE ID VASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN SEMICOLON { TODO() }
 	| INT ID VASSIGN INTLITERAL SEMICOLON { create($2) }/* int x = 5; */
-	| CHORD ID VASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN SEMICOLON  { create() }
-	| SCALE ID VASSIGN LBRAC generic_list RBRAC { create{} }
-	| STANZA ID VASSIGN LBRAC generic_list RBRAC { create{} } /* Add fancy shit about multiplying notes and chords dawg */
-	| SCORE ID VASSIGN LBRAC generic_list RBRAC { create{} } /* Implement list of stanzas*/
+	| CHORD ID VASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN SEMICOLON  { TODO() }
+	| SCALE ID VASSIGN LBRAC generic_list RBRAC { TODO() }
+	| STANZA ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Add fancy shit about multiplying notes and chords dawg */
+	| SCORE ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Implement list of stanzas*/
+
+v_assign:
+	ID VASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN SEMICOLON { TODO() }
+	| ID VASSIGN INTLITERAL SEMICOLON { create($2) }/* int x = 5; */
+	| ID VASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN SEMICOLON  { TODO() }
+	| ID VASSIGN LBRAC generic_list RBRAC { TODO() }
+	| ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Add fancy shit about multiplying notes and chords dawg */
+	| ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Implement list of stanzas*/
 
 generic_list:
 	{ [%1] } /* cannot have empty */
@@ -127,6 +134,7 @@ expr:
 	ID { Id($1) }														/* x 			*/
 	| ID DOT ID { TODO() }												/* score.put 	*/
 	| INTLITERAL { TODO() }												/* 5 			*/
+	| v_assign { TODO() }												/* n=(A,0,whole)*/
 	| expr ASSIGN expr { TODO() }										/* x = y 		*/
 	| expr PLUSEQ expr { Assign($1, BinOp($1, Add, $3)) }				/* x += y		*/
 	| expr MINUSEQ expr { Assign($1, BinOp($1, Sub, $3)) }				/* x -= y		*/
@@ -152,8 +160,6 @@ expr:
 	| expr LOWER { TODO() }												/* x^+			*/
 	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)			*/ 
 	| ID LEFTPAREN actuals_opt RIGHTPAREN { TODO() }					/* x(...)		*/
-	| ID LBRAC expr RBRAC { ChordOp($1, $3) }						/* x[i]			*/
-
 
 actuals_opt:
 	{ [] }
