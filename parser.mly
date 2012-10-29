@@ -127,6 +127,8 @@ expr:
 	ID { Id($1) }														/* x 			*/
 	| ID DOT ID { TODO() }												/* score.put 	*/
 	| INTLITERAL { TODO() }												/* 5 			*/
+	| ID LBRAC expr RBRAC { ElemOp($1, $3) }
+	| ID LBRAC expr RBRAC ASSIGN expr { LElemOp($1, $3, $6) }
 	| ID ASSIGN expr { TODO() }											/* x = y 		*/
 	| expr PLUSEQ expr { Assign($1, BinOp($1, Add, $3)) }				/* x += y		*/
 	| expr MINUSEQ expr { Assign($1, BinOp($1, Sub, $3)) }				/* x -= y		*/
