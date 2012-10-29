@@ -92,14 +92,14 @@ statement_list:
 statement:
 	expr SEMICOLON { TODO() }
 	| RETURN expr SEMICOLON { Return($2) }
-	| IF LEFTPAREN expr RIGHTPAREN statement elsif_statement %prec NOELSE END { TODO() }
-	| IF LEFTPAREN expr RIGHTPAREN statement elsif_statement ELSE statement END { TODO() }
-	| WHILE LEFTPAREN expr RIGHTPAREN statement END { TODO() }
-	| FOREACH LEFTPAREN param_decl IN ID RIGHTPAREN statement END {TODO()}
+	| IF LEFTPAREN expr RIGHTPAREN statement_list elsif_statement %prec NOELSE END { TODO() }
+	| IF LEFTPAREN expr RIGHTPAREN statement_list elsif_statement ELSE statement_list END { TODO() }
+	| WHILE LEFTPAREN expr RIGHTPAREN statement_list END { TODO() }
+	| FOREACH LEFTPAREN param_decl IN ID RIGHTPAREN statement_list END {TODO()}
 
 elsif_statement:
       /* nothing */ { [] }
-	| elsif_statement ELSIF LEFTPAREN expr RIGHTPAREN statement { TODO() }
+	| elsif_statement ELSIF LEFTPAREN expr RIGHTPAREN statement_list { TODO() }
 
 vdecl: 
 	DATATYPE ID SEMICOLON {{ vartype = $1; varname = $2}}
