@@ -5,7 +5,6 @@
 %token <int> DURATIONINT /* positive intege x>0 */
 
 %token <string> DURATIONCONST /* whole half etc. */
-%token <string> STRING
 %token <string> DATATYPE
 %token <string> NOTECONST  /* Goes to string A or B or any note*/
 %token <string> ID
@@ -51,6 +50,7 @@
 
 %nonassoc NOELSE
 %nonassoc ELSE
+%nonassoc ELSIF
 %left PLUSEQ MINUSEQ
 %left TIMESEQ DIVIDEEQ MODEQ
 %right ASSIGN
@@ -92,10 +92,14 @@ statement_list:
 statement:
 	expr SEMICOLON { TODO() }
 	| RETURN expr SEMICOLON { Return($2) }
-	| IF LEFTPAREN expr RIGHTPAREN statement %prec NOELSE END { If($3, $5, Block([])) }
-	| IF LEFTPAREN expr RIGHTPAREN statement ELSE statement END { If($3, $5, $7) }
-	| WHILE LEFTPAREN expr RIGHTPAREN statement END { While($3, $5) }
+	| IF LEFTPAREN expr RIGHTPAREN statement elsif_statement %prec NOELSE END { TODO() }
+	| IF LEFTPAREN expr RIGHTPAREN statement elsif_statement ELSE statement END { TODO() }
+	| WHILE LEFTPAREN expr RIGHTPAREN statement END { TODO() }
 	| FOREACH LEFTPAREN param_decl IN ID RIGHTPAREN statement END {TODO()}
+
+elsif_statement:
+      /* nothing */ { [] }
+	| elsif_statement ELSIF LEFTPAREN expr RIGHTPAREN statement { TODO() }
 
 vdecl: 
 	DATATYPE ID SEMICOLON {{ vartype = $1; varname = $2}}
@@ -139,14 +143,14 @@ expr:
 	| expr LT expr { BinOp($1, Less, $3) }								/* x < y		*/
 	| expr LEQ expr { BinOp($1, LEq, $3) }								/* x <= y		*/
 	| expr GT expr { BinOp($1, Greater, $3) }							/* x > y		*/
-	| expr GEQ expr { BinOp($1, GEq, $3) }								/* x >= y		*/										/* !x	        */  	                            					 
+	| expr GEQ expr { BinOp($1, GEq, $3) }								/* x >= y		*//* !x	        */
 	| expr PLUSPLUS { Assign($1, BinOp($1, Add, IntLiteral(1))) }		/* x++			*/
 	| expr MINUSMINUS { Assign($1, BinOp($1, Sub, IntLiteral(1))) }		/* x--			*/
 	| expr SHARP { TODO() }												/* A#			*/
 	| expr FLAT { TODO() }												/* Bb			*/
 	| expr RAISE { TODO() }												/* x^-			*/
 	| expr LOWER { TODO() }												/* x^+			*/
-	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)			*/ 
+	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)			*/
 	| ID LEFTPAREN actuals_opt RIGHTPAREN { TODO() }					/* x(...)		*/
 
 actuals_opt:
