@@ -108,7 +108,7 @@ vdecl:
 
 v_assign:
 	ID VASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN SEMICOLON { TODO() }
-	| ID VASSIGN INTLITERAL SEMICOLON { create($2) }/* int x = 5; */
+	| ID VASSIGN INTLITERAL SEMICOLON { TODO() }/* int x = 5; */
 	| ID VASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN SEMICOLON  { TODO() }
 	| ID VASSIGN LBRAC generic_list RBRAC { TODO() }
 	| ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Add fancy shit about multiplying notes and chords dawg */
