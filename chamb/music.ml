@@ -1,1 +1,0 @@
-Graphics.sound 445 500;
