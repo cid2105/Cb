@@ -109,6 +109,7 @@ vdecl:
 generic_list:
 	{ [%1] } /* cannot have empty */
 	| generic_list COMMA ID { $3 :: $1 } /* Depends on the type of id */
+	| generic_list COMMA ID TIMES INTLITERAL { TODO() }
 
 duration_expr:
 	DURATIONINT { $1 }
