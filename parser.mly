@@ -5,7 +5,6 @@
 %token <int> DURATIONINT /* positive intege x>0 */
 
 %token <string> DURATIONCONST /* whole half etc. */
-%token <string> STRING
 %token <string> DATATYPE
 %token <string> NOTECONST  /* Goes to string A or B or any note*/
 %token <string> ID
@@ -144,14 +143,14 @@ expr:
 	| expr LT expr { BinOp($1, Less, $3) }								/* x < y		*/
 	| expr LEQ expr { BinOp($1, LEq, $3) }								/* x <= y		*/
 	| expr GT expr { BinOp($1, Greater, $3) }							/* x > y		*/
-	| expr GEQ expr { BinOp($1, GEq, $3) }								/* x >= y		*/										/* !x	        */  	                            					 
+	| expr GEQ expr { BinOp($1, GEq, $3) }								/* x >= y		*//* !x	        */
 	| expr PLUSPLUS { Assign($1, BinOp($1, Add, IntLiteral(1))) }		/* x++			*/
 	| expr MINUSMINUS { Assign($1, BinOp($1, Sub, IntLiteral(1))) }		/* x--			*/
 	| expr SHARP { TODO() }												/* A#			*/
 	| expr FLAT { TODO() }												/* Bb			*/
 	| expr RAISE { TODO() }												/* x^-			*/
 	| expr LOWER { TODO() }												/* x^+			*/
-	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)			*/ 
+	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)			*/
 	| ID LEFTPAREN actuals_opt RIGHTPAREN { TODO() }					/* x(...)		*/
 
 actuals_opt:

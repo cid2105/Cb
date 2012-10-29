@@ -3,7 +3,6 @@ type token =
   | OCTAVE of (int)
   | DURATIONINT of (int)
   | DURATIONCONST of (string)
-  | STRING of (string)
   | DATATYPE of (string)
   | NOTECONST of (string)
   | ID of (string)
