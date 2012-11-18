@@ -6,6 +6,17 @@ type token =
   | DATATYPE of (string)
   | NOTECONST of (string)
   | ID of (string)
+  | LEFTPAREN
+  | RIGHTPAREN
+  | LBRAC
+  | RBRAC
+  | INT
+  | NOTE
+  | CHORD
+  | SCALE
+  | STANZA
+  | SCORE
+  | BOOL
   | IN
   | IF
   | ELSE
@@ -35,20 +46,9 @@ type token =
   | FLAT
   | RAISE
   | LOWER
-  | LEFTPAREN
-  | RIGHTPAREN
-  | LBRAC
-  | RBRAC
-  | INT
-  | NOTE
-  | CHORD
-  | SCALE
-  | STANZA
-  | SCORE
   | METH
   | RETURN
   | END
-  | VASSIGN
   | SEMICOLON
   | COMMA
   | DOT

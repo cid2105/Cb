@@ -22,7 +22,6 @@ rule token = parse
 	| "*=" { TIMESEQ }
 	| "/=" { DIVIDEEQ }
 	| "%=" { MODEQ }
-	| '=' { ASSIGN }
 	| '!' { NOT }
 	| "++" { PLUSPLUS }
 	| "--" { MINUSMINUS }

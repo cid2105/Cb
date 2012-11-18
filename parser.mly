@@ -44,8 +44,7 @@
 %token METH RETURN END
 %token PLUS MINUS TIMES DIVIDE
 
-%token ASSIGN
-%token VASSIGN 	/* Variable Assign  only used for variable decleration */
+%token ASSIGN 	/* Variable Assign  only used for variable decleration */
 %token SEMICOLON
 %token COMMA DOT
 
@@ -104,12 +103,6 @@ elsif_statement:
 
 vdecl: 
 	DATATYPE ID SEMICOLON {{ vartype = $1; varname = $2}}
-	| NOTE ID VASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN SEMICOLON { TODO() }
-	| INT ID VASSIGN INTLITERAL SEMICOLON { create($2) }/* int x = 5; */
-	| CHORD ID VASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN SEMICOLON  { TODO() }
-	| SCALE ID VASSIGN LBRAC generic_list RBRAC { TODO() }
-	| STANZA ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Add fancy shit about multiplying notes and chords dawg */
-	| SCORE ID VASSIGN LBRAC generic_list RBRAC { TODO() } /* Implement list of stanzas*/
 	
 generic_list:
 	{ [%1] } /* cannot have empty */
@@ -129,8 +122,15 @@ expr:
 	| ID DOT ID { TODO() }												/* score.put 	*/
 	| INTLITERAL { TODO() }												/* 5 			*/
 	| ID LBRAC expr RBRAC { ElemOp($1, $3) }
-	| ID LBRAC expr RBRAC ASSIGN expr { LElemOp($1, $3, $6) }
+	/*| ID LBRAC expr RBRAC ASSIGN expr { LElemOp($1, $3, $6) }*/
 	| ID ASSIGN expr { TODO() }											/* x = y 		*/
+	| DATATYPE ID ASSIGN expr { TODO() }
+	| ID ASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN  { TODO() }
+	| ID ASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { TODO() }	
+	| ID ASSIGN LBRAC generic_list RBRAC { TODO() } 					/* Add fancy shit about multiplying notes and chords; Implement list of stanzas */	
+	| DATATYPE ID ASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN  { TODO() }
+	| DATATYPE ID ASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { TODO() }	
+	| DATATYPE ID ASSIGN LBRAC generic_list RBRAC { TODO() }
 	| expr PLUSEQ expr { Assign($1, BinOp($1, Add, $3)) }				/* x += y		*/
 	| expr MINUSEQ expr { Assign($1, BinOp($1, Sub, $3)) }				/* x -= y		*/
 	| expr TIMESEQ expr { Assign($1, BinOp($1, Mult, $3)) }				/* x *= y		*/
