@@ -3,14 +3,14 @@
 rule token = parse
 	[' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 	| "<-" { comment lexbuf } (* Comments *)
-	| '(' { LPAREN } 
+	| '(' { LPAREN }
 	| ')' { RPAREN } (* punctuation *)
-	| ';' { SEMI } 
+	| ';' { SEMI }
 	| ',' { COMMA }
 	| '.' { DOT }
 	| '+' { PLUS } (* started here *)
 	| '-' { MINUS }
-	| '*' { TIMES } 
+	| '*' { TIMES }
 	| '/' { DIVIDE }
 	| '%' { MOD }
 	| "end" { END }
@@ -19,22 +19,22 @@ rule token = parse
 	| "*=" { TIMESEQ }
 	| "/=" { DIVIDEEQ }
 	| "%=" { MODEQ }
-	| '=' { ASSIGN } 
+	| '=' { ASSIGN }
 	| '!' { NOT }
 	| "++" { PLUSPLUS }
 	| "--" { MINUSMINUS }
 	| "==" { EQ }
-	| "!=" { NEQ } 
+	| "!=" { NEQ }
 	| '<' { LT }
-	| "<=" { LEQ } 
+	| "<=" { LEQ }
 	| ">" { GT }
-	| ">=" { GEQ } 
+	| ">=" { GEQ }
 	| "&&" { AND }
 	| "||" { OR }
-	| "if" { IF } (* keywords *) 
-	| "else" { ELSE } 
+	| "if" { IF } (* keywords *)
+	| "else" { ELSE }
 	| "for" { FOR }
-	| "while" { WHILE } 
+	| "while" { WHILE }
 	| "return" { RETURN }
 	| "void" { DATATYPE("void") }
 	| "int" { DATATYPE("int") }
