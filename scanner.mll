@@ -5,8 +5,8 @@ rule token = parse
 	| "<-" { comment lexbuf } (* Comments *)
 	| '(' { LEFTPAREN }
 	| ')' { RIGHTPAREN } (* punctuation *)
-	| '{' { LBRAC } (* punctuation *)
-	| '}' { RBRAC } (* punctuation *)
+	| '[' { LBRAC } (* punctuation *)
+	| ']' { RBRAC } (* punctuation *)
 	| ';' { SEMICOLON }
 	| ',' { COMMA }
 	| '.' { DOT }
