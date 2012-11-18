@@ -11,8 +11,8 @@
 
 %token LEFTPAREN RIGHTPAREN LBRAC RBRAC
 %token INT NOTE CHORD SCALE STANZA SCORE
-/* Added bool */
-%token BOOL
+
+%token BOOL /* Added bool */
 %token IN
 %token IF
 %token ELSE NOELSE

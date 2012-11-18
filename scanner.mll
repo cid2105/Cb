@@ -25,6 +25,10 @@ rule token = parse
 	| '!' { NOT }
 	| "++" { PLUSPLUS }
 	| "--" { MINUSMINUS }
+	| "#" { SHARP }
+	| "b" { FLAT }
+	| "^+" { RAISE }
+	| "^-" { LOWER }
 	| "==" { EQ }
 	| "!=" { NEQ }
 	| '<' { LT }
@@ -47,6 +51,9 @@ rule token = parse
 	| "scale" { DATATYPE("scale") }
 	| "stanza" { DATATYPE("stanza") }
 	| "score" { DATATYPE("score") }
+	| "meth" { METH }
+	| "return" { RETURN }
+	| "end" { END }
 	| "true"|"false" as boollit { BOOLLITERAL(bool_of_string boollit) }
 	| (['a'-'g' 'A'-'G']['s' 'f' 'S' 'F']?['0'-'9'])|('r'|'R') as pitchlit { PITCHLITERAL(pitchlit) }
 	| eof { EOF } (* Endoffile *)
