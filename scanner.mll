@@ -31,11 +31,11 @@ rule token = parse
 	| ">=" { GEQ }
 	| "&&" { AND }
 	| "||" { OR }
-	| "if" { IF } (* keywords *) 
-	| "else" { ELSE } 
+	| "if" { IF } (* keywords *)
+	| "else" { ELSE }
 	| "foreach" { FOR }
 	| "in" { IN }
-	| "while" { WHILE } 
+	| "while" { WHILE }
 	| "return" { RETURN }
 	| "void" { DATATYPE("void") }
 	| "int" { DATATYPE("int") }

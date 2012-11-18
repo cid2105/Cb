@@ -118,7 +118,7 @@ generic_list:
 duration_expr:
 	DURATIONINT { $1 }
 	| DURATIONCONST { $1 }
-	| duration_expr PLUS duration_expr { Binop($1, Add, $3)  } 
+	| duration_expr PLUS duration_expr { Binop($1, Add, $3)  }
 	| duration_expr MINUS duration_expr { Binop($1, Sub, $3)  }
 	| duration_expr TIMES duration_expr { Binop($1, Mult, $3)  }
 	| duration_expr DIVIDE duration_expr { Binop($1, Div, $3)  }
