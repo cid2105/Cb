@@ -3,8 +3,10 @@
 rule token = parse
 	[' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 	| "<-" { comment lexbuf } (* Comments *)
-	| '(' { LPAREN }
-	| ')' { RPAREN } (* punctuation *)
+	| '(' { LEFTPAREN }
+	| ')' { RIGHTPAREN } (* punctuation *)
+	| '{' { LBRAC } (* punctuation *)
+	| '}' { RBRAC } (* punctuation *)
 	| ';' { SEMI }
 	| ',' { COMMA }
 	| '.' { DOT }
