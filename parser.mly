@@ -149,10 +149,10 @@ expr:
 	| expr GEQ expr { BinOp($1, GEq, $3) }								/* x >= y		*//* !x	        */
 	| expr PLUSPLUS { Assign($1, BinOp($1, Add, IntLiteral(1))) }		/* x++			*/
 	| expr MINUSMINUS { Assign($1, BinOp($1, Sub, IntLiteral(1))) }		/* x--			*/
-	| expr SHARP { NoteOp($1, Sharp) }										/* A#			*/
-	| expr FLAT { NoteOp($1, Flat) }												/* Bb			*/
-	| expr RAISE { NoteOp($1, Raise) }												/* x^-			*/
-	| expr LOWER { NoteOp($1, Lower) }												/* x^+			*/
+	| expr SHARP { UnaryOp($1, Sharp) }									/* A#			*/
+	| expr FLAT { UnaryOp($1, Flat) }									/* Bb			*/
+	| expr RAISE { UnaryOp($1, Raise) }									/* x^-			*/
+	| expr LOWER { UnaryOp($1, Lower) }									/* x^+			*/
 	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)			*/
 	| ID LEFTPAREN actuals_opt RIGHTPAREN { MethodCall(Id($1), $3) }	/* x(...)		*/
 
