@@ -9,6 +9,10 @@
 %token <string> NOTECONST  /* Goes to string A or B or any note*/
 %token <string> ID
 
+%token LEFTPAREN RIGHTPAREN LBRAC RBRAC
+%token INT NOTE CHORD SCALE STANZA SCORE
+/* Added bool */
+%token BOOL
 %token IN
 %token IF
 %token ELSE NOELSE
@@ -36,9 +40,6 @@
 %token FLAT
 %token RAISE
 %token LOWER
-
-%token LEFTPAREN RIGHTPAREN LBRAC RBRAC
-%token INT NOTE CHORD SCALE STANZA SCORE
 
 %token METH RETURN END
 %token PLUS MINUS TIMES DIVIDE
