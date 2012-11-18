@@ -119,11 +119,11 @@ duration_expr:
 
 expr:
 	ID { Id($1) }														/* x 			*/
-	| ID DOT ID { TODO() }												/* score.put 	*/
-	| INTLITERAL { TODO() }												/* 5 			*/
+	| ID DOT ID { MemberAccess($1, $3) }												/* score.put 	*/
+	| INTLITERAL { IntLiteral($1) }												/* 5 			*/
 	| ID LBRAC expr RBRAC { ElemOp($1, $3) }
 	/*| ID LBRAC expr RBRAC ASSIGN expr { LElemOp($1, $3, $6) }*/
-	| ID ASSIGN expr { TODO() }											/* x = y 		*/
+	| ID ASSIGN expr { Assign($1, $3) }											/* x = y 		*/
 	| DATATYPE ID ASSIGN expr { TODO() }
 	| ID ASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN  { TODO() }
 	| ID ASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { TODO() }	
