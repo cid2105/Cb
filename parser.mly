@@ -123,14 +123,14 @@ expr:
 	| INTLITERAL { IntLiteral($1) }												/* 5 			*/
 	| ID LBRAC expr RBRAC { ElemOp($1, $3) }
 	/*| ID LBRAC expr RBRAC ASSIGN expr { LElemOp($1, $3, $6) }*/
-	| ID ASSIGN expr { Assign($1, $3) }											/* x = y 		*/
-	| DATATYPE ID ASSIGN expr { TODO() }
-	| ID ASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN  { TODO() }
-	| ID ASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { TODO() }	
-	| ID ASSIGN LBRAC generic_list RBRAC { TODO() } 					/* Add fancy shit about multiplying notes and chords; Implement list of stanzas */	
-	| DATATYPE ID ASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN  { TODO() }
-	| DATATYPE ID ASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { TODO() }	
-	| DATATYPE ID ASSIGN LBRAC generic_list RBRAC { TODO() }
+	| ID ASSIGN expr { Assign(Id($1), $3) }											/* x = y 		*/
+	| DATATYPE ID ASSIGN expr { TypeAssign($1, Id($2), $3) }
+	| ID ASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN  { NoteAssign(Id($1), $4, $6, $8) }  /* x = (A#, 4, 34) 		*/
+	| ID ASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { ChordAssign(Id($1), $5, $8) }	
+	| ID ASSIGN LBRAC generic_list RBRAC { ListAssign(Id($1), $4) }	
+	| DATATYPE ID ASSIGN LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN  { TypeNoteAssign($1, Id($2), $5, $7, $9) }
+	| DATATYPE ID ASSIGN LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { TypeChordAssign($1, Id($2), $6, $9) }	
+	| DATATYPE ID ASSIGN LBRAC generic_list RBRAC { TypeListAssign($1, Id($2), $5) }
 	| expr PLUSEQ expr { Assign($1, BinOp($1, Add, $3)) }				/* x += y		*/
 	| expr MINUSEQ expr { Assign($1, BinOp($1, Sub, $3)) }				/* x -= y		*/
 	| expr TIMESEQ expr { Assign($1, BinOp($1, Mult, $3)) }				/* x *= y		*/
