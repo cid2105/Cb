@@ -7,7 +7,7 @@ rule token = parse
 	| ')' { RIGHTPAREN } (* punctuation *)
 	| '{' { LBRAC } (* punctuation *)
 	| '}' { RBRAC } (* punctuation *)
-	| ';' { SEMI }
+	| ';' { SEMICOLON }
 	| ',' { COMMA }
 	| '.' { DOT }
 	| '+' { PLUS } (* started here *)
@@ -15,6 +15,7 @@ rule token = parse
 	| '*' { TIMES }
 	| '/' { DIVIDE }
 	| '%' { MOD }
+	| '=' { ASSIGN }
 	| "end" { END }
 	| "+=" { PLUSEQ }
 	| "-=" { MINUSEQ }
@@ -40,7 +41,9 @@ rule token = parse
 	| "if" { IF } (* keywords *)
 	| "else" { ELSE }
 	| "foreach" { FOR }
-	| "in" { IN }
+	| "in" { IS }
+	| "is" { ISNT }
+	| "isnt" { IN }
 	| "while" { WHILE }
 	| "return" { RETURN }
 	| "void" { DATATYPE("void") }
