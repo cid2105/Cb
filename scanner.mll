@@ -22,42 +22,44 @@ rule token = parse
 	| "*=" { TIMESEQ }
 	| "/=" { DIVIDEEQ }
 	| "%=" { MODEQ }
-	| '!' { NOT }
 	| "++" { PLUSPLUS }
 	| "--" { MINUSMINUS }
 	| "#" { SHARP }
 	| "b" { FLAT }
 	| "^+" { RAISE }
 	| "^-" { LOWER }
-	| "==" { EQ }
-	| "!=" { NEQ }
 	| '<' { LT }
 	| "<=" { LEQ }
 	| ">" { GT }
 	| ">=" { GEQ }
-	| "&&" { AND }
-	| "||" { OR }
+	| "and" { AND }
+	| "or" { OR }
 	| "if" { IF } (* keywords *)
 	| "else" { ELSE }
-	| "foreach" { FOR }
-	| "in" { IS }
-	| "is" { ISNT }
-	| "isnt" { IN }
+	| "elseif" { ELSIF }
+	| "foreach" { FOREACH }
+	| "in" { IN }
+	| "is" { IS }
+	| "isnt" { ISNT }
 	| "while" { WHILE }
 	| "return" { RETURN }
-	| "void" { DATATYPE("void") }
-	| "int" { DATATYPE("int") }
-	| "bool" { DATATYPE("bool") }
-	| "note" { DATATYPE("note") }
-	| "chord" { DATATYPE("chord") }
-	| "scale" { DATATYPE("scale") }
-	| "stanza" { DATATYPE("stanza") }
-	| "score" { DATATYPE("score") }
+	(* | "void" | "int" | "bool" | "note" | "chord" | "scale" | "stanza" | "score" { SCORE } *)
+	| "void" { VOID}
+	| "int" { INT }
+	| "bool" { BOOL }
+	| "note" { NOTE }
+	| "chord" { CHORD }
+	| "scale" { SCALE }
+	| "stanza" { STANZA }
+	| "score" { SCORE }
 	| "meth" { METH }
 	| "return" { RETURN }
 	| "end" { END }
 	| "true"|"false" as boollit { BOOLLITERAL(bool_of_string boollit) }
-	| (['a'-'g' 'A'-'G']['s' 'f' 'S' 'F']?['0'-'9'])|('r'|'R') as pitchlit { PITCHLITERAL(pitchlit) }
+	| '-'? ['0' - '5'] as octave { OCTAVE(int_of_string octave) }            			(*mn always between -5 and 5 *)
+	| ['1'-'9'](['0'-'9']*) as durInt { DURATIONINT(int_of_string durInt) }					(*mn only positive int *)
+	| ['A'-'G'](['b' '#']?) as noteconst { NOTECONST(noteconst) }
+	| "Whole" | "half" | "quarter" as durConst { DURATIONCONST(durConst) }
 	| eof { EOF } (* Endoffile *)
 	| ['0'-'9']+ as lxm { INTLITERAL(int_of_string lxm) } (* integers *)
 	| ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
