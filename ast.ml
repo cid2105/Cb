@@ -15,18 +15,17 @@ type expr = (* Expressions *)
     | IntLiteral of int (* 42 *)
     | DurInt of int (*mn always > 0 *)
     | NoteConst of string (*mn A, B#, C, ...*) 
-    | BoolLitral of bool (* true *)
+    | BoolLiteral of bool (* true *)
     | DurConst of string (*mn whole, half, ... *)
     | ElemOp of string * expr (*mn foo(int a) ????*)
     | Assign of expr * expr (* x = y *)
     | TypeAssign of string * string * expr  (* Note a = .... *)
     | NoteExpr of string * int * expr (*mn x = (A#, 5>octave>-5, 4 + 1 ) *)
-    | ChordExpr of expr list * expr (* chord =  *)
+    | chordExpr of expr list * expr (* chord =  *)
     | ListExpr of expr list (*mn x = [a, b*6, c] ???*)
     | BinOp of expr * op * expr (* x + y *)
     | UnaryOp of uop * expr
     | MethodCall of string * expr list (*mn foo(x, y) *)
-    | NoExpr (* for (;;) *)
   
 
 type par_decl = {

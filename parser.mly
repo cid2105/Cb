@@ -94,7 +94,7 @@ methdecl:
 			body = List.rev $8 } }
 
 cb_type:
-    INT                                 	{ Int }
+      INT                                 	{ Int }
     | NOTE                               	{ Note }
     | CHORD                                 { Chord }
     | SCALE                              	{ Scale }
