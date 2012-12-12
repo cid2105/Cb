@@ -48,13 +48,11 @@ let getType v =
         | Stanza(v) -> "stanza"
         | Score(v) -> "score"
 
-let getInt v = 
+let getInt v =
     match v with
         Int(v) -> v
         | _ -> 0
 
-let initIdentifier t = 
+let initIdentifier t =
   match t with
     "int" -> Int(0)
-
-
