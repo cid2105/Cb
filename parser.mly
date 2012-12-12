@@ -174,7 +174,7 @@ expr:
 	| expr TIMES expr { BinOp($1, Mult, $3) }							/* x * y		*/
 	| expr DIVIDE expr { BinOp($1, Div, $3) }							/* x / y		*/
 	| expr MOD expr { BinOp($1, Mod, $3) }
-	| expr AND expr { BinOp($1, And, $3) }								/*mn (a is 4 and b is 2) */							//x && y
+	| expr AND expr { BinOp($1, And, $3) }								/*mn (a is 4 and b is 2) */							/*x && y */
 	| expr OR expr { BinOp($1, Or, $3) }								/*mn (a is 4 and b is 2) */							/* x % y		*/
 	| expr IS expr { BinOp($1, Eq, $3) }								/* x is y		*/
 	| expr ISNT expr { BinOp($1, NEq, $3) }								/* x isnt y		*/
