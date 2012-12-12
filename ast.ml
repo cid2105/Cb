@@ -26,6 +26,7 @@ type expr = (* Expressions *)
     | BinOp of expr * op * expr (* x + y *)
     | UnaryOp of uop * expr
     | MethodCall of string * expr list (*mn foo(x, y) *)
+    | NoExpr (* for (;;) *)
 
 
 type par_decl = {

@@ -155,7 +155,7 @@ expr:
 	| ID DOT ID { MemberAccess($1, $3) }								/* score.put 	*/
 	| INTLITERAL { IntLiteral($1) }
 	| NOTECONST { NoteConst($1)}
-	| BOOLLITERAL {BoolLitral($1)}
+	| BOOLLITERAL {BoolLiteral($1)}
 	| ID LBRAC expr RBRAC { ElemOp($1, $3) }
 	/*| DATATYPE ID ASSIGN expr { TypeAssign($1, $2, $4) }				 causing shift/reduce */
 	| duration_expr { $1 }
