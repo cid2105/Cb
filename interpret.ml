@@ -47,3 +47,14 @@ let getType v =
         | Scale(v) -> "scale"
         | Stanza(v) -> "stanza"
         | Score(v) -> "score"
+
+let getInt v = 
+    match v with
+        Int(v) -> v
+        | _ -> 0
+
+let initIdentifier t = 
+  match t with
+    "int" -> Int(0)
+
+
