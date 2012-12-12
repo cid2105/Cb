@@ -21,7 +21,7 @@ type expr = (* Expressions *)
     | Assign of expr * expr (* x = y *)
     | TypeAssign of string * string * expr  (* Note a = .... *)
     | NoteExpr of string * int * expr (*mn x = (A#, 5>octave>-5, 4 + 1 ) *)
-    | chordExpr of expr list * expr (* chord =  *)
+    | ChordExpr of expr list * expr (* chord =  *)
     | ListExpr of expr list (*mn x = [a, b*6, c] ???*)
     | BinOp of expr * op * expr (* x + y *)
     | UnaryOp of uop * expr
