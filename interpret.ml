@@ -47,4 +47,3 @@ let getType v =
         | Scale(v) -> "scale"
         | Stanza(v) -> "stanza"
         | Score(v) -> "score"
-
