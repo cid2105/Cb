@@ -43,7 +43,6 @@ type stmt = (* Statements *)
     | Foreach of par_decl * string * stmt list (*mn foreach (x in nots) ... end *)
     | While of expr * stmt list(*mn while (i<10) ... end *)
 
-
 type var_decl = {
     varname : string; (* Name of the variable *)
     vartype : cb_type; (* Name of variable type *)
@@ -57,4 +56,10 @@ type meth_decl = {
     body : stmt list;
 }
 
-type program = var_decl list * meth_decl list (* global vars, funcs *)
+type generic = {
+    meth_decl
+    | stmt
+    | var_decl
+}
+
+type program = generic list
