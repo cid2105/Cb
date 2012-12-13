@@ -77,7 +77,7 @@ let globals = NameMap.empty
 let csv = ""
 
 (* Main entry point: run a program *)
-let rec run prog = match prog with 
+let rec run prog = match prog with
     [] -> Printf.printf "Fuck it I'm done"
     | head::tail ->
         match head with
