@@ -116,7 +116,28 @@ let run (var, funcs) =
                 (NameMap.find var globals), env
             else raise (Failure ("undeclared identifier " ^ var))        
         | Assign(var, e) ->
-            let v, (locals, globals) = eval env e in
+            (* Calling eval on the environment and the left hand sign of assignment*)
+            let var1, env = eval env var in
+            (* Calling eval on the environment and the right hand sign of assignment*)
+            let e1, (locals, globals) = eval env e in
+            (* match the var with an id or member access *)
+            let v1Info =   
+                match var with
+                    Id (i) -> ("id", (i, ""))
+                    | MemberAccess(i, j) -> ("member", (i, j))
+                 | _ -> raise (Failure ("left side of assignment must be an identifier or member access")) in         
+            (* The first tuple representing the type, id or member*)
+            let v1IdType = fst v1Info in
+            (* The second tuple representing the name (i, "") or (i, j)*)
+            let v1Name = snd v1Info in
+            let v1Type = (* ("note", "locals") *)
+                (if NameMap.mem (fst v1Name) locals then
+                    (getType (NameMap.find (fst v1Name) locals), "locals")
+                else if NameMap.mem (fst v1Name) globals then
+                    (getType (NameMap.find (fst v1Name) globals), "globals")
+                else raise (Failure ("undeclared identifier: " ^ fst v1Name)))                   
+            in
+
             if NameMap.mem var locals then
                 v, (NameMap.add var v locals, globals)
             else if NameMap.mem var globals then
