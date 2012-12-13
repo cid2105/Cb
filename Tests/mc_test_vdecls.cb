@@ -1,0 +1,6 @@
+int a;
+int c;
+note test = (Cb,0,whole);
+
+test.sharp();
+test.flat();

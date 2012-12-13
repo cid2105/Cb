@@ -15,3 +15,26 @@ end
 if(true) int test = 1; end
 
 if(false) int test = 1; else int test = 1; end
+
+if(true)
+    if(true)
+        if(true)
+            int test5 = 5;
+        end
+        int test = 1;
+    elseif(false)
+        int test4 = 4;
+    else
+        int test1 = 2;
+    end
+else
+    int test3 = 3;
+end
+
+<-this is a comment->
+
+<-
+multi
+line
+comment
+->
