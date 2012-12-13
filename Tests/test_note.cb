@@ -1,1 +1,1 @@
-Note do = (C, o, duration);
+note test = (C, 0, whole);
