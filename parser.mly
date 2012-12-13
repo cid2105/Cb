@@ -71,13 +71,8 @@
 %%
 
 program:
-	program generic_list { $1 }
+	methdecl { $1 }
 
-generic:
-    vdecl { VDecl($1) }
-  | methdecl { MDecl($1) } 
-  | statement { Stmt($1) }
-  
 vdecl:
 	cb_type ID SEMICOLON
 		{{ vartype = $1;
