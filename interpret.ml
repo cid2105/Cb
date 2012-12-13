@@ -159,16 +159,11 @@ let run (var, funcs) =
             raise (Failure ("wrong number of arguments passed to " ^ fdecl.fname))
     in
 
-    (* Initialize local variables to 0 *)
-    let locals = List.fold_left
-        (fun locals local -> NameMap.add local.varname 0 locals) locals fdecl.locals
-    in
     (* Execute each statement in sequence, return updated global symbol table *)
     snd (List.fold_left exec (locals, globals) fdecl.body)
 
     (* Run a program: initialize global variables to 0, find and run "main" *)
-    in let globals = List.fold_left
-        (fun globals vdecl -> NameMap.add vdecl.varname 0 globals) NameMap.empty vars
+    in let globals = NameMap.empty
     in try
         call (NameMap.find "main" func_decls) [] globals
     with Not_found ->
