@@ -60,7 +60,7 @@ let rec eval env = function
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n")
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n")
     | Assign(toE, fromE) -> print_string ("I am an assign expression\n")
-    | NoteExpr(s,i,e) -> print_string ("I am a note expression: " ^ s ^ "," ^ (string_of_int i) ^ "\n")
+    | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n")
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n")
     | ListExpr(el) -> print_string ("I am a list epxression\n")
     | BinOp(e1,o,e2) -> print_string ("I am a binary operator\n")
