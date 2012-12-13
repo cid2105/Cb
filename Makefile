@@ -1,7 +1,7 @@
 OBJS = scanner.cmo parser.cmo ast.cmo interpret.cmo Cb.cmo
 
 cb : $(OBJS)
-	ocamlc -o Cb.exe $(OBJS)
+	ocamlc -o Cb $(OBJS)
 
 scanner.ml : scanner.mll
 	ocamllex scanner.mll
