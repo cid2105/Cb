@@ -71,8 +71,13 @@
 %%
 
 program:
-	methdecl { $1 }
-
+<<<<<<< HEAD
+	/* nothing */ { NoExpr }
+	| methdecl { $1 }
+	
+=======
+	| methdecl { $1 }
+>>>>>>> a72b93bc169305462544cac67d9e6d9b73ff8e52
 
 vdecl:
 	cb_type ID SEMICOLON
@@ -142,9 +147,13 @@ generic_list:
 	/*mn | generic_list COMMA ID TIMES INTLITERAL { BinOp(Id($1), IDTimes, IntLiteral($3))} confusing  a, b, c*5, b  */
 
 expr_opt:
-	
-|D DOT ID { MemberAccess($1, $3) }								/* score.put 	*/
-	
+	/* nothing */ { NoExpr }
+	| expr { $1 }														/*  */
+
+expr:
+	ID { Id($1) }
+	| ID DOT ID { MemberAccess($1, $3) }								/* score.put 	*/
+	| INTLITERAL { IntLiteral($1) }
 	| NOTECONST { NoteConst($1)}
 	| BOOLLITERAL {BoolLiteral($1)}
 	/*| ID LBRAC expr RBRAC { ElemOp($1, $3) }*/
