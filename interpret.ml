@@ -83,11 +83,8 @@ let rec run prog =
         match head with
         VDecl -> (NameMap.add head.varname (initIdentifier head.vartype) globals); run tail
         | MDecl -> (NameMap.add head.fname head func_decls); run tail
-        | Stmt -> (* Call exec on head, then recursively run tail *)
+        | Stmt -> let fuck = (* Call exec on head, then recursively run tail *)
     | _ -> raise (Failure ("You broke the run function"))
-
-    (*Initialize a symbol table for function declarations to be put into*)
-    let func_decls = NameMap.empty in
 
     (* Invoke a function and return an updated global symbol table *)
     let rec call methdecl actuals globals =
