@@ -58,16 +58,33 @@ let getInt v =
     match v with
         Int(v) -> v
         | _ -> 0
-(*)
+
 let initIdentifier t =
   match t with
-    "int" -> Int(0)
+    "int" -> Int(0) (*)
+    | "bool" -> Bool(false)
+    | "note" -> Note({pitch=128; intensity=0; duration=0.0})
+    | "chord" -> Chord({notelist=[]})
+    | "staff" -> Staff({instrument=0; chordlist=[]})
+    | "part" -> Part({bpm=90; beatsig=0.25; stafflist=[]})
+    | _ -> Bool(false)
 *)
 
 exception ReturnException of cbtype * cbtype NameMap.t
 
+let func_decls = NameMap.empty
+let globals = NameMap.empty
+let csv = ""
+
 (* Main entry point: run a program *)
-let run (var, funcs) =
+let rec run prog =
+    [] -> Printf.printf "Fuck it I'm done"
+    | head::tail ->
+        match head with
+        VDecl -> (NameMap.add head.varname (initIdentifier head.vartype) globals); run tail
+        | MDecl -> (NameMap.add head.fname head func_decls); run tail
+        | Stmt -> (* Call exec on head, then recursively run tail *)
+    | _ -> raise (Failure ("You broke the run function"))
 
     (*Initialize a symbol table for function declarations to be put into*)
     let func_decls = NameMap.empty in
@@ -159,7 +176,7 @@ let run (var, funcs) =
         snd (List.fold_left exec (locals, globals) methdecl.body)
 
         (* Run a program: initialize global variables to 0, find and run "main" *)
-    in 
+    in
     let globals = NameMap.empty
     in snd (List.fold_left exec (locals, globals) program)
 
