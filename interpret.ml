@@ -81,9 +81,9 @@ let rec run prog = match prog with
     [] -> Printf.printf "Fuck it I'm done"
     | head::tail ->
         match head with
-        VDecl -> (NameMap.add head.varname (initIdentifier head.vartype) globals); run tail
-        | MDecl -> (NameMap.add head.fname head func_decls); run tail
-        | Stmt -> let rec call methdecl actuals globals =
+        VDecl(head) -> (NameMap.add head.varname (initIdentifier, head.vartype) globals); run tail
+        | MDecl(head) -> (NameMap.add head.fname head func_decls); run tail
+        | Stmt(head) -> let rec call methdecl actuals globals =
             (* Evaluate an expression and return (value, updated environment) *)
                 let rec eval env = function
                     IntLiteral(i) -> Int i, env
@@ -96,7 +96,7 @@ let rec run prog = match prog with
                     else if NameMap.mem var globals then
                         (NameMap.find var globals), env
                     else raise (Failure ("undeclared identifier " ^ var))
-                | Assign(var, e) ->
+                    | Assign(var, e) ->
                     (* lhs_expr: is the left hand side of the assignment operation
                               after being evaluated
                         rhs_expr: is the right hand isde of the assignment operation
