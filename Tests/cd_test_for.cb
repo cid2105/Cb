@@ -1,0 +1,4 @@
+foreach(Note n in c)
+	int test = 5;
+    print("PASS for each");
+end
