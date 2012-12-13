@@ -122,6 +122,52 @@ let run (var, funcs) =
             else if NameMap.mem var globals then
                 v, (locals, NameMap.add var v globals)
             else raise (Failure ("undeclared identifier " ^ var))
+    in
+
+    (* Placeholder code, need to change later *)
+    let rec exec env = function
+        Block(stmts) -> List.fold_left exec env stmts 
+    in
+
+
+    (* Enter the function: bind actual values to formal arguments *)
+    let locals =
+        try List.fold_left2
+            (fun locals formal actual -> NameMap.add formal actual locals)
+            NameMap.empty fdecl.formals actuals
+        with Invalid_argument(_) ->
+            raise (Failure ("wrong number of arguments passed to " ^ fdecl.fname))
+    in
+
+    (* Initialize local variables to 0 *)
+    let locals = List.fold_left
+        (fun locals local -> NameMap.add local 0 locals) locals fdecl.locals
+    in
+    (* Execute each statement in sequence, return updated global symbol table *)
+    snd (List.fold_left exec (locals, globals) fdecl.body)
+
+    (* Run a program: initialize global variables to 0, find and run "main" *)
+    in let globals = List.fold_left
+        (fun globals vdecl -> NameMap.add vdecl 0 globals) NameMap.empty vars
+    in try
+        call (NameMap.find "main" func_decls) [] globals
+
+    with Not_found -> raise (Failure ("did not find the main() function"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
