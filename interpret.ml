@@ -47,7 +47,7 @@ type cbtype =   Int of int
 let getType v =
     match v with
         Int(v) -> "int"
- (*       | Bool(v) -> "bool"
+(*      | Bool(v) -> "bool"
         | Note(v) -> "note"
         | Chord(v) -> "chord"
         | Scale(v) -> "scale"
@@ -135,6 +135,7 @@ let run (var, funcs) =
                         (* PUT IN ELSE IF FOR TYPE BEING MEMBER, PlaceHOLDER *)
                         else if lhs_Id_type = "member" then
                             raise (Failure ("You suck big time bro"))
+                        else raise (Failure ("Unable to match left hand side of assignment"))
                 else if lhs_Id_type = "id" then
                     raise (Failure ("cannot assign: " ^ fst lhs_type ^ " = " ^ rhs_return_type))
                 else if lhs_Id_type = "member" then
@@ -170,8 +171,8 @@ let run (var, funcs) =
         (fun globals vdecl -> NameMap.add vdecl 0 globals) NameMap.empty vars
     in try
         call (NameMap.find "main" func_decls) [] globals
-
-    with Not_found -> raise (Failure ("did not find the main() function"))
+    with Not_found ->
+        raise (Failure ("did not find the main() function"))
 
 
 
