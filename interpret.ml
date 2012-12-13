@@ -145,8 +145,7 @@ let run (var, funcs) =
 
     (* Placeholder code, need to change later *)
     let rec exec env = function
-        Block(stmts) -> List.fold_left exec env stmts
-        | Expr(e) -> let _, env = eval env e in env
+        Expr(e) -> let _, env = eval env e in env
     in
 
 
