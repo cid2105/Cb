@@ -1,0 +1,7 @@
+meth void testMeth(int n)
+
+	if (o is 5)
+		o = 4;
+	end	
+	
+end
