@@ -78,7 +78,7 @@ program:
 generic:
     vdecl { VDecl($1) }
   | methdecl { MDecl($1) } 
-  | statement { $1 }
+  | statement { Stmt($1) }
   
 vdecl:
 	cb_type ID SEMICOLON

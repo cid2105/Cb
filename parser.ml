@@ -629,21 +629,21 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'vdecl) in
     Obj.repr(
 # 79 "parser.mly"
-          ( _1 )
+          ( VDecl(_1) )
 # 634 "parser.ml"
                : 'generic))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'methdecl) in
     Obj.repr(
 # 80 "parser.mly"
-             ( _1 )
+             ( MDecl(_1) )
 # 641 "parser.ml"
                : 'generic))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'statement) in
     Obj.repr(
 # 81 "parser.mly"
-              ( _1 )
+              ( Stmt(_1) )
 # 648 "parser.ml"
                : 'generic))
 ; (fun __caml_parser_env ->
