@@ -67,7 +67,7 @@ let initIdentifier t =
 exception ReturnException of cbtype * cbtype NameMap.t
 
 (* Main entry point: run a program *)
-let run (var, funcs) =
+let run (var) =
 
     (*Initialize a symbol table for function declarations to be put into*)
     let func_decls = NameMap.empty in
@@ -156,12 +156,13 @@ let run (var, funcs) =
         in
 
         (* Execute each statement in sequence, return updated global symbol table *)
-        snd (List.fold_left exec (locals, globals) methdecl.body)
+       
+        snd (List.fold_left exec (locals, globals) methdecl.pbody)
 
         (* Run a program: initialize global variables to 0, find and run "main" *)
     in
     let globals = NameMap.empty
-    in call var [] globals
+    in call var [] globals 
     (*snd (List.fold_left exec (locals, globals) program)*)
 
 
