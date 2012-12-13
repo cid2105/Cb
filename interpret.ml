@@ -153,7 +153,7 @@ let run (var, funcs) =
     (* Enter the function: bind actual values to formal arguments *)
     let locals =
         try List.fold_left2
-            (fun locals formal actual -> NameMap.add formal actual locals)
+            (fun locals formal actual -> NameMap.add formal.paramname actual locals)
             NameMap.empty fdecl.formals actuals
         with Invalid_argument(_) ->
             raise (Failure ("wrong number of arguments passed to " ^ fdecl.fname))
