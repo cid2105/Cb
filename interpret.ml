@@ -62,31 +62,6 @@ let getInt v =
 let initIdentifier t =
   match t with
     "int" -> Int(0)
-
-(* Main entry point: run a program *)
-let run (vars, funcs) = 
-
-    (* Put function declarations in a symbol table *)
-    let func_decls = List.fold_left
-        (fun funcs fdecl -> NameMap.add fdecl.fname fdecl funcs)
-        NameMap.empty funcs
-    in
-    
-    (* Invoke a function and return an updated global symbol table *)
-    let rec call fdecl actuals globals =
-    
-    (* Evaluate an expression and return (value, updated environment) *)
-    let rec eval env = function
-        IntLiteral(i) -> Int i, env
-        | Id(var) ->
-            let locals, globals = env in
-            if NameMap.mem var locals then  (* If the Id is a member of the locals (local scope) *)
-                (NameMap.find var locals), env
-            else if NameMap.mem var globals then (* If the Id is a member of the globals (global scope) *)
-                (NameMap.find var globals), env
-            else raise (Failure ("undeclared identifier: " ^ var)) (* If the Id is nonexistent error! *)
-        | TypeAssign() ->
-        | Assign(var, h) ->
 *)
 
 exception ReturnException of cbtype * cbtype NameMap.t
@@ -114,23 +89,23 @@ let run (var, funcs) =
             (* If the Id is in a global scope *)
             else if NameMap.mem var globals then
                 (NameMap.find var globals), env
-            else raise (Failure ("undeclared identifier " ^ var))        
+            else raise (Failure ("undeclared identifier " ^ var))
         | Assign(var, e) ->
             (* lhs_expr: is the left hand side of the assignment operation
                       after being evaluated
                 e1: is the right hand isde of the assignment operation
-                      after being 
+                      after being
             *)
             (* Calling eval on the environment and the left hand sign of assignment*)
             let lhs_expr, env = eval env var in
             (* Calling eval on the environment and the right hand sign of assignment*)
             let rhs_expr, (locals, globals) = eval env e in
             (* match the var with an id or member access *)
-            let lhs_Info =   
+            let lhs_Info =
                 match var with
                     Id (i) -> ("id", (i, ""))
                     | MemberAccess(i, j) -> ("member", (i, j))
-                 | _ -> raise (Failure ("left side of assignment must be an identifier or member access")) in         
+                 | _ -> raise (Failure ("left side of assignment must be an identifier or member access")) in
             (* The first tuple representing the type, id or member*)
             let lhs_Id_type = fst lhs_Info in
             (* The second tuple representing the name (i, "") or (i, j)*)
@@ -141,12 +116,12 @@ let run (var, funcs) =
                     (getType (NameMap.find (fst lhs_name) locals), "locals")
                 else if NameMap.mem (fst lhs_name) globals then
                     (getType (NameMap.find (fst lhs_name) globals), "globals")
-                else raise (Failure ("undeclared identifier: " ^ fst lhs_name)))                   
+                else raise (Failure ("undeclared identifier: " ^ fst lhs_name)))
             in
             (* get the type of what you are assigning (left hand side) *)
-            let lhs_return_type = getType lhs_expr in 
+            let lhs_return_type = getType lhs_expr in
             (* get the type of what you are assigning to (right hand side) *)
-            let rhs_return_type = getType rhs_expr in 
+            let rhs_return_type = getType rhs_expr in
                 (* If the types of the left and right hand sides match continue *)
                 if lhs_return_type = rhs_return_type then
                     match lhs_return_type with
@@ -169,7 +144,7 @@ let run (var, funcs) =
 
     (* Placeholder code, need to change later *)
     let rec exec env = function
-        Block(stmts) -> List.fold_left exec env stmts 
+        Block(stmts) -> List.fold_left exec env stmts
     in
 
 
