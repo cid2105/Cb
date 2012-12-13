@@ -1,0 +1,28 @@
+meth Stanza doremi(Int octave, Int duration, Int n)
+	Int o = octave;
+	if (o == 5)
+		o = 4;
+	end
+
+	Note do = (C, o, duration);
+	Note re = (D, o, duration);
+	Note mi = (E, o, duration);
+	Note fa = (F, o, duration);
+	Note so = (G, o, duration);
+	Note la = (A, o, duration);
+	Note ti = (B, o, duration);
+
+	Note upper_do = (C, o+1, duration);
+    s = [do, re, mi, fa, so, la, ti, upper_do];
+	Stanza st = [];
+	Int c = 0;
+	Note rest = (R, 0, whole);
+     While(c < n)
+         st.put(s);
+         st.put(rest);
+         s^+;
+         c = c +1;
+	end
+	
+	return st;
+end
