@@ -67,6 +67,8 @@ let rec run prog = match prog with
                                         | MemberAccess(vname, memname) -> print_string ("I am a member access on var: " ^ vname ^ " member: " ^ memname ^ "\n");
                                         | IntLiteral(i) -> print_string ("I am an intliteral: " ^ i) ^ "\n";
                                         | Noteconst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
+                                        | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ b ^ "\n");
+                                        | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
                                         (*TODO*)
                                 run tail
                         | Return(e) -> print_string ("I am an a return statement" ^ "\n"); run tail
