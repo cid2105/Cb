@@ -81,9 +81,9 @@ let rec run prog = match prog with
     [] -> Printf.printf "Fuck it I'm done"
     | head::tail ->
         match head with
-        VDecl -> (NameMap.add head.varname (initIdentifier head.vartype) globals); run tail
-        | MDecl -> (NameMap.add head.fname head func_decls); run tail
-        | Stmt -> let rec call methdecl actuals globals =
+        VDecl(head) -> (NameMap.add head.varname (initIdentifier, head.vartype) globals); run tail
+        | MDecl(head) -> (NameMap.add head.fname head func_decls); run tail
+        | Stmt(head) -> let rec call methdecl actuals globals =
             (* Evaluate an expression and return (value, updated environment) *)
                 let rec eval env = function
                     IntLiteral(i) -> Int i, env
