@@ -52,11 +52,7 @@ type meth_decl = {
     fname : string; (* Name of the function *)
     rettype : cb_type; (* Name of return type *)
     formals : par_decl list; (* Formal argument names *)
-    body : generic list;
+    body : stmt list;
 }
-
-type generic =
-    Stmt of stmt
-    | Methdecl of meth_decl
 
 type program =  meth_decl
