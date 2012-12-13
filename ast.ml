@@ -62,6 +62,7 @@ type generic =
   | VDecl of var_decl
   | MDecl of meth_decl
 
+
 type program =  {
-    body : generic list;
+    pbody : generic list;
 }

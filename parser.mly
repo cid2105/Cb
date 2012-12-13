@@ -71,9 +71,7 @@
 %%
 
 program:
-  /* nothing */  { [] }
-  | program generic { $2 :: $1 }
-
+	program generic_list { $1 }
 
 generic:
     vdecl { VDecl($1) }
