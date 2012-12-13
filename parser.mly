@@ -1,4 +1,4 @@
-%{ open Ast %} 
+%{ open Ast %}
 
 %token <int> INTLITERAL
 %token <int> OCTAVE /* integer between -5 and 5 */
@@ -65,7 +65,7 @@
 %left PLUSPLUS MINUSMINUS RAISE LOWER
 %left SHARP FLAT
 
-%start program 
+%start program
 %type <Ast.program> program		/* ocamlyacc: e - no type has been declared for the start symbol `program'*/
 
 %%
@@ -75,9 +75,9 @@ program:
 | program vdecl { ($2 :: fst $1), snd $1 }		/* variable declerations 	*/
 | program methdecl { fst $1, ($2 :: snd $1) }	/* function declerations (m stuff)	*/
 
-vdecl: 
-	cb_type ID SEMICOLON 
-		{{ vartype = $1; 
+vdecl:
+	cb_type ID SEMICOLON
+		{{ vartype = $1;
 			varname = $2 }}
 
 vdecl_list:
@@ -86,7 +86,7 @@ vdecl_list:
 
 methdecl:
 	METH cb_type ID LEFTPAREN meth_params RIGHTPAREN vdecl_list statement_list END /* m stuff */
-		{ {	
+		{ {
 			rettype = $2;
 			fname = $3;
 			formals = $5;
@@ -99,8 +99,8 @@ cb_type:
     | CHORD                                 { Chord }
     | SCALE                              	{ Scale }
     | BOOL                               	{ Bool }
-    | STANZA                             	{ Stanza }  
-    | SCORE                             	{ Score }       
+    | STANZA                             	{ Stanza }
+    | SCORE                             	{ Score }
 	| VOID                               	{ Void }
 
 meth_params:
@@ -112,7 +112,7 @@ param_list:
 	| param_list COMMA param_decl { $3 :: $1 }
 
 param_decl:
-	cb_type ID 
+	cb_type ID
 		{ {	paramname = $2;
 			paramtype = $1 } }
 
@@ -156,11 +156,11 @@ expr:
 	| INTLITERAL { IntLiteral($1) }
 	| NOTECONST { NoteConst($1)}
 	| BOOLLITERAL {BoolLiteral($1)}
-	| ID LBRAC expr RBRAC { ElemOp($1, $3) }
+	/*| ID LBRAC expr RBRAC { ElemOp($1, $3) }*/
 	/*| DATATYPE ID ASSIGN expr { TypeAssign($1, $2, $4) }				 causing shift/reduce */
 	| duration_expr { $1 }
 	| LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN  { NoteExpr($2, $4, $6) }  /* x = (A#, 4, 34) 		*/
-	| LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { ChordExpr($3, $6) }	
+	| LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { ChordExpr($3, $6) }
 	| LBRAC generic_list RBRAC { ListExpr($2) }
 	/* | generic_list COMMA ID TIMES INTLITERAL { BinOp(Id($1), IDTimes, IntLiteral($3))}   a, b, c*5, b  */
     | ID ASSIGN expr 		{ Assign($1, $3) }									/* x = y 		*/
