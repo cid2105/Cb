@@ -13,13 +13,12 @@ type expr = (* Expressions *)
     (*| Cbtype of string mn stand for Datatype*)
     | MemberAccess of string * string (* foo.intensity *)
     | IntLiteral of int (* 42 *)
-    | DurInt of int (*mn always > 0 *)
     | NoteConst of string (*mn A, B#, C, ...*)
     | BoolLiteral of bool (* true *)
     | DurConst of string (*mn whole, half, ... *)
     (*| ElemOp of string * expr (*a[5]*)*)
     | Assign of expr * expr (* x = y *)
-    | TypeAssign of string * expr  (* Note a = .... *)
+    | TypeAssign of cb_type * string * expr  (* Note a = .... *)
     | NoteExpr of string * int * expr (*mn x = (A#, 5>octave>-5, 4 + 1 ) *)
     | ChordExpr of expr list * expr (* chord =  *)
     | ListExpr of expr list (*mn x = [a, b*6, c] ???*)
@@ -52,13 +51,18 @@ type meth_decl = {
     fname : string; (* Name of the function *)
     rettype : cb_type; (* Name of return type *)
     formals : par_decl list; (* Formal argument names *)
-    locals : var_decl list; (* Locally defined variables *)
     body : stmt list;
 }
 
+type fullvdecl = {
+    fvtype : cb_type;
+    fvname : string;
+    fvexpr : expr;
+}
 
 type generic =
     Stmt of stmt
+  | FullDecl of fullvdecl
   | VDecl of var_decl
   | MDecl of meth_decl
 

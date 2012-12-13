@@ -1,8 +1,8 @@
 %{ open Ast %}
 
 %token <int> INTLITERAL
-%token <int> OCTAVE /* integer between -5 and 5 */
-%token <int> DURATIONINT /* positive intege x>0 */
+/*%token <int> OCTAVE */
+/*%token <int> DURATIONINT */
 
 %token <string> DURATIONCONST /* whole half etc. */
 %token <string> NOTECONST  /* Goes to string A or B or any note*/
@@ -77,26 +77,27 @@ program:
 
 generic:
     vdecl { VDecl($1) }
-  | methdecl { MDecl($1) } 
+  | fullvdecl { FullDecl($1) }
+  | methdecl { MDecl($1) }
   | statement { Stmt($1) }
-  
+
 vdecl:
 	cb_type ID SEMICOLON
 		{{ vartype = $1;
 			varname = $2 }}
 
-vdecl_list:
-	/* nothing */    { [] }
-	| vdecl_list vdecl { $2 :: $1 }
+fullvdecl:
+	cb_type ID ASSIGN expr SEMICOLON {{ fvtype = $1;
+										fvname = $2;
+										fvexpr = $4 }}
 
 methdecl:
-	METH cb_type ID LEFTPAREN meth_params RIGHTPAREN vdecl_list statement_list END /* m stuff */
+	METH cb_type ID LEFTPAREN meth_params RIGHTPAREN statement_list END /* m stuff */
 		{ {
 			rettype = $2;
 			fname = $3;
 			formals = $5;
-			locals = List.rev $7;
-			body = List.rev $8 } }
+			body = List.rev $7 } }
 
 cb_type:
       INT                                 	{ Int }
@@ -139,7 +140,7 @@ elsif_statement:
 	| ELSIF LEFTPAREN expr RIGHTPAREN statement_list { ElseIf($3, $5) }
 
 duration_expr:
-	DURATIONINT { DurInt($1) }
+	INTLITERAL { DurInt($1) }
 	| DURATIONCONST { DurConst($1) }								/* 5 			*/
 	/* | duration_expr PLUS duration_expr { Binop($1, Add, $3)  }
 	| duration_expr MINUS duration_expr { Binop($1, Sub, $3)  }
@@ -162,39 +163,40 @@ expr:
 	| NOTECONST { NoteConst($1)}
 	| BOOLLITERAL {BoolLiteral($1)}
 	/*| ID LBRAC expr RBRAC { ElemOp($1, $3) }*/
-	/*| DATATYPE ID ASSIGN expr { TypeAssign($1, $2, $4) }				 causing shift/reduce */
-	| duration_expr { $1 }
-	| LEFTPAREN NOTECONST COMMA OCTAVE COMMA duration_expr RIGHTPAREN  { NoteExpr($2, $4, $6) }  /* x = (A#, 4, 34) 		*/
+	/*| cb_type ID ASSIGN expr { IntTypeAssign($2, $4) } */
+	/*| INT expr { IntTypeAssign($2) }*/
+	/*| duration_expr { $1 } */
+	| LEFTPAREN NOTECONST COMMA INTLITERAL COMMA duration_expr RIGHTPAREN  { NoteExpr($2, $4, $6) }  /* x = (A#, 4, 34) 		*/
 	| LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { ChordExpr($3, $6) }
 	| LBRAC generic_list RBRAC { ListExpr($2) }
 	/* | generic_list COMMA ID TIMES INTLITERAL { BinOp(Id($1), IDTimes, IntLiteral($3))}   a, b, c*5, b  */
-    | expr ASSIGN expr 		{ Assign($1, $3) }									/* x = y 		*/
-    | expr PLUSEQ expr { Assign($1, BinOp($1, Add, $3)) }				/* x += y		*/
-	| expr MINUSEQ expr { Assign($1, BinOp($1, Sub, $3)) }				/* x -= y		*/
-	| expr TIMESEQ expr { Assign($1, BinOp($1, Mult, $3)) }				/* x *= y		*/
-	| expr DIVIDEEQ expr { Assign($1, BinOp($1, Div, $3)) }				/* x /=	y 		*/
-	| expr MODEQ expr { Assign($1, BinOp($1, Mod, $3)) }				/* x %= y		*/
-	| expr PLUS expr { BinOp($1, Add, $3) }								/* x + y		*/
-	| expr MINUS expr { BinOp($1, Sub, $3) }							/* x - y		*/
-	| expr TIMES expr { BinOp($1, Mult, $3) }							/* x * y		*/
-	| expr DIVIDE expr { BinOp($1, Div, $3) }							/* x / y		*/
-	| expr MOD expr { BinOp($1, Mod, $3) }
-	| expr AND expr { BinOp($1, And, $3) }								/*mn (a is 4 and b is 2) */							/*x && y */
-	| expr OR expr { BinOp($1, Or, $3) }								/*mn (a is 4 and b is 2) */							/* x % y		*/
-	| expr IS expr { BinOp($1, Eq, $3) }								/* x is y		*/
-	| expr ISNT expr { BinOp($1, NEq, $3) }								/* x isnt y		*/
-	| expr LT expr { BinOp($1, Less, $3) }								/* x < y		*/
-	| expr LEQ expr { BinOp($1, LEq, $3) }								/* x <= y		*/
-	| expr GT expr { BinOp($1, Greater, $3) }							/* x > y		*/
-	| expr GEQ expr { BinOp($1, GEq, $3) }								/* x >= y		*//* !x	        */
-	| expr PLUSPLUS { Assign($1, BinOp($1, Add, IntLiteral(1))) }		/* x++			*/
-	| expr MINUSMINUS { Assign($1, BinOp($1, Sub, IntLiteral(1))) }		/* x--			*/
-	| expr SHARP { UnaryOp(Sharp, $1) }									/* A#			*/
-	| expr FLAT  { UnaryOp(Flat, $1) }									/* Bb			*/
-	| expr RAISE { UnaryOp(Raise, $1) }									/* x^-			*/
-	| expr LOWER { UnaryOp(Lower, $1) }									/* x^+			*/
-	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)			*/
-	| ID LEFTPAREN actuals_opt RIGHTPAREN { MethodCall($1, $3) }	/* x(...)		*/
+    | expr ASSIGN expr 		{ Assign($1, $3) }							/* x = y 		*/
+    | expr PLUSEQ expr { Assign($1, BinOp($1, Add, $3)) }				/* x += y				*/
+	| expr MINUSEQ expr { Assign($1, BinOp($1, Sub, $3)) }				/* x -= y				*/
+	| expr TIMESEQ expr { Assign($1, BinOp($1, Mult, $3)) }				/* x *= y				*/
+	| expr DIVIDEEQ expr { Assign($1, BinOp($1, Div, $3)) }				/* x /=	y 				*/
+	| expr MODEQ expr { Assign($1, BinOp($1, Mod, $3)) }				/* x %= y				*/
+	| expr PLUS expr { BinOp($1, Add, $3) }								/* x + y				*/
+	| expr MINUS expr { BinOp($1, Sub, $3) }							/* x - y				*/
+	| expr TIMES expr { BinOp($1, Mult, $3) }							/* x * y				*/
+	| expr DIVIDE expr { BinOp($1, Div, $3) }							/* x / y				*/
+	| expr MOD expr { BinOp($1, Mod, $3) }								/* x % 5 				*/
+	| expr AND expr { BinOp($1, And, $3) }								/*(a is 4 and b is 2) 	*/
+	| expr OR expr { BinOp($1, Or, $3) }								/*(a is 4 or b is 2) 	*/
+	| expr IS expr { BinOp($1, Eq, $3) }								/* x is y				*/
+	| expr ISNT expr { BinOp($1, NEq, $3) }								/* x isnt y				*/
+	| expr LT expr { BinOp($1, Less, $3) }								/* x < y				*/
+	| expr LEQ expr { BinOp($1, LEq, $3) }								/* x <= y				*/
+	| expr GT expr { BinOp($1, Greater, $3) }							/* x > y				*/
+	| expr GEQ expr { BinOp($1, GEq, $3) }								/* x >= y				*/
+	| expr PLUSPLUS { Assign($1, BinOp($1, Add, IntLiteral(1))) }		/* x++					*/
+	| expr MINUSMINUS { Assign($1, BinOp($1, Sub, IntLiteral(1))) }		/* x--					*/
+	| expr SHARP { UnaryOp(Sharp, $1) }									/* A#					*/
+	| expr FLAT  { UnaryOp(Flat, $1) }									/* Bb					*/
+	| expr RAISE { UnaryOp(Raise, $1) }									/* x^+					*/
+	| expr LOWER { UnaryOp(Lower, $1) }									/* x^-					*/
+	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)					*/
+	| ID LEFTPAREN actuals_opt RIGHTPAREN { MethodCall($1, $3) }		/* x(...)				*/
 
 actuals_opt:
 	{ [] }

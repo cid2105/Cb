@@ -1,7 +1,7 @@
-OBJS = ast.cmo parser.cmo scanner.cmo bytecode.cmo compile.cmo cb.cmo
+OBJS = scanner.cmo parser.cmo ast.cmo interpret.cmo Cb.cmo
 
 cb : $(OBJS)
-	ocamlc -o cb $(OBJS)
+	ocamlc -o Cb.exe $(OBJS)
 
 scanner.ml : scanner.mll
 	ocamllex scanner.mll
@@ -31,9 +31,9 @@ ast.cmo:
 ast.cmx:
 interpret.cmo: ast.cmo
 interpret.cmx: ast.cmx
-cb.cmo: scanner.cmo parser.cmi interpret.cmo \
+Cb.cmo: scanner.cmo parser.cmi interpret.cmo \
     ast.cmo
-cb.cmx: scanner.cmx parser.cmx interpret.cmx \
+Cb.cmx: scanner.cmx parser.cmx interpret.cmx \
     ast.cmx
 parser.cmo: ast.cmo parser.cmi
 parser.cmx: ast.cmx parser.cmi
