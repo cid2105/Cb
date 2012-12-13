@@ -151,12 +151,20 @@ let run (var, funcs) =
                 if lhs_return_type = rhs_return_type then
                     match lhs_return_type with
                     "int" ->
+                    if lhs_Id_type = "id" then
+                            (if snd lhs_type = "locals" then
+                                rhs_expr, (NameMap.add (fst lhs_name) rhs_expr locals, globals)
+                            else if snd lhs_type = "globals" then
+                                rhs_expr, (locals, NameMap.add (fst lhs_name) rhs_expr globals)
+                            else raise (Failure ("fatal error")))
 
-            if NameMap.mem var locals then
-                v, (NameMap.add var v locals, globals)
-            else if NameMap.mem var globals then
-                v, (locals, NameMap.add var v globals)
-            else raise (Failure ("undeclared identifier " ^ var))
+                    (* PUT IN ELSE IF FOR TYPE BEING MEMBER*)
+
+                else if lhs_Id_type = "id" then
+                    raise (Failure ("cannot assign: " ^ fst lhs_type ^ " = " ^ rhs_return_type))
+                else if lhs_Id_type = "member" then
+                    raise (Failure ("cannot assign: " ^ lhs_return_type ^ " = " ^ rhs_return_type))
+                else raise (Failure ("fatal error"))
     in
 
     (* Placeholder code, need to change later *)
