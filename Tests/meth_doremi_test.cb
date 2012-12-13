@@ -1,27 +1,30 @@
+<-
 meth stanza doremi(int octave, int duration, int n)
 	
 	int o = octave;
+
 	if (o is 5)
 		o = 4;
 	end	
 
 	note do = (C, o, duration); 
+	note re = (D, o, duration);
+	note mi = (E, o, duration);
+	note fa = (F, o, duration);
+	note so = (G, o, duration);
+	note la = (A, o, duration);
+	note ti = (B, o, duration);
 
-end
+	note upper_do = (C, o+1, duration);
+
+    stanza s = [do, re, mi, fa, so, la, ti, upper_do];
+	int c = 0;
+
+->
+
+	note rest = (R, 0, whole);
 
 <-
-	Note re = (D, o, duration);
-	Note mi = (E, o, duration);
-	Note fa = (F, o, duration);
-	Note so = (G, o, duration);
-	Note la = (A, o, duration);
-	Note ti = (B, o, duration);
-
-	Note upper_do = (C, o+1, duration);
-    s = [do, re, mi, fa, so, la, ti, upper_do];
-	Stanza st = [];
-	Int c = 0;
-	Note rest = (R, 0, whole);
      While(c < n)
          st.put(s);
          st.put(rest);
