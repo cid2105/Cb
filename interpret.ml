@@ -157,10 +157,10 @@ let run (var) =
 
         (* Execute each statement in sequence, return updated global symbol table *)
        
-        snd (List.fold_left exec (locals, globals) methdecl.pbody)
+        snd (List.fold_left exec (locals, globals) methdecl.body)
 
         (* Run a program: initialize global variables to 0, find and run "main" *)
-    in
+    in    
     let globals = NameMap.empty
     in call var [] globals 
     (*snd (List.fold_left exec (locals, globals) program)*)
