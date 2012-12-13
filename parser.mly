@@ -117,6 +117,7 @@ param_decl:
 statement_list:
 	{ [] }
 	| statement_list statement { $2 :: $1 }
+	| statement_list methdecl	{ $2 :: $1 }
 
 statement:
 	expr SEMICOLON { Expr($1) }
