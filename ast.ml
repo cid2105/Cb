@@ -52,7 +52,6 @@ type meth_decl = {
     fname : string; (* Name of the function *)
     rettype : cb_type; (* Name of return type *)
     formals : par_decl list; (* Formal argument names *)
-    locals : var_decl list; (* Locally defined variables *)
     body : stmt list;
 }
 
