@@ -56,10 +56,10 @@ type meth_decl = {
     body : stmt list;
 }
 
-type generic = {
-    meth_decl
-    | stmt
-    | var_decl
-}
 
+type generic =
+    Stmt of stmt
+  | VDecl of var_decl
+  | MethDecl of meth_decl
+    
 type program = generic list
