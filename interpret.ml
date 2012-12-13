@@ -53,12 +53,12 @@ let getType v =
         | Scale(v) -> "scale"
         | Stanza(v) -> "stanza"
         | Score(v) -> "score" *)
-(*)
+
 let getInt v =
     match v with
         Int(v) -> v
         | _ -> 0
-
+(*)
 let initIdentifier t =
   match t with
     "int" -> Int(0)
@@ -145,6 +145,7 @@ let run (var, funcs) =
     (* Placeholder code, need to change later *)
     let rec exec env = function
         Block(stmts) -> List.fold_left exec env stmts
+        | Expr(e) -> let _, env = eval env e in env
     in
 
 
