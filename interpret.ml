@@ -159,9 +159,10 @@ let run (var, funcs) =
         snd (List.fold_left exec (locals, globals) methdecl.body)
 
         (* Run a program: initialize global variables to 0, find and run "main" *)
-    in 
+    in
     let globals = NameMap.empty
-    in snd (List.fold_left exec (locals, globals) program)
+    in call var [] globals
+    (*snd (List.fold_left exec (locals, globals) program)*)
 
 
 
