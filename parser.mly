@@ -163,7 +163,7 @@ expr:
 	| LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { ChordExpr($3, $6) }
 	| LBRAC generic_list RBRAC { ListExpr($2) }
 	/* | generic_list COMMA ID TIMES INTLITERAL { BinOp(Id($1), IDTimes, IntLiteral($3))}   a, b, c*5, b  */
-    | expr ASSIGN expr 		{ Assign($1, $3) }									/* x = y 		*/
+    | ID ASSIGN expr 		{ Assign($1, $3) }									/* x = y 		*/
     | expr PLUSEQ expr { Assign($1, BinOp($1, Add, $3)) }				/* x += y		*/
 	| expr MINUSEQ expr { Assign($1, BinOp($1, Sub, $3)) }				/* x -= y		*/
 	| expr TIMESEQ expr { Assign($1, BinOp($1, Mult, $3)) }				/* x *= y		*/

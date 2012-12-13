@@ -42,12 +42,12 @@ type cbtype =   Int of int
                 |Score of score
 *)
 
-(*)
+
 
 let getType v =
     match v with
         Int(v) -> "int"
-        | Bool(v) -> "bool"
+(*)        | Bool(v) -> "bool"
         | Note(v) -> "note"
         | Chord(v) -> "chord"
         | Scale(v) -> "scale"
@@ -116,12 +116,55 @@ let run (var, funcs) =
                 (NameMap.find var globals), env
             else raise (Failure ("undeclared identifier " ^ var))        
         | Assign(var, e) ->
-            let v, (locals, globals) = eval env e in
-            if NameMap.mem var locals then
-                v, (NameMap.add var v locals, globals)
-            else if NameMap.mem var globals then
-                v, (locals, NameMap.add var v globals)
-            else raise (Failure ("undeclared identifier " ^ var))
+            (* lhs_expr: is the left hand side of the assignment operation
+                      after being evaluated
+                e1: is the right hand isde of the assignment operation
+                      after being 
+            *)
+            (* Calling eval on the environment and the left hand sign of assignment*)
+            let lhs_expr, env = eval env var in
+            (* Calling eval on the environment and the right hand sign of assignment*)
+            let rhs_expr, (locals, globals) = eval env e in
+            (* match the var with an id or member access *)
+            let lhs_Info =   
+                match var with
+                    Id (i) -> ("id", (i, ""))
+                    | MemberAccess(i, j) -> ("member", (i, j))
+                 | _ -> raise (Failure ("left side of assignment must be an identifier or member access")) in         
+            (* The first tuple representing the type, id or member*)
+            let lhs_Id_type = fst lhs_Info in
+            (* The second tuple representing the name (i, "") or (i, j)*)
+            let lhs_name = snd lhs_Info in
+            (* No clue what the fuck this is doing *)
+            let lhs_type = (* ("note", "locals") *)
+                (if NameMap.mem (fst lhs_name) locals then
+                    (getType (NameMap.find (fst lhs_name) locals), "locals")
+                else if NameMap.mem (fst lhs_name) globals then
+                    (getType (NameMap.find (fst lhs_name) globals), "globals")
+                else raise (Failure ("undeclared identifier: " ^ fst lhs_name)))                   
+            in
+            (* get the type of what you are assigning (left hand side) *)
+            let lhs_return_type = getType lhs_expr in 
+            (* get the type of what you are assigning to (right hand side) *)
+            let rhs_return_type = getType rhs_expr in 
+                (* If the types of the left and right hand sides match continue *)
+                if lhs_return_type = rhs_return_type then
+                    match lhs_return_type with
+                    "int" ->
+                        if lhs_Id_type = "id" then
+                            (if snd lhs_type = "locals" then
+                                rhs_expr, (NameMap.add (fst lhs_name) rhs_expr locals, globals)
+                            else if snd lhs_type = "globals" then
+                                rhs_expr, (locals, NameMap.add (fst lhs_name) rhs_expr globals)
+                            else raise (Failure ("fatal error")))
+                        (* PUT IN ELSE IF FOR TYPE BEING MEMBER, PlaceHOLDER *)
+                        else if lhs_Id_type = "member" then
+                            raise (Failure ("You suck big time bro"))
+                else if lhs_Id_type = "id" then
+                    raise (Failure ("cannot assign: " ^ fst lhs_type ^ " = " ^ rhs_return_type))
+                else if lhs_Id_type = "member" then
+                    raise (Failure ("cannot assign: " ^ lhs_return_type ^ " = " ^ rhs_return_type))
+                else raise (Failure ("fatal error"))
     in
 
     (* Placeholder code, need to change later *)
@@ -153,11 +196,6 @@ let run (var, funcs) =
         call (NameMap.find "main" func_decls) [] globals
 
     with Not_found -> raise (Failure ("did not find the main() function"))
-
-
-
-
-
 
 
 
