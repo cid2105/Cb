@@ -6,7 +6,7 @@ module NameMap = Map.Make(struct
     let compare x y = Pervasives.compare x y
 end)
 
-(*)
+(*
 type note = {
     mutable pitch : int;
     mutable octave : int;
@@ -33,7 +33,7 @@ type score = {
 *)
 type cbtype =   Int of int
 
-(*)
+(*
                 | Bool of bool
                 | Note of note
                 | Chord of chord
@@ -61,7 +61,8 @@ let getInt v =
 
 let initIdentifier t =
   match t with
-    "int" -> Int(0) (*)
+    "int" -> Int(0) 
+    (*
     | "bool" -> Bool(false)
     | "note" -> Note({pitch=128; intensity=0; duration=0.0})
     | "chord" -> Chord({notelist=[]})
@@ -83,11 +84,12 @@ let rec run prog = match prog with
         match head with
         VDecl(head) -> (NameMap.add head.varname (initIdentifier, head.vartype) globals); run tail
         | MDecl(head) -> (NameMap.add head.fname head func_decls); run tail
-        | Stmt(head) -> let rec call methdecl actuals globals =
+        | Stmt(head) -> 
+            let rec call methdecl actuals globals =
             (* Evaluate an expression and return (value, updated environment) *)
-                let rec eval env = function
-                    IntLiteral(i) -> Int i, env
-                    | Id(var) ->
+            let rec eval env = function (*3 in here*)
+                IntLiteral(i) -> Int i, env
+                | Id(var) ->
                     let locals, globals = env in
                     (* If the Id is in a local scope *)
                     if NameMap.mem var locals then
@@ -109,9 +111,9 @@ let rec run prog = match prog with
                     (* match the var with an id or member access *)
                     let lhs_Info =
                         match var with
-                            Id (i) -> ("id", (i, ""))
-                            | MemberAccess(i, j) -> ("member", (i, j))
-                         | _ -> raise (Failure ("left side of assignment must be an identifier or member access")) in
+                        Id (i) -> ("id", (i, ""))
+                        | MemberAccess(i, j) -> ("member", (i, j))
+                        | _ -> raise (Failure ("left side of assignment must be an identifier or member access")) in
                     (* The first tuple representing the type, id or member*)
                     let lhs_Id_type = fst lhs_Info in
                     (* The second tuple representing the name (i, "") or (i, j)*)
@@ -147,13 +149,12 @@ let rec run prog = match prog with
                         else if lhs_Id_type = "member" then
                             raise (Failure ("cannot assign: " ^ lhs_return_type ^ " = " ^ rhs_return_type))
                         else raise (Failure ("fatal error"))
-            in
+            in (* in for 3*)
 
             (* Placeholder code, need to change later *)
             let rec exec env = function
                 Expr(e) -> let _, env = eval env e in env
             in
-
 
             (* Enter the function: bind actual values to formal arguments *)
             let locals =
@@ -174,6 +175,7 @@ let rec run prog = match prog with
 
     (* Invoke a function and return an updated global symbol table *)
     (*  in snd (List.fold_left exec (locals, globals) program)  *)
+in Printf.printf "Running"
 
 
 
