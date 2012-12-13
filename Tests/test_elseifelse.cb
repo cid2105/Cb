@@ -1,0 +1,7 @@
+if(false)
+    int test = 5;
+elseif(false)
+    int test2 = 6;
+else
+    int test3 = 7;
+end

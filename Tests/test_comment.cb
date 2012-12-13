@@ -1,0 +1,10 @@
+<-This is a comment->
+int test = 5; <-Hello->
+<-This is another comment->
+
+<-
+This
+is a
+multiline
+comment
+->

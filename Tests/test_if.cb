@@ -1,17 +1,17 @@
 if(true)
-    print("PASS 1");
+    int test = 1;
 end
 
 if(false)
-    print("FAIL 1");
+    int test = 1;
 end
 
 if(false)
-    print("FAIL 2");
+    int test = 1;
 else
-    print("PASS 2");
+    int test = 1;
 end
 
-if(true) print("PASS 3"); end
+if(true) int test = 1; end
 
-if(false) print("FAIL 4"); else print("PASS 4"); end
+if(false) int test = 1; else int test = 1; end
