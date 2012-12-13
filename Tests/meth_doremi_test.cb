@@ -1,10 +1,15 @@
-meth Stanza doremi(Int octave, Int duration, Int n)
-	Int o = octave;
-	if (o == 5)
+meth stanza doremi(int octave, int duration, int n)
+	
+	int o = octave;
+	if (o is 5)
 		o = 4;
-	end
+	end	
 
-	Note do = (C, o, duration);
+	note do = (C, o, duration); 
+
+end
+
+<-
 	Note re = (D, o, duration);
 	Note mi = (E, o, duration);
 	Note fa = (F, o, duration);
@@ -25,4 +30,6 @@ meth Stanza doremi(Int octave, Int duration, Int n)
 	end
 	
 	return st;
-end
+end 
+
+->
