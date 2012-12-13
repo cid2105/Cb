@@ -1,0 +1,6 @@
+note one = (A, 0, half);
+note two = (B, 0, quarter);
+note three = (C, 0, whole);
+chord cone = ([one, two, three], whole);
+chord ctwo = ([two, one, three], half);
+stanza test = [one, cone, two, cone, three, ctwo];
