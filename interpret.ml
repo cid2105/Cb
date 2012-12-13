@@ -115,8 +115,9 @@ let run (var, funcs) =
             else if NameMap.mem var globals then
                 (NameMap.find var globals), env
             else raise (Failure ("undeclared identifier " ^ var))
-        | TypeAssign()
-        | Assign(var, e) ->
+        | Assign(e, e) ->
+        
+        | TypeAssign(var, e) ->
             let v, (locals, globals) = eval env e in
             if NameMap.mem var locals then
                 v, (NameMap.add var v locals, globals)
