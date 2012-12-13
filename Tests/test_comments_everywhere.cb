@@ -1,0 +1,38 @@
+
+
+
+
+
+
+
+
+<- comment ->
+
+<- comment -><- comment -><- comment ->
+
+<- comment ->meth void something() <- comment ->
+<- comment ->    int c = 5; <- comment ->
+<- comment ->end <- comment ->
+<- comment -> <- comment ->
+<- comment ->if(true) <- comment ->
+<- comment ->    print() <- comment ->
+<- comment ->else <- comment ->
+<- comment ->    int test2 = 6; <- comment ->
+<- comment ->end <- comment -> <-
+
+comment
+
+
+->
+
+<- comment -><- comment -><- comment ->
+
+
+
+
+
+
+
+
+
+
