@@ -71,13 +71,7 @@
 %%
 
 program:
-<<<<<<< HEAD
-	/* nothing */ { NoExpr }
 	| methdecl { $1 }
-	
-=======
-	| methdecl { $1 }
->>>>>>> a72b93bc169305462544cac67d9e6d9b73ff8e52
 
 vdecl:
 	cb_type ID SEMICOLON
