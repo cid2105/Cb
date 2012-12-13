@@ -69,11 +69,8 @@ exception ReturnException of cbtype * cbtype NameMap.t
 (* Main entry point: run a program *)
 let run (var, funcs) =
 
-    (* Put function declarations in a symbol table *)
-    let func_decls = List.fold_left
-        (fun funcs methdecl -> NameMap.add methdecl.fname methdecl funcs)
-        NameMap.empty funcs
-    in
+    (*Initialize a symbol table for function declarations to be put into*)
+    let func_decls = NameMap.empty in
 
     (* Invoke a function and return an updated global symbol table *)
     let rec call methdecl actuals globals =
