@@ -164,8 +164,7 @@ let run (var, funcs) =
 
     (* Run a program: initialize global variables to 0, find and run "main" *)
     in let globals = NameMap.empty
-    in
-        snd (List.fold_left exec (locals, globals) program.pbody)
+    in snd (List.fold_left exec (locals, globals) program)
 
 
 
