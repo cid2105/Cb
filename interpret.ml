@@ -6,7 +6,7 @@ module NameMap = Map.Make(struct
     let compare x y = Pervasives.compare x y
 end)
 
-(*
+
 type note = {
     mutable pitch : int;
     mutable octave : int;
@@ -30,7 +30,7 @@ type stanza = {
 type score = {
     mutable stanzalist : stanza list;
 }
-*)
+
 type cbtype =   Int of int
 
 let getType v =
