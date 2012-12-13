@@ -158,8 +158,10 @@ duration_expr:
 	| duration_expr DIVIDE duration_expr { Binop($1, Div, $3)  }*/
 
 generic_list:
-	 /*mn cannot have empty ???*/ { [] }
-	| generic_list COMMA expr {$3 :: $1}/* Depends on the type of id */
+	 /*mn cannot have empty ???*/ 
+	 expr { [$1] }
+	| generic_list COMMA expr { $3 :: $1 }
+	
 	/*mn | generic_list COMMA ID TIMES INTLITERAL { BinOp(Id($1), IDTimes, IntLiteral($3))} confusing  a, b, c*5, b  */
 
 expr_opt:
