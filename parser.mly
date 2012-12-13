@@ -74,6 +74,14 @@ program:
   /* nothing */  { [] }
   | program generic { $2 :: $1 }
 
+ abstraction:
+ 	/* nothing */  { [] }
+  | abstraction innerblock { $2 :: $1 }
+
+innerblock:
+	vdecl { VDecl($1) }
+	| fullvdecl { FullDecl($1) }
+	| statement { Stmt($1) }
 
 generic:
     vdecl { VDecl($1) }
@@ -92,7 +100,7 @@ fullvdecl:
 										fvexpr = $4 }}
 
 methdecl:
-	METH cb_type ID LEFTPAREN meth_params RIGHTPAREN statement_list END /* m stuff */
+	METH cb_type ID LEFTPAREN meth_params RIGHTPAREN abstraction END /* m stuff */
 		{ {
 			rettype = $2;
 			fname = $3;
@@ -122,22 +130,24 @@ param_decl:
 		{ {	paramname = $2;
 			paramtype = $1 } }
 
+/*
 statement_list:
 	{ [] }
 	| statement_list statement { $2 :: $1 }
+*/
 
 statement:
 	expr SEMICOLON { Expr($1) }
-	| RETURN expr_opt SEMICOLON { Return($2) }   /*mn possibly nothing to return*/
-	| RIGHTPAREN statement_list END { Block(List.rev $2) }
-	| IF LEFTPAREN expr RIGHTPAREN statement_list elsif_statement %prec NOELSE END { If($3, $5, $6, Block([])) }
-	| IF LEFTPAREN expr RIGHTPAREN statement_list elsif_statement ELSE statement_list END { If($3, $5, $6, Block(List.rev $8)) }
-	| WHILE LEFTPAREN expr RIGHTPAREN statement_list END { While($3, $5) }
-	| FOREACH LEFTPAREN param_decl IN ID RIGHTPAREN statement_list END { Foreach($3, $5, $7)}
+	| RETURN expr_opt SEMICOLON { Return($2) }   /*return; or return 7;*/
+	| RIGHTPAREN abstraction END { Block(List.rev $2) }
+	| IF LEFTPAREN expr RIGHTPAREN abstraction elsif_statement %prec NOELSE END { If($3, $5, $6, Block([])) }
+	| IF LEFTPAREN expr RIGHTPAREN abstraction elsif_statement ELSE abstraction END { If($3, $5, $6, Block(List.rev $8)) }
+	| WHILE LEFTPAREN expr RIGHTPAREN abstraction END { While($3, $5) }
+	| FOREACH LEFTPAREN param_decl IN ID RIGHTPAREN abstraction END { Foreach($3, $5, $7)}
 
 elsif_statement:
       /* nothing */ { Block([]) }
-	| ELSIF LEFTPAREN expr RIGHTPAREN statement_list { ElseIf($3, $5) }
+	| ELSIF LEFTPAREN expr RIGHTPAREN abstraction { ElseIf($3, $5) }
 
 duration_expr:
 	INTLITERAL { IntLiteral($1) }

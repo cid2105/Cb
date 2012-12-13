@@ -1,0 +1,6 @@
+meth void something()
+    int a;
+    stmt;
+    int b;
+    int c = 5;
+end

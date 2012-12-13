@@ -64,7 +64,7 @@ let rec eval env = function
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n")
     | ListExpr(el) -> print_string ("I am a list epxression\n")
     | BinOp(e1,o,e2) -> print_string ("I am a binary operator\n")
-    | UnaryOp(o,e) -> print_string ("I am a unary operation\n")
+    | UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n")
     | NoExpr -> print_string ("I am nothingness\n")
 

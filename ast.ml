@@ -32,32 +32,38 @@ type par_decl = {
     paramtype : cb_type; (* Name of variable type *)
 }
 
-type stmt = (* Statements *)
-    Expr of expr (* foo = bar + 3; *)
-    | Return of expr (* return 42; *)
-    | Block of stmt list (* ) ... end *)
-    | If of expr * stmt list * stmt * stmt (*mn if (foo isnt 42) ... elseif(foo > 42 ) ... else ... end *)
-    | ElseIf of expr * stmt list (*mn elseif(x is 5) ..... end *)
-    | Foreach of par_decl * string * stmt list (*mn foreach (x in nots) ... end *)
-    | While of expr * stmt list(*mn while (i<10) ... end *)
-
 type var_decl = {
     varname : string; (* Name of the variable *)
     vartype : cb_type; (* Name of variable type *)
 }
 
-type meth_decl = {
-    fname : string; (* Name of the function *)
-    rettype : cb_type; (* Name of return type *)
-    formals : par_decl list; (* Formal argument names *)
-    body : stmt list;
-}
+
 
 type fullvdecl = {
     fvtype : cb_type;
     fvname : string;
     fvexpr : expr;
 }
+
+type meth_decl = {
+    fname : string; (* Name of the function *)
+    rettype : cb_type; (* Name of return type *)
+    formals : par_decl list; (* Formal argument names *)
+    body : innerblock list; }
+and
+stmt = (* Statements *)
+    Expr of expr (* foo = bar + 3; *)
+    | Return of expr (* return 42; *)
+    | Block of innerblock list (* ) ... end *)
+    | If of expr * innerblock list * stmt * stmt (*mn if (foo isnt 42) ... elseif(foo > 42 ) ... else ... end *)
+    | ElseIf of expr * innerblock list (*mn elseif(x is 5) ..... end *)
+    | Foreach of par_decl * string * innerblock list (*mn foreach (x in nots) ... end *)
+    | While of expr * innerblock list(*mn while (i<10) ... end *)
+and
+innerblock =
+    Stmt of stmt
+  | FullDecl of fullvdecl
+  | VDecl of var_decl
 
 type generic =
     Stmt of stmt
