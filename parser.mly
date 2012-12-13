@@ -71,27 +71,26 @@
 %%
 
 program:
+<<<<<<< HEAD
 	/* nothing */ { NoExpr }
 	| methdecl { $1 }
 	
+=======
+	| methdecl { $1 }
+>>>>>>> a72b93bc169305462544cac67d9e6d9b73ff8e52
 
 vdecl:
 	cb_type ID SEMICOLON
 		{{ vartype = $1;
 			varname = $2 }}
 
-vdecl_list:
-	/* nothing */    { [] }
-	| vdecl_list vdecl { $2 :: $1 }
-
 methdecl:
-	METH cb_type ID LEFTPAREN meth_params RIGHTPAREN vdecl_list statement_list END /* m stuff */
+	METH cb_type ID LEFTPAREN meth_params RIGHTPAREN statement_list END /* m stuff */
 		{ {
 			rettype = $2;
 			fname = $3;
 			formals = $5;
-			locals = List.rev $7;
-			body = List.rev $8 } }
+			body = List.rev $7 } }
 
 cb_type:
       INT                                 	{ Int }
