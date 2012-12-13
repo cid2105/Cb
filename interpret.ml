@@ -42,12 +42,12 @@ type cbtype =   Int of int
                 |Score of score
 *)
 
-(*)
+
 
 let getType v =
     match v with
         Int(v) -> "int"
-        | Bool(v) -> "bool"
+(*)        | Bool(v) -> "bool"
         | Note(v) -> "note"
         | Chord(v) -> "chord"
         | Scale(v) -> "scale"
