@@ -1,0 +1,5 @@
+if(false)
+    int a = 5;
+elseif(true)
+    5;
+end
