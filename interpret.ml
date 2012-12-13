@@ -71,12 +71,12 @@ let run (var, funcs) =
 
     (* Put function declarations in a symbol table *)
     let func_decls = List.fold_left
-        (fun funcs fdecl -> NameMap.add fdecl.fname fdecl funcs)
+        (fun funcs methdecl -> NameMap.add methdecl.fname methdecl funcs)
         NameMap.empty funcs
     in
 
     (* Invoke a function and return an updated global symbol table *)
-    let rec call fdecl actuals globals =
+    let rec call methdecl actuals globals =
 
     (* Evaluate an expression and return (value, updated environment) *)
     let rec eval env = function
@@ -154,13 +154,13 @@ let run (var, funcs) =
     let locals =
         try List.fold_left2
             (fun locals formal actual -> NameMap.add formal.paramname actual locals)
-            NameMap.empty fdecl.formals actuals
+            NameMap.empty methdecl.formals actuals
         with Invalid_argument(_) ->
-            raise (Failure ("wrong number of arguments passed to " ^ fdecl.fname))
+            raise (Failure ("wrong number of arguments passed to " ^ methdecl.fname))
     in
 
     (* Execute each statement in sequence, return updated global symbol table *)
-    snd (List.fold_left exec (locals, globals) fdecl.body)
+    snd (List.fold_left exec (locals, globals) methdecl.body)
 
     (* Run a program: initialize global variables to 0, find and run "main" *)
     in let globals = NameMap.empty
