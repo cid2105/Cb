@@ -73,6 +73,7 @@
 program:
 	methdecl { $1 }
 
+
 vdecl:
 	cb_type ID SEMICOLON
 		{{ vartype = $1;
