@@ -53,12 +53,12 @@ let getType v =
         | Scale(v) -> "scale"
         | Stanza(v) -> "stanza"
         | Score(v) -> "score" *)
-(*)
+
 let getInt v =
     match v with
         Int(v) -> v
         | _ -> 0
-
+(*)
 let initIdentifier t =
   match t with
     "int" -> Int(0)
@@ -93,7 +93,7 @@ let run (var, funcs) =
         | Assign(var, e) ->
             (* lhs_expr: is the left hand side of the assignment operation
                       after being evaluated
-                e1: is the right hand isde of the assignment operation
+                rhs_expr: is the right hand isde of the assignment operation
                       after being
             *)
             (* Calling eval on the environment and the left hand sign of assignment*)

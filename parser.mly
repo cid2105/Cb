@@ -71,10 +71,15 @@
 %%
 
 program:
-{ [], [] }  									/* nothing 					*/
-| program vdecl { ($2 :: fst $1), snd $1 }		/* variable declerations 	*/
-| program methdecl { fst $1, ($2 :: snd $1) }	/* function declerations (m stuff)	*/
+  /* nothing */  { [] }
+  | program generic { $2 :: $1 }
 
+
+generic:
+    vdecl { VDecl($1) }
+  | methdecl { MDecl($1) } 
+  | statement { $1 }
+  
 vdecl:
 	cb_type ID SEMICOLON
 		{{ vartype = $1;
