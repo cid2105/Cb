@@ -114,10 +114,8 @@ let run (var, funcs) =
             (* If the Id is in a global scope *)
             else if NameMap.mem var globals then
                 (NameMap.find var globals), env
-            else raise (Failure ("undeclared identifier " ^ var))
-        | Assign(e, e) ->
-        
-        | TypeAssign(var, e) ->
+            else raise (Failure ("undeclared identifier " ^ var))        
+        | Assign(var, e) ->
             let v, (locals, globals) = eval env e in
             if NameMap.mem var locals then
                 v, (NameMap.add var v locals, globals)
