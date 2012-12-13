@@ -656,21 +656,21 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'vdecl) in
     Obj.repr(
 # 82 "parser.mly"
-       ( VDecl(_1) )
+       ( VDecl2(_1) )
 # 661 "parser.ml"
                : 'innerblock))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'fullvdecl) in
     Obj.repr(
 # 83 "parser.mly"
-             ( FullDecl(_1) )
+             ( FullDecl2(_1) )
 # 668 "parser.ml"
                : 'innerblock))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 0 : 'statement) in
     Obj.repr(
 # 84 "parser.mly"
-             ( Stmt(_1) )
+             ( Stmt2(_1) )
 # 675 "parser.ml"
                : 'innerblock))
 ; (fun __caml_parser_env ->

@@ -61,11 +61,11 @@ stmt = (* Statements *)
     | While of expr * innerblock list(*mn while (i<10) ... end *)
 and
 innerblock =
-    Stmt of stmt
-  | FullDecl of fullvdecl
-  | VDecl of var_decl
-
-type generic =
+    Stmt2 of stmt
+  | FullDecl2 of fullvdecl
+  | VDecl2 of var_decl
+and
+generic =
     Stmt of stmt
   | FullDecl of fullvdecl
   | VDecl of var_decl

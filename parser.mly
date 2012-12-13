@@ -79,9 +79,9 @@ program:
   | abstraction innerblock { $2 :: $1 }
 
 innerblock:
-	vdecl { VDecl($1) }
-	| fullvdecl { FullDecl($1) }
-	| statement { Stmt($1) }
+	vdecl { VDecl2($1) }
+	| fullvdecl { FullDecl2($1) }
+	| statement { Stmt2($1) }
 
 generic:
     vdecl { VDecl($1) }

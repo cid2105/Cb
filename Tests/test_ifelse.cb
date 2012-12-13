@@ -1,6 +1,9 @@
 meth void something()
-    int a;
-    stmt;
-    int b;
     int c = 5;
+end
+
+if(true)
+    int test = 5;
+else
+    int test2 = 6;
 end
