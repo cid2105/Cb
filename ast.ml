@@ -62,6 +62,4 @@ type generic =
   | VDecl of var_decl
   | MethDecl of meth_decl
 
-type program =  {
-    pbody : generic list
-}
+type program =  generic list
