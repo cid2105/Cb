@@ -854,7 +854,7 @@ let yyact = [|
     let _1 = (Parsing.peek_val __caml_parser_env 0 : int) in
     Obj.repr(
 # 143 "parser.mly"
-            ( DurInt(_1) )
+            ( IntLiteral(_1) )
 # 859 "parser.ml"
                : 'duration_expr))
 ; (fun __caml_parser_env ->

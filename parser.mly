@@ -140,7 +140,7 @@ elsif_statement:
 	| ELSIF LEFTPAREN expr RIGHTPAREN statement_list { ElseIf($3, $5) }
 
 duration_expr:
-	INTLITERAL { DurInt($1) }
+	INTLITERAL { IntLiteral($1) }
 	| DURATIONCONST { DurConst($1) }								/* 5 			*/
 	/* | duration_expr PLUS duration_expr { Binop($1, Add, $3)  }
 	| duration_expr MINUS duration_expr { Binop($1, Sub, $3)  }
