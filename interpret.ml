@@ -130,6 +130,7 @@ let run (var, funcs) =
             let v1IdType = fst v1Info in
             (* The second tuple representing the name (i, "") or (i, j)*)
             let v1Name = snd v1Info in
+            (* No clue what the fuck this is doing *)
             let v1Type = (* ("note", "locals") *)
                 (if NameMap.mem (fst v1Name) locals then
                     (getType (NameMap.find (fst v1Name) locals), "locals")
@@ -137,6 +138,7 @@ let run (var, funcs) =
                     (getType (NameMap.find (fst v1Name) globals), "globals")
                 else raise (Failure ("undeclared identifier: " ^ fst v1Name)))                   
             in
+
 
             if NameMap.mem var locals then
                 v, (NameMap.add var v locals, globals)
