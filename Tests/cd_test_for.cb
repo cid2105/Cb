@@ -6,5 +6,4 @@ chord test = ([one, two, three], whole);
 
 foreach(note n in test)
 	int test = 5;
-    print("PASS for each");
 end
