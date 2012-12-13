@@ -4,7 +4,7 @@ TARFILES = Makefile scanner.mll parser.mly \
 	ast.mli interpret.ml cb.ml \
 
 m : $(OBJS)
-	ocamlc -o m.exe $(OBJS)
+	ocamlc -o cb $(OBJS)
 	
 #m : $(OBJS)
 #	ocamlc -o m $(OBJS)
@@ -26,7 +26,7 @@ m.tar.gz : $(TARFILES)
 
 .PHONY : clean
 clean :
-	del m.exe parser.ml parser.mli scanner.ml \
+	rm cb parser.ml parser.mli scanner.ml \
 	*.cmo *.cmi	
 	
 #.PHONY : clean
