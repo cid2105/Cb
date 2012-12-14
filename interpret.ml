@@ -48,6 +48,11 @@ let getInt v =
         Int(v) -> v
         | _ -> 0
 
+let getBool v = 
+    match v with
+        Bool(v) -> v
+        | _ -> false
+
 let getNote v =
     match v with
         Note(v) -> v
@@ -182,7 +187,6 @@ let rec eval env = function
          | IDTimes -> ), env *)
 
          else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
-
     (*| UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
