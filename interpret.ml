@@ -397,8 +397,14 @@ let rec eval env = function
                                             (* print_string ("MemberAccess"); *)
                                             raise (Failure ("members not implemented, FUCK OFF")) 
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType))) 
-                                    | _ -> raise (Failure ("Only integers dick, FUCK OFF")) 
-                                    (* print_string ("Some other BS type, not int") *)
+                                    | _ -> 
+                                        if lftIdType = "id" then
+                                            (if snd lftType = "locals" then
+                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls)
+                                            else if snd lftType = "globals" then
+                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls)
+                                            else raise (Failure ("fatal error")))
+                                        else raise (Failure ("cannot assign to: " ^ (fst lftType))) 
                             else if lftIdType = "id" then
                                 raise (Failure ("cannot assign: " ^ fst lftType ^ " = " ^ rhtType))
                             else if lftIdType = "member" then
