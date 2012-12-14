@@ -1,16 +1,16 @@
 <-Testing integer arithmetic->
-print( 1 + 2 );
+1 + 2; 
 
-print( 1 - 2 );
+1 - 2;
 
-print( 2 * 2 );
+2 * 2;
 
-print( 1 / 2 );
+1 / 2;
 
-print( 5 % 2 );
+5 % 2;
 
 
 <-Order of operations with integer arithmetic->
-print( 1 + 2 * 3 + 4 );
+1 + 2 * 3 + 4;
 
-print( ( 1 + 2 ) * ( 3 + 4 ) );
+((1 + 2 ) * ( 3 + 4 ) );
