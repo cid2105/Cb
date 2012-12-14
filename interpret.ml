@@ -72,6 +72,8 @@ let initIdentifier t =
   match t with
     "int" -> Int(0)
 
+let setPitch v a = ((getNote v).pitch <- a); v
+
 let noteMap = NameMap.empty
 
 let initNoteMap =
@@ -154,7 +156,6 @@ let rec eval env = function
                                         if durType = "int" then (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env)
                                         else raise (Failure ("Duration does not evaluate to an integer")))
                 else  raise (Failure ("Octave does not evaluate to an integer"))
-    (* | ChordExpr(el, e) -> print_string ("I am a chord expression: \n") *)
     (* | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
     | BinOp(e1,o,e2) ->
         let v1, env = eval env e1 in
@@ -215,13 +216,32 @@ let rec eval env = function
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " > " ^ v2Type))
                 | GEq ->
                     if v1Type = "int" then
-                            Bool (getInt v1 >= getInt v2)
+                        Bool (getInt v1 >= getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " >= " ^ v2Type))
                 (* | IDTimes -> ), env *)
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
 
-    (*| UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
+    | UnaryOp(uo,e) -> print_string ("I am a unary operation\n"); 
+        let v, env = eval env e in
+        let vType = getType v in
+        if ( vType = "note" or vType = "chord" ) then
+            (match uo with (* Only accept notes for now *)
+                Raise -> 
+                    if vType = "note" then
+                        setPitch v ((getNote v).pitch + 1)
+                    else
+                        raise (Failure ("cannot raise: " ^ vType))
+                | Lower -> 
+                    if vType = "note" then
+                        setPitch v ((getNote v).pitch - 1)
+                    else
+                        raise (Failure ("cannot lower: " ^ vType))
+            ), env
+        else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
+ 
+
+    (*
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
 
