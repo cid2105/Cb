@@ -68,6 +68,21 @@ let getBool v =
         Bool(v) -> v
         | _ -> false
 
+let getScale v =
+    match v with
+        Scale(v) -> v
+        | _ -> {scale_notelist=[]}
+
+let getStanza v =
+    match v with
+        Stanza(v) -> v
+        | _ -> {chordlist=[]}
+
+let getScore v =
+    match v with
+        Score(v) -> v
+        | _ -> {stanzalist=[]}
+
 let initIdentifier t =
   match t with
     "int" -> Int(0)
@@ -141,12 +156,12 @@ let rec eval env = function
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
-    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n"); 
-        List.iter (fun a -> 
+    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
+        List.iter (fun a ->
         (let chord_elem, env = eval env a in
             let vType = getType( chord_elem ) in
-                if ( vType = "note") then raise (Failure ("Duration does not evaluate to an integer"))
-        )) el; 
+                if ( vType = "note") then raise (Failure ("Chord must be composed of notes "))
+        )) el;
         (Chord ({notelist=[]; chord_duration=0}), env)
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
         if s = "whole" then Int 64, env
@@ -226,17 +241,17 @@ let rec eval env = function
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
     | MethodCall("print", [e]) ->
-        let v, env = eval env e in
-          (if getType v = "int" then
-            print_endline (string_of_int (getInt v))
-          else if getType v = "bool" then
-            print_endline (string_of_bool (getBool v))
+        let arg, env = eval env e in
+          (if getType arg = "int" then
+            print_endline (string_of_int (getInt arg))
+          else if getType arg = "bool" then
+            print_endline (string_of_bool (getBool arg))
           else
-            print_endline(getType v));
-          (Bool false), env      
-    | MethodCall("randint", [e]) -> 
+            print_endline(getType arg));
+          (Bool false), env
+    | MethodCall("randint", [e]) ->
             let v, env = eval env e in
-                if getType v = "int" then 
+                if getType v = "int" then
                     Int(Random.int (getInt v)), env
                 else raise (Failure ("argument of randint must be an integer"))
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
@@ -261,27 +276,51 @@ let rec eval env = function
     (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
 
-(* Main entry point: run a program *)
-let rec run prog env =
+let rec exec env tail = function
+        Expr(e) -> let _, env = (eval (NameMap.empty, (snd env)) e) in
+            run tail env
+        | Return(e) -> print_string ("I am an a return statement" ^ "\n");
+            run tail env
+        | Block(sl) -> print_string ("I am a block statement" ^ "\n");
+            run tail env
+        | If(e, sl, s1, s2) -> print_string ("I am a if statement" ^ "\n");
+            run tail env
+        | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n");
+            run tail env
+        | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n");
+            run tail env
+        | While(e, sl) -> print_string ("I am a while statement" ^ "\n");
+            run tail env
+        | _ -> raise (Failure ("Unable to match the statment "))
+and run prog env =
     let locals, globals = env in
         if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals in non-empty\n");
         match prog with
             [] -> print_string "Fuck it I'm done\n"
             | head::tail ->
                 match head with
-                    VDecl(head) -> print_string ("Variable Declaration: " ^ head.varname ^ "\n");
+                    VDecl(head) -> print_string ("Processing Variable Declaration: " ^ head.varname ^ "\n");
                         run tail (locals, (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals));
-                    | FullDecl(head) -> print_string ("Full Declaration: " ^ head.fvname ^ "\n"); run tail (locals, globals)
-                    | MDecl(head) -> print_string ("Method Declaration: " ^ head.fname ^ "\n"); (NameMap.add head.fname head func_decls); run tail (locals, globals)
-                    | Stmt(head) -> match head with
-                                    Expr(e) -> (eval (NameMap.empty, globals) e);
-                                                run tail (locals, globals)
-                                    | Return(e) -> print_string ("I am an a return statement" ^ "\n"); run tail (locals, globals)
-                                    | Block(sl) -> print_string ("I am a block statement" ^ "\n"); run tail (locals, globals)
-                                    | If(e, sl, s1, s2) -> print_string ("I am a if statement" ^ "\n"); run tail (locals, globals)
-                                    | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n"); run tail (locals, globals)
-                                    | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n"); run tail (locals, globals)
-                                    | While(e, sl) -> print_string ("I am a while statement" ^ "\n"); run tail (locals, globals)
-                                    | _ -> raise (Failure ("Unable to match the statment "))
+                    | FullDecl(head) -> print_string ("Processing Full Declaration: " ^ head.fvname ^ "\n");
+                        let v, env = eval (locals, globals) head.fvexpr in
+                            let vType = getType v in
+                                if vType = (string_of_cbtype head.fvtype)
+                                    then
+                                        match vType with
+                                            "int" -> run tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals));
+                                            | "note" -> run tail (locals, (NameMap.add head.fvname (Note (getNote v)) globals));
+                                            | "chord" -> run tail (locals, (NameMap.add head.fvname (Chord (getChord v)) globals));
+                                            | "bool" -> run tail (locals, (NameMap.add head.fvname (Bool (getBool v)) globals));
+                                            | "scale" -> run tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals));
+                                            | "stanza" -> run tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals));
+                                            | "score" -> run tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals));
+                                            | _ -> raise (Failure ("Unknown type: " ^ vType))
+                                else
+                                    raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType))
+                    | MDecl(head) -> print_string ("Processing Method Declaration: " ^ head.fname ^ "\n");
+                        (NameMap.add head.fname head func_decls);
+                        run tail (locals, globals)
+                    | Stmt(head) -> print_string ("Processing Statement\n");
+                        exec (locals, globals) tail head
 
 let helper prog = run prog (NameMap.empty, NameMap.empty)
