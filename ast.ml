@@ -3,7 +3,7 @@ type op =
     | And | Or | Eq | NEq | Less | LEq | Greater | GEq | IDTimes
 
 type uop =
-    Sharp | Flat | Raise | Lower
+    Raise | Lower
 
 type cb_type =
     Void | Int | Note | Bool | Chord | Scale | Stanza | Score
@@ -36,8 +36,6 @@ type var_decl = {
     varname : string; (* Name of the variable *)
     vartype : cb_type; (* Name of variable type *)
 }
-
-
 
 type fullvdecl = {
     fvtype : cb_type;

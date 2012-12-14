@@ -48,7 +48,7 @@ let getInt v =
         Int(v) -> v
         | _ -> 0
 
-let getBool v = 
+let getBool v =
     match v with
         Bool(v) -> v
         | _ -> false
@@ -110,33 +110,48 @@ let rec eval env = function
                 (NameMap.find name locals), env
             else if NameMap.mem name globals then
                 (NameMap.find name globals), env
-            else raise (Failure ("undeclared identifier: " ^ name))
+            else raise (Failure ("Undeclared identifier: " ^ name))
     | MemberAccess(vname, memname) -> print_string ("I am a member access on var: " ^ vname ^ " member: " ^ memname ^ "\n");
         let v, env = eval env (Id vname) in
             let vType = getType v in
             (match vType with
-              | "note" ->
-                (match memname with
-                  "pitch" -> Int (getNote v).pitch
-                  | "octave" -> Int (getNote v).octave
-                  | "duration" -> Int (getNote v).duration
-                  | _ -> raise (Failure ("invalid property of note: " ^ memname)))
-              | "chord" ->
-                (match memname with
-                    "duration" -> Int (getChord v).chord_duration
-                  | _ -> raise (Failure ("invalid property of staff: " ^ memname)))
-              | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
+                | "note" ->
+                    (match memname with
+                        "pitch" -> Int (getNote v).pitch
+                        | "octave" -> Int (getNote v).octave
+                        | "duration" -> Int (getNote v).duration
+                        | _ -> raise (Failure ("invalid property of note: " ^ memname)))
+                | "chord" ->
+                    (match memname with
+                        "duration" -> Int (getChord v).chord_duration
+                        | _ -> raise (Failure ("invalid property of chord: " ^ memname)))
+                | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
     | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env);
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
+
    (* | Assign(toE, fromE) -> print_string ("I am an assignment\n")
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n") *)
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
         if List.fold_left (fun a b ->  ( (getType a) = "note") && b) true el then
             print_string("I am a Chord Expression")
         else raise (Failure ("Chord must consist only of "))
-
+    | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
+        if s = "whole" then Int 64, env
+            else if s = "half" then Int 32, env
+            else if s = "quarter" then Int 16, env
+            else raise (Failure ("Duration constant unknown"))
+   (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
+    | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n");
+        let oct, env = eval env e in
+            let octType = getType oct in
+                if octType = "int" then (let dur, env = eval env e1 in
+                                    let durType = getType dur in
+                                        if durType = "int" then (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env)
+                                        else raise (Failure ("Duration does not evaluate to an integer")))
+                else  raise (Failure ("Octave does not evaluate to an integer"))
+    (* | ChordExpr(el, e) -> print_string ("I am a chord expression: \n") *)
     (* | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
     | BinOp(e1,o,e2) ->
         let v1, env = eval env e1 in
@@ -185,24 +200,24 @@ let rec eval env = function
                 | _ -> raise (Failure ("Unknown binary operation"))
                 | Less ->
                     if v1Type = "int" then
-                        Bool (getInt v1 < getInt v2)     
+                        Bool (getInt v1 < getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " < " ^ v2Type))
                 | LEq ->
                     if v1Type = "int" then
-                        Bool (getInt v1 <= getInt v2)    
+                        Bool (getInt v1 <= getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " <= " ^ v2Type))
                 | Greater ->
                     if v1Type = "int" then
                         Bool (getInt v1 > getInt v2)
-                    else raise (Failure ("cannot compare: " ^ v1Type ^ " > " ^ v2Type)) 
+                    else raise (Failure ("cannot compare: " ^ v1Type ^ " > " ^ v2Type))
                 | GEq ->
                     if v1Type = "int" then
-                            Bool (getInt v1 >= getInt v2)    
+                            Bool (getInt v1 >= getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " >= " ^ v2Type))
                 (* | IDTimes -> ), env *)
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
-        
+
     (*| UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
