@@ -110,7 +110,7 @@ let rec eval env = function
                 (NameMap.find name locals), env
             else if NameMap.mem name globals then
                 (NameMap.find name globals), env
-            else raise (Failure ("undeclared identifier: " ^ name))
+            else raise (Failure ("Undeclared identifier: " ^ name))
     | MemberAccess(vname, memname) -> print_string ("I am a member access on var: " ^ vname ^ " member: " ^ memname ^ "\n");
         let v, env = eval env (Id vname) in
             let vType = getType v in
