@@ -115,17 +115,17 @@ let rec eval env = function
         let v, env = eval env (Id vname) in
             let vType = getType v in
             (match vType with
-              | "note" ->
-                (match memname with
-                  "pitch" -> Int (getNote v).pitch
-                  | "octave" -> Int (getNote v).octave
-                  | "duration" -> Int (getNote v).duration
-                  | _ -> raise (Failure ("invalid property of note: " ^ memname)))
-              | "chord" ->
-                (match memname with
-                    "duration" -> Int (getChord v).chord_duration
-                  | _ -> raise (Failure ("invalid property of staff: " ^ memname)))
-              | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
+                | "note" ->
+                    (match memname with
+                        "pitch" -> Int (getNote v).pitch
+                        | "octave" -> Int (getNote v).octave
+                        | "duration" -> Int (getNote v).duration
+                        | _ -> raise (Failure ("invalid property of note: " ^ memname)))
+                | "chord" ->
+                    (match memname with
+                        "duration" -> Int (getChord v).chord_duration
+                        | _ -> raise (Failure ("invalid property of chord: " ^ memname)))
+                | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
     | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env);
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
@@ -181,24 +181,24 @@ let rec eval env = function
                 | _ -> raise (Failure ("Unknown binary operation"))
                 | Less ->
                     if v1Type = "int" then
-                        Bool (getInt v1 < getInt v2)     
+                        Bool (getInt v1 < getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " < " ^ v2Type))
                 | LEq ->
                     if v1Type = "int" then
-                        Bool (getInt v1 <= getInt v2)    
+                        Bool (getInt v1 <= getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " <= " ^ v2Type))
                 | Greater ->
                     if v1Type = "int" then
                         Bool (getInt v1 > getInt v2)
-                    else raise (Failure ("cannot compare: " ^ v1Type ^ " > " ^ v2Type)) 
+                    else raise (Failure ("cannot compare: " ^ v1Type ^ " > " ^ v2Type))
                 | GEq ->
                     if v1Type = "int" then
-                            Bool (getInt v1 >= getInt v2)    
+                            Bool (getInt v1 >= getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " >= " ^ v2Type))
                 (* | IDTimes -> ), env *)
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
-        
+
     (*| UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
