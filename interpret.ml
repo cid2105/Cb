@@ -240,7 +240,6 @@ let rec eval env = function
             ), env
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
  
-
     (*
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
