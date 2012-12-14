@@ -15,7 +15,7 @@
 <- comment ->end <- comment ->
 <- comment -> <- comment ->
 <- comment ->if(true) <- comment ->
-<- comment ->    print() <- comment ->
+<- comment ->    print(); <- comment ->
 <- comment ->else <- comment ->
 <- comment ->    int test2 = 6; <- comment ->
 <- comment ->end <- comment -> <-
