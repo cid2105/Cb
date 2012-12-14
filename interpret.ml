@@ -130,10 +130,11 @@ let rec eval env = function
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
-    | DurConst(s) -> if s = "whole" then Int 64, env
-                        else if s = "half" then Int 32, env
-                        else if s = "quarter" then Int 16, env
-                        else raise (Failure ("Duration constant unknown"))
+    | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
+        if s = "whole" then Int 64, env
+            else if s = "half" then Int 32, env
+            else if s = "quarter" then Int 16, env
+            else raise (Failure ("Duration constant unknown"))
    (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
     (*| NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n");
         let oct, env = eval env e in
