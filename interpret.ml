@@ -128,13 +128,6 @@ let assign r x = r.content <- x; x *)
     let noteMap = NameMap.add "B" 11 noteMap
     let noteMap = NameMap.add "Cb" 11 noteMap
 
-
-
-
-
-
-
-
 (*this will need to be passed around*)
 let csv = ""
 let csv_head = ""
