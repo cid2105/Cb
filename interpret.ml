@@ -281,8 +281,42 @@ let rec exec env tail = function
             run tail env
         | Return(e) -> print_string ("I am an a return statement" ^ "\n");
             run tail env
-        | Block(sl) -> print_string ("I am a block statement" ^ "\n");
-            run tail env
+        | Block(s1) -> print_string ("I am a block statement" ^ "\n");
+                let env = List.fold_left (fun acc x ->
+                    match x with
+                        Stmt2(x) -> print_string ("processing stmt in block");
+                                let locals, globals = acc in
+                                    let _, env_return = exec (locals, globals) [] x
+                                    in env_return;
+                        | VDecl2(x) ->
+                                    print_string ("processing vdecl in block");
+                                    let locals, globals = acc in
+                                        let _, env_return =                                                        
+                                            run [] (locals, (NameMap.add x.varname (initIdentifier (string_of_cbtype x.vartype)) globals))
+                                        in env_return;
+                                    
+                        | FullDecl2(x) -> print_string ("Processing Full Declaration: " ^ x.fvname ^ " in block \n");
+                                            let locals, globals = acc in
+                                                let _, env_return =                                         
+                                                    let v, acc = eval (locals, globals) x.fvexpr in
+                                                        let vType = getType v in
+                                                            if vType = (string_of_cbtype x.fvtype)
+                                                            then
+                                                                match vType with
+                                                                    "int" -> run [] (locals, (NameMap.add x.fvname (Int (getInt v)) globals));
+                                                                    | "note" -> run [] (locals, (NameMap.add x.fvname (Note (getNote v)) globals));
+                                                                    | "chord" -> run [] (locals, (NameMap.add x.fvname (Chord (getChord v)) globals));
+                                                                    | "bool" -> run [] (locals, (NameMap.add x.fvname (Bool (getBool v)) globals));
+                                                                    | "scale" -> run [] (locals, (NameMap.add x.fvname (Scale (getScale v)) globals));
+                                                                    | "stanza" -> run [] (locals, (NameMap.add x.fvname (Stanza (getStanza v)) globals));
+                                                                    | "score" -> run [] (locals, (NameMap.add x.fvname (Score (getScore v)) globals));
+                                                                    | _ -> raise (Failure ("Unknown type: " ^ vType))
+                                                            else
+                                                                raise (Failure ("LHS = " ^ (string_of_cbtype x.fvtype) ^ "<> RHS = " ^ vType))
+                                                in env_return
+                    ) env s1;
+                in run tail env
+
         | If(e, sl, s1, s2) -> print_string ("I am a if statement" ^ "\n");
             run tail env
         | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n");
@@ -296,7 +330,8 @@ and run prog env =
     let locals, globals = env in
         if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals in non-empty\n");
         match prog with
-            [] -> print_string "Fuck it I'm done\n"
+            [] -> print_string "Fuck it I'm done\n";
+                Bool true, (locals, globals)
             | head::tail ->
                 match head with
                     VDecl(head) -> print_string ("Processing Variable Declaration: " ^ head.varname ^ "\n");
