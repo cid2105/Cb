@@ -109,11 +109,20 @@ let rec eval env = function
                 Add ->  (* Only accept ints for now *)
                     if v1Type = "int" then
                         Int (getInt v1 + getInt v2)
-                    else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type)) ), env
-
-            (*    | Sub ->
+                    else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type))
+                | Sub ->
+                    if v1Type = "int" then
+                            Int (getInt v1 - getInt v2)
+                    else raise (Failure ("incorrect type: " ^ v1Type ^ " - " ^ v2Type))
                 | Mult ->
+                    if v1Type = "int" then
+                        Int (getInt v1 * getInt v2)
+                    else raise (Failure ("incorrect type: " ^ v1Type ^ " * " ^ v2Type))
                 | Div ->
+                    if v1Type = "int" then
+                        Int (getInt v1 / getInt v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type)) ), env
+(*
                 | Mod ->
                 | And ->
                 | Or ->
