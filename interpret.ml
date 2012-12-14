@@ -184,8 +184,8 @@ let rec eval env = function
          else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
 
     (*| UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
-    | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n")
-    | NoExpr -> print_string ("I am nothingness\n"); Bool true, env *)
+    | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
+    | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
 
 (* Main entry point: run a program *)
 let rec run prog = match prog with
