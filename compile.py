@@ -14,7 +14,7 @@ def compile(fName):
     else:
       break
   print "Program Was:\n" + output
-  print "Calling OCaml Cb"
+  print "\n=====Calling OCaml Cb=====\n"
   ocaml = subprocess.Popen(['./Cb'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
   ocaml.stdin.write(output+"\n")
   ocaml.stdin.close()
@@ -24,7 +24,7 @@ def compile(fName):
       print line
     else:
       break
-  print "PYTHON COMPILER COMPLETE"
+  print "\n=====PYTHON COMPILER COMPLETE=====\n"
 
 if len(sys.argv) != 2:
     print "Error: please provide the compiler with a file to compile"
