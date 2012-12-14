@@ -81,7 +81,7 @@ let string_of_cbtype cbt =
 let string_of_uop uop =
     match uop with
     | Raise -> "raise" | Lower -> "lower"
-    | _ -> "hi";;
+    | _ -> "does not exist";;
 
 let string_of_pdecl var =
     string_of_cbtype var.paramtype ^ " " ^ var.paramname

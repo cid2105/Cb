@@ -95,6 +95,7 @@ let initIdentifier t =
     | _ -> Bool(false)
 
 let setPitch v a = ((getNote v).pitch <- a); v
+let setDuration v a = ((getNote v).duration <- a); v
 
 let noteMap = NameMap.empty
 
@@ -126,6 +127,12 @@ exception ReturnException of cb_type * cb_type NameMap.t
 (*this will need to be passed around*)
 let func_decls = NameMap.empty
 let csv = ""
+let csv_head = ""
+
+(* A ref is the simplest mutable data structure. *)
+let tick : int ref = ref 0
+let funs =  NameMap.empty
+let builtins = (NameMap.add "compose" 0 funs);; 
 
 let rec eval env = function
     Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n");
@@ -254,6 +261,66 @@ let rec eval env = function
                 if getType v = "int" then
                     Int(Random.int (getInt v)), env
                 else raise (Failure ("argument of randint must be an integer"))
+
+
+                (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
+    | MethodCall("compose", [e]) -> (* Writes the specified part to a java file to be written into midi *)
+            ignore (match e with
+                        Id(i) -> i
+                        | _ ->  raise (Failure ("compose takes an identifier as input")));   
+            let ee1, env = eval env e in
+                (if getType ee1 = "score" then
+                    let pp = getScore(ee1) in
+                    (let headers = csv_head in
+                        let csvf = open_out "musicfi.csv" in
+                            (fprintf csvf "%s" headers;
+
+                            (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
+                            let print_note nt =
+                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
+                                                    (string_of_int nt.duration) ^ "," ^ 
+                                                    (string_of_int nt.pitch));
+
+                                (tick := !tick + nt.duration )
+                            in 
+                            let print_chord cd = 
+                                List.iter (fun nt ->
+                                            fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
+                                                            (string_of_int cd.chord_duration) ^ "," ^ 
+                                                            (string_of_int nt.pitch));
+                                            );
+                                (tick := !tick + cd.chord_duration)
+                                       (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
+                                        begin   print_note ((List.hd  a));
+                                    end *)
+
+
+                                
+                            in
+                            let print_stanza stan =
+                                    if (List.length stan.chordlist = 1) then
+                                        begin 
+                                            let nt = (List.hd stan.chordlist); 
+                                            in print_note (List.hd nt.notelist );
+                                        end
+                                    else
+                                        List.iter  print_chord (List.rev stan.chordlist);
+                                
+                            in
+
+                        List.iter print_stanza (List.rev pp.stanzalist)
+
+                    );
+
+                    close_out csvf);
+                    ee1
+                    , env
+                else raise (Failure ("argument of play must be a part")));
+
+
+
+
+
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
         let vType = getType v in
@@ -275,6 +342,7 @@ let rec eval env = function
     (* | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
     (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
+    | _ -> print_string ("I am nothingness\n"); Bool true, env
 
 let rec exec env tail = function
         Expr(e) -> let _, env = (eval (NameMap.empty, (snd env)) e) in
