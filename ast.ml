@@ -3,7 +3,7 @@ type op =
     | And | Or | Eq | NEq | Less | LEq | Greater | GEq | IDTimes
 
 type uop =
-    Sharp | Flat | Raise | Lower
+    Raise | Lower
 
 type cb_type =
     Void | Int | Note | Bool | Chord | Scale | Stanza | Score
