@@ -36,7 +36,7 @@ type cbtype =   Int of int
 let getType v =
     match v with
         Int(v) -> "int"
-        | Bool(v) -> "bool"
+        | Bool -> "bool"
         | Note(v) -> "note"
         | Chord(v) -> "chord"
         | Scale(v) -> "scale"
