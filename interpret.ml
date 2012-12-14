@@ -417,7 +417,7 @@ and exec env fname = function
                         match x with
                             Stmt2(x) -> print_string ("processing stmt in block");
                             let locals, globals, fdecls = acc in
-                                let env_return = exec (locals, globals, fdecls) x
+                                let env_return = exec (locals, globals, fdecls) fname x
                                 in env_return;
                             | VDecl2(x) ->
                                 print_string ("processing vdecl in block");
