@@ -13,18 +13,20 @@ def proc(fName):
             asArray = f.readlines()
             progString = "\n".join(asArray)
             without_comments = comments.sub('', progString)
-            for match in uses.search(without_comments):
-                if os.path.isfile(match.group(1)):
+            for match in uses.findall(without_comments):
+                print "MATCH: " + match
+                if os.path.isfile(match):
                     try:
-                        with open() as f2:
+                        with open(match) as f2:
                             toArr = f2.readlines()
                             toStr = "\n".join(toArr)
-                            progString = re.replace(match.group(0), toStr)
+                            progString = re.sub("use " + match + ";",toStr,progString)
                     except IOError:
-                        print "Preprocessor Error: use statement file: " + match.group(1) + " not found"
+                        print "Preprocessor Error: use statement file: " + match + " not found"
                 else:
-                    print "Preprocessor Error: use statement file: " + match.group(1) + " not found"
+                    print "Preprocessor Error: use statement file: " + match + " not found"
                     sys.exit()
+            print progString
     except IOError:
         print "Preprocessor Error: file provided not found"
         sys.exit()
