@@ -156,7 +156,6 @@ let rec eval env = function
                                         if durType = "int" then (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env)
                                         else raise (Failure ("Duration does not evaluate to an integer")))
                 else  raise (Failure ("Octave does not evaluate to an integer"))
-    (* | ChordExpr(el, e) -> print_string ("I am a chord expression: \n") *)
     (* | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
     | BinOp(e1,o,e2) ->
         let v1, env = eval env e1 in
