@@ -1,0 +1,8 @@
+
+<- testing compose method->
+
+note c = (C, 3, whole);
+
+note b = (C, 3, whole);
+note c = (C, 3, whole);
+note d = (C, 3, whole);
