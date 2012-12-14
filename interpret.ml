@@ -97,42 +97,50 @@ let initIdentifier t =
 let setPitch v a = ((getNote v).pitch <- a); v
 let setDuration v a = ((getNote v).duration <- a); v
 
-let noteMap = NameMap.empty
+(* let noteMap = NameMap.empty in  *)
 
-let initNoteMap =
-    NameMap.add "C" 0 noteMap;
-    NameMap.add "B#" 0 noteMap;
-    NameMap.add "C#" 1 noteMap;
-    NameMap.add "Db" 1 noteMap;
-    NameMap.add "D" 2 noteMap;
-    NameMap.add "Eb" 3 noteMap;
-    NameMap.add "D#" 3 noteMap;
-    NameMap.add "E" 4 noteMap;
-    NameMap.add "Fb" 4 noteMap;
-    NameMap.add "F" 5 noteMap;
-    NameMap.add "E#" 5 noteMap;
-    NameMap.add "F#" 6 noteMap;
-    NameMap.add "Gb" 6 noteMap;
-    NameMap.add "G" 7 noteMap;
-    NameMap.add "Ab" 8 noteMap;
+(* type 'a ref = { mutable content : 'a }
+let ref x = { content = x }
+let deref r = r.content
+let assign r x = r.content <- x; x *)
+
+
+ let noteMap = 
+     NameMap.add "C" 0 NameMap.empty
+    let noteMap = NameMap.add "B#" 0 noteMap
+    let noteMap = NameMap.add "C#" 1 noteMap
+    let noteMap = NameMap.add "Db" 1 noteMap
+    let noteMap = NameMap.add "D" 2 noteMap
+    let noteMap = NameMap.add "Eb" 3 noteMap 
+    let noteMap = NameMap.add "D#" 3 noteMap 
+    let noteMap = NameMap.add "E" 4 noteMap 
+    let noteMap = NameMap.add "Fb" 4 noteMap 
+    let noteMap = NameMap.add "F" 5 noteMap 
+    let noteMap = NameMap.add "E#" 5 noteMap
+    let noteMap = NameMap.add "F#" 6 noteMap
+    let noteMap = NameMap.add "Gb" 6 noteMap
+    let noteMap = NameMap.add "G" 7 noteMap
+(*     NameMap.add "Ab" 8 noteMap;
     NameMap.add "G#" 8 noteMap;
     NameMap.add "A" 9 noteMap;
     NameMap.add "Bb" 10 noteMap;
     NameMap.add "A#" 10 noteMap;
     NameMap.add "B" 11 noteMap;
-    NameMap.add "Cb" 11 noteMap;
+    NameMap.add "Cb" 11 noteMap; *)
 
-exception ReturnException of cb_type * cb_type NameMap.t
+
+
+
+
+
+
 
 (*this will need to be passed around*)
-let func_decls = NameMap.empty
 let csv = ""
 let csv_head = ""
 
 (* A ref is the simplest mutable data structure. *)
 let tick : int ref = ref 0
-let funs =  NameMap.empty
-let builtins = (NameMap.add "compose" 0 funs);; 
 
 let rec eval env = function
     Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n");
@@ -186,7 +194,14 @@ let rec eval env = function
             let octType = getType oct in
                 if octType = "int" then (let dur, env = eval env e1 in
                                     let durType = getType dur in
-                                        if durType = "int" then (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env)
+                                        if durType = "int" then 
+                                        begin
+
+                                            print_string ("this ans: " ^ (string_of_int (getInt oct)) ^ "\n");  
+                                            print_string ("this ans: " ^ (string_of_bool (NameMap.is_empty noteMap)) ^ "---" ^(string_of_int (getInt dur))^"\n");   
+                                            (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env);
+                                            
+                                        end
                                         else raise (Failure ("Duration does not evaluate to an integer")))
                 else  raise (Failure ("Octave does not evaluate to an integer"))
     | BinOp(e1,o,e2) -> print_string ("I am a binary operation\n");
@@ -321,7 +336,7 @@ let rec eval env = function
                     close_out csvf);
                     ee1
                     , env
-                else raise (Failure ("argument of play must be a part")));
+                else raise (Failure ("compose takes a score only")));
 
 
 
@@ -429,4 +444,6 @@ and run prog env =
                     | Stmt(head) -> print_string ("Processing Statement\n");
                         exec (locals, globals, fdecls) tail head
 
-let helper prog = run prog (NameMap.empty, NameMap.empty, NameMap.empty)
+let helper prog = 
+   
+    run prog (NameMap.empty, NameMap.empty, NameMap.empty)
