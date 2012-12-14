@@ -79,6 +79,8 @@ let initIdentifier t =
     | "score" -> Score({stanzalist=[]})
     | _ -> Bool(false)
 
+let setPitch v a = ((getNote v).pitch <- a); v
+
 let noteMap = NameMap.empty
 
 let initNoteMap =
