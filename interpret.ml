@@ -133,11 +133,11 @@ let rec eval env = function
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
-        if List.fold_left (fun a b ->  ( (getType a) = "note") && b) true el then
+        if List.fold_left (fun a b ->  ( (getType a) = "note") && b) el true then
             let dur, env = eval env e in
                 let durType = getType dur in
-                    if durType = "int" then (Chord ({notelist=[]; chord_duration=0}), env)
-                    else raise (Failure ("Duration does not evaluate to an integer")))
+                    if durType = "int" then (Chord ({notelist=[]; chord_duration=(getInt dur)}), env)
+                    else raise (Failure ("Duration does not evaluate to an integer"))
         else raise (Failure ("Chord must consist only of notes"))
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
         if s = "whole" then Int 64, env
@@ -236,8 +236,6 @@ let rec eval env = function
                         raise (Failure ("cannot lower: " ^ vType))
             ), env
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
-
-
     (*
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
