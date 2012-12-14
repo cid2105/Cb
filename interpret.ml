@@ -59,9 +59,15 @@ let globals = NameMap.empty
 let csv = ""
 
 let rec eval env = function
-   (* Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n")
-    | MemberAccess(vname, memname) -> print_string ("I am a member access on var: " ^ vname ^ " member: " ^ memname ^ "\n") *)
-    IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env)
+    Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n");
+                let locals, globals = env in
+                    if NameMap.mem name locals then
+                        (NameMap.find name locals), env
+                    else if NameMap.mem name globals then
+                        (NameMap.find name globals), env
+                    else raise (Failure ("undeclared identifier: " ^ name))
+    (*| MemberAccess(vname, memname) -> print_string ("I am a member access on var: " ^ vname ^ " member: " ^ memname ^ "\n") *)
+    | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env)
   (*  | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n") *)
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
    (* | Assign(toE, fromE) -> print_string ("I am an assignment\n")
