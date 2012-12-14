@@ -48,6 +48,11 @@ let getInt v =
         Int(v) -> v
         | _ -> 0
 
+let getBool v = 
+    match v with
+        Bool(v) -> v
+        | _ -> false
+
 let getNote v =
     match v with
         Note(v) -> v
@@ -121,12 +126,20 @@ let rec eval env = function
                 | Div ->
                     if v1Type = "int" then
                         Int (getInt v1 / getInt v2)   
-                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type)) ), env     
-(*
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type))     
                 | Mod ->
+                    if v1Type = "int" then
+                        Int (getInt v1 mod getInt v2)
+                    else raise (Failure ("incorrect type: " ^ v1Type ^ " % " ^ v2Type))     
                 | And ->
+                    if v1Type = "bool" then
+                            Bool (getBool v1 && getBool v2)
+                    else raise (Failure ("incorrect type: " ^ v1Type ^ " and " ^ v2Type)) 
                 | Or ->
-                | Eq ->
+                    if v1Type = "bool" then
+                            Bool (getBool v1 || getBool v2)
+                    else raise (Failure ("incorrect type: " ^ v1Type ^ " or " ^ v2Type)) ), env
+  (*              | Eq ->
                 | NEq ->
                 | Less ->
                 | LEq ->
