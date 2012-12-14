@@ -38,8 +38,6 @@
 %token GEQ
 %token PLUSPLUS
 %token MINUSMINUS
-%token SHARP
-%token FLAT
 %token RAISE
 %token LOWER
 
@@ -159,10 +157,10 @@ duration_expr:
 	| duration_expr DIVIDE duration_expr { Binop($1, Div, $3)  }*/
 
 generic_list:
-	 /*mn cannot have empty ???*/ 
+	 /*mn cannot have empty ???*/
 	 expr { [$1] }
 	| generic_list COMMA expr { $3 :: $1 }
-	
+
 	/*mn | generic_list COMMA ID TIMES INTLITERAL { BinOp(Id($1), IDTimes, IntLiteral($3))} confusing  a, b, c*5, b  */
 
 expr_opt:
@@ -204,8 +202,6 @@ expr:
 	| expr GEQ expr { BinOp($1, GEq, $3) }								/* x >= y				*/
 	| expr PLUSPLUS { Assign($1, BinOp($1, Add, IntLiteral(1))) }		/* x++					*/
 	| expr MINUSMINUS { Assign($1, BinOp($1, Sub, IntLiteral(1))) }		/* x--					*/
-	| expr SHARP { UnaryOp(Sharp, $1) }									/* A#					*/
-	| expr FLAT  { UnaryOp(Flat, $1) }									/* Bb					*/
 	| expr RAISE { UnaryOp(Raise, $1) }									/* x^+					*/
 	| expr LOWER { UnaryOp(Lower, $1) }									/* x^-					*/
 	| LEFTPAREN expr RIGHTPAREN { $2 }									/* (x)					*/

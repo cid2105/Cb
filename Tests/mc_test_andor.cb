@@ -1,0 +1,3 @@
+if(true and false)
+    int test = 1;
+end

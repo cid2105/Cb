@@ -61,7 +61,7 @@ let rec eval env = function
     | Assign(toE, fromE) -> print_string ("I am an assign expression\n")
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n")
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n")
-    | ListExpr(el) -> print_string ("I am a list epxression\n")
+    | ListExpr(el) -> print_string ("I am a list epxression\n"); (List.map (eval (NameMap.empty, globals)) el)
     | BinOp(e1,o,e2) -> print_string ("I am a binary operator\n")
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n")

@@ -24,8 +24,6 @@ rule token = parse
 	| "%=" { MODEQ }
 	| "++" { PLUSPLUS }
 	| "--" { MINUSMINUS }
-	| "#" { SHARP }
-	| "b" { FLAT }
 	| "^+" { RAISE }
 	| "^-" { LOWER }
 	| '<' { LT }
@@ -58,7 +56,7 @@ rule token = parse
 	| "true"|"false" as boollit { BOOLLITERAL(bool_of_string boollit) }
 	(*| '-'? ['0' - '5'] as octave { OCTAVE(int_of_string octave) }   *)         			(*mn always between -5 and 5 *)
 	(*| ['1'-'9'](['0'-'9']) as durInt { DURATIONINT(int_of_string durInt) }*)			(*mn only positive int *)
-	| ['A'-'G'](['b' '#']?) as noteconst { NOTECONST(noteconst) }
+	| ((['A'-'G'](['b' '#']?))|'R') as noteconst { NOTECONST(noteconst) }
 	| ("whole" | "half" | "quarter") as durConst { DURATIONCONST(durConst) }
 	| eof { EOF } (* Endoffile *)
 	| ['0'-'9']['0'-'9']* as lxm { INTLITERAL(int_of_string lxm) } (* integers *)
