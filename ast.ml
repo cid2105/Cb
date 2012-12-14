@@ -72,7 +72,6 @@ generic =
 
 type program =  generic list
 
-
 let string_of_cbtype cbt =
     match cbt with
         Note -> "note"
@@ -92,7 +91,6 @@ let string_of_pdecl var =
 
 let string_of_vdecl var =
     string_of_cbtype var.vartype ^ " " ^ var.varname ^ ";\n"
-
 
 let rec string_of_expr = function
     Id(s) -> s
@@ -229,35 +227,24 @@ let rec string_of_stmt = function
          s);
 
     | While(e, s) -> "while (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
-
          (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
-
-
      s);;
-
-
-
 
 let string_of_mdecl mdecl =
     mdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_pdecl mdecl.formals) ^ ")\n" ^
    (* String.concat "" (List.map string_of_vdecl mdecl.locals) ^*)
     String.concat "" (List.map
-
          (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
-
-
      mdecl.body) ^ "\nend\n"
 
 let rec string_of_program = function
