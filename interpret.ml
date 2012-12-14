@@ -32,7 +32,7 @@ type score = {
 
 type cb_type =   Int of int | Bool of bool | Note of note | Chord of chord | Scale of scale | Stanza of stanza | Score of score
 
-(* exception ReturnException of cb_type * cb_type NameMap.t *)
+exception ReturnException of cb_type * cb_type NameMap.t
 
 let getType v =
     match v with
@@ -369,10 +369,11 @@ and exec env fname = function
         Expr(e) -> let _, env = (eval env e) in
             env
         | Return(e) -> print_string ("I am an a return statement" ^ "\n");
-            (* let v, (locals, globals, fdecls) = (eval env e) in
-                if (getType v) = fdecl.rettype then
-                    raise (ReturnException(v, globals))
-                else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ getType v ^ " instead of " ^ fdecl.rettype)) *)
+            let v, (locals, globals, fdecls) = (eval env e) in
+                let fdecl = NameMap.find fname fdecls in
+                    if (getType v) = (string_of_cbtype fdecl.rettype) then
+                        raise (ReturnException(v, globals))
+                    else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype)))
             env
         | Block(s1) -> print_string ("I am a block statement" ^ "\n");
                 let env = List.fold_left (fun acc x ->
@@ -447,8 +448,6 @@ and exec env fname = function
                     in env
                 else
                     env
-(* *)
-
         | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n");
             env
         | While(e, sl) -> print_string ("I am a while statement" ^ "\n");
