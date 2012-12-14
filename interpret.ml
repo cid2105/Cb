@@ -277,7 +277,17 @@ let rec eval env = function
                         raise (Failure ("cannot lower: " ^ vType))
             ), env
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
-    (* | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
+    | ListExpr([el]) -> print_string ("I am a list expression\n");
+        let e = List.hd el in
+            let v, env = eval env e in
+            let vType = getType v in
+                List.iter( fun elem ->
+                    (let cb_elem, env = eval env elem in
+                        let cbType = (getType cb_elem) in
+                            if ( cbType = vType) then (true)
+                            else raise (Failure ("List must be composed of same elements"))
+                ) 
+            )       
     (* | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
     (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
