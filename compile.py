@@ -13,9 +13,11 @@ def compile(fName):
       output += line
     else:
       break
+  print "Program Was:\n" + output
   print "Calling OCaml Cb"
-  ocaml = subprocess.Popen(['Cb'],stdin=PIPE,stdout=subprocess.PIPE)
+  ocaml = subprocess.Popen(['./Cb'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
   ocaml.stdin.write(output+"\n")
+  ocaml.stdin.close()
   while True:
     line = ocaml.stdout.readline()
     if line != '':
