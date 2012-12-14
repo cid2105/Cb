@@ -144,7 +144,6 @@ let rec eval env = function
             else if s = "half" then Int 32, env
             else if s = "quarter" then Int 16, env
             else raise (Failure ("Duration constant unknown"))
-   (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n");
         let oct, env = eval env e in
             let octType = getType oct in
@@ -153,7 +152,6 @@ let rec eval env = function
                                         if durType = "int" then (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env)
                                         else raise (Failure ("Duration does not evaluate to an integer")))
                 else  raise (Failure ("Octave does not evaluate to an integer"))
-    (* | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
     | BinOp(e1,o,e2) ->
         let v1, env = eval env e1 in
         let v2, env = eval env e2 in
@@ -218,7 +216,6 @@ let rec eval env = function
                 (* | IDTimes -> ), env *)
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
-
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
         let vType = getType v in
@@ -236,8 +233,9 @@ let rec eval env = function
                         raise (Failure ("cannot lower: " ^ vType))
             ), env
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
-    (*
-    | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
+    (* | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
+    (* | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
+    (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
 
 (* Main entry point: run a program *)
