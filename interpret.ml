@@ -156,18 +156,24 @@ let rec eval env = function
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
-    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
-        List.iter (fun a ->
-        (let chord_elem, env = eval env a in
-            let vType = getType( chord_elem ) in
-                if ( vType = "note") then raise (Failure ("Chord must be composed of notes "))
-        )) el;
-        (Chord ({notelist=[]; chord_duration=0}), env)
+
+    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n"); 
+        let note_list = List.map (fun (note_elem) -> 
+            (let chord_elem, env = eval env note_elem in
+                let vType = (getType chord_elem) in
+                    if ( vType = "note") then (getNote (chord_elem))
+                    else raise (Failure ("Chord must be composed of notes "))
+            )) el in 
+                let dur, env = eval env e in
+                    let durType = getType dur in
+                        if durType = "int" then (Chord ({notelist=note_list; chord_duration=(getInt dur)}), env)
+                        else raise (Failure ("Duration does not evaluate to an integer"))
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
         if s = "whole" then Int 64, env
             else if s = "half" then Int 32, env
             else if s = "quarter" then Int 16, env
             else raise (Failure ("Duration constant unknown"))
+
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n");
         let oct, env = eval env e in
             let octType = getType oct in
@@ -281,8 +287,42 @@ let rec exec env tail = function
             run tail env
         | Return(e) -> print_string ("I am an a return statement" ^ "\n");
             run tail env
-        | Block(sl) -> print_string ("I am a block statement" ^ "\n");
-            run tail env
+        | Block(s1) -> print_string ("I am a block statement" ^ "\n");
+                let env = List.fold_left (fun acc x ->
+                    match x with
+                        Stmt2(x) -> print_string ("processing stmt in block");
+                                let locals, globals = acc in
+                                    let _, env_return = exec (locals, globals) [] x
+                                    in env_return;
+                        | VDecl2(x) ->
+                                    print_string ("processing vdecl in block");
+                                    let locals, globals = acc in
+                                        let _, env_return =                                                        
+                                            run [] (locals, (NameMap.add x.varname (initIdentifier (string_of_cbtype x.vartype)) globals))
+                                        in env_return;
+                                    
+                        | FullDecl2(x) -> print_string ("Processing Full Declaration: " ^ x.fvname ^ " in block \n");
+                                            let locals, globals = acc in
+                                                let _, env_return =                                         
+                                                    let v, acc = eval (locals, globals) x.fvexpr in
+                                                        let vType = getType v in
+                                                            if vType = (string_of_cbtype x.fvtype)
+                                                            then
+                                                                match vType with
+                                                                    "int" -> run [] (locals, (NameMap.add x.fvname (Int (getInt v)) globals));
+                                                                    | "note" -> run [] (locals, (NameMap.add x.fvname (Note (getNote v)) globals));
+                                                                    | "chord" -> run [] (locals, (NameMap.add x.fvname (Chord (getChord v)) globals));
+                                                                    | "bool" -> run [] (locals, (NameMap.add x.fvname (Bool (getBool v)) globals));
+                                                                    | "scale" -> run [] (locals, (NameMap.add x.fvname (Scale (getScale v)) globals));
+                                                                    | "stanza" -> run [] (locals, (NameMap.add x.fvname (Stanza (getStanza v)) globals));
+                                                                    | "score" -> run [] (locals, (NameMap.add x.fvname (Score (getScore v)) globals));
+                                                                    | _ -> raise (Failure ("Unknown type: " ^ vType))
+                                                            else
+                                                                raise (Failure ("LHS = " ^ (string_of_cbtype x.fvtype) ^ "<> RHS = " ^ vType))
+                                                in env_return
+                    ) env s1;
+                in run tail env
+
         | If(e, sl, s1, s2) -> print_string ("I am a if statement" ^ "\n");
             run tail env
         | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n");
