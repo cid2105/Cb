@@ -1,0 +1,5 @@
+meth void test()
+    meth void test1()
+        int a = 5;
+    end
+end

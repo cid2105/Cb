@@ -1,0 +1,16 @@
+
+<- testing compose method->
+<-note p=(C#,3,half);
+compose(p);
+-> int inc = 9;
+note a = (C, 3, whole);
+note b = (D, 3, whole);
+note c = (F, 3, whole);
+
+chord c1 = ([(Db,4,quarter), (C#, 2, half)], half);
+
+stanza p = [c1, c1];
+
+score m = [p];
+
+compose(p);

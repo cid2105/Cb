@@ -30,13 +30,9 @@ type score = {
     mutable stanzalist : stanza list;
 }
 
-(*
-type void = {
-
-}
-*)
-
 type cb_type =   Int of int | Bool of bool | Note of note | Chord of chord | Scale of scale | Stanza of stanza | Score of score
+
+(* exception ReturnException of cb_type * cb_type NameMap.t *)
 
 let getType v =
     match v with
@@ -95,41 +91,49 @@ let initIdentifier t =
     | _ -> Bool(false)
 
 let setPitch v a = ((getNote v).pitch <- a); v
+let setDuration v a = ((getNote v).duration <- a); v
 
-let noteMap = NameMap.empty
+(* let noteMap = NameMap.empty in  *)
 
-let initNoteMap =
-    NameMap.add "C" 0 noteMap;
-    NameMap.add "B#" 0 noteMap;
-    NameMap.add "C#" 1 noteMap;
-    NameMap.add "Db" 1 noteMap;
-    NameMap.add "D" 2 noteMap;
-    NameMap.add "Eb" 3 noteMap;
-    NameMap.add "D#" 3 noteMap;
-    NameMap.add "E" 4 noteMap;
-    NameMap.add "Fb" 4 noteMap;
-    NameMap.add "F" 5 noteMap;
-    NameMap.add "E#" 5 noteMap;
-    NameMap.add "F#" 6 noteMap;
-    NameMap.add "Gb" 6 noteMap;
-    NameMap.add "G" 7 noteMap;
-    NameMap.add "Ab" 8 noteMap;
-    NameMap.add "G#" 8 noteMap;
-    NameMap.add "A" 9 noteMap;
-    NameMap.add "Bb" 10 noteMap;
-    NameMap.add "A#" 10 noteMap;
-    NameMap.add "B" 11 noteMap;
-    NameMap.add "Cb" 11 noteMap;
+(* type 'a ref = { mutable content : 'a }
+let ref x = { content = x }
+let deref r = r.content
+let assign r x = r.content <- x; x *)
 
-exception ReturnException of cb_type * cb_type NameMap.t
+
+ let noteMap =
+     NameMap.add "C" 0 NameMap.empty
+    let noteMap = NameMap.add "B#" 0 noteMap
+    let noteMap = NameMap.add "C#" 1 noteMap
+    let noteMap = NameMap.add "Db" 1 noteMap
+    let noteMap = NameMap.add "D" 2 noteMap
+    let noteMap = NameMap.add "Eb" 3 noteMap
+    let noteMap = NameMap.add "D#" 3 noteMap
+    let noteMap = NameMap.add "E" 4 noteMap
+    let noteMap = NameMap.add "Fb" 4 noteMap
+    let noteMap = NameMap.add "F" 5 noteMap
+    let noteMap = NameMap.add "E#" 5 noteMap
+    let noteMap = NameMap.add "F#" 6 noteMap
+    let noteMap = NameMap.add "Gb" 6 noteMap
+    let noteMap = NameMap.add "G" 7 noteMap
+    let noteMap = NameMap.add "Ab" 8 noteMap
+    let noteMap = NameMap.add "G#" 8 noteMap
+    let noteMap = NameMap.add "A" 9 noteMap
+    let noteMap = NameMap.add "Bb" 10 noteMap
+    let noteMap = NameMap.add "A#" 10 noteMap
+    let noteMap = NameMap.add "B" 11 noteMap
+    let noteMap = NameMap.add "Cb" 11 noteMap
 
 (*this will need to be passed around*)
-let func_decls = NameMap.empty
 let csv = ""
+let csv_head = ""
+
+(* A ref is the simplest mutable data structure. *)
+let tick : int ref = ref 0
 
 let rec eval env = function
     Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n");
-        let locals, globals = env in
+        let locals, globals, fdecls = env in
             if NameMap.is_empty globals then
                 raise (Failure ("Fuck, globals is empty"))
             else if NameMap.mem name locals then
@@ -152,18 +156,19 @@ let rec eval env = function
                     "duration" -> Int (getChord v).chord_duration
                   | _ -> raise (Failure ("invalid property of staff: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
-    | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env);
+    | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n");
+        (Int i, env);
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
-    | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
-
-    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n"); 
-        let note_list = List.map (fun (note_elem) -> 
+    | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n");
+        (Bool b, env)
+    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
+        let note_list = List.map (fun (note_elem) ->
             (let chord_elem, env = eval env note_elem in
                 let vType = (getType chord_elem) in
                     if ( vType = "note") then (getNote (chord_elem))
                     else raise (Failure ("Chord must be composed of notes "))
-            )) el in 
+            )) el in
                 let dur, env = eval env e in
                     let durType = getType dur in
                         if durType = "int" then (Chord ({notelist=note_list; chord_duration=(getInt dur)}), env)
@@ -173,13 +178,19 @@ let rec eval env = function
             else if s = "half" then Int 32, env
             else if s = "quarter" then Int 16, env
             else raise (Failure ("Duration constant unknown"))
-
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n");
         let oct, env = eval env e in
             let octType = getType oct in
                 if octType = "int" then (let dur, env = eval env e1 in
                                     let durType = getType dur in
-                                        if durType = "int" then (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env)
+                                        if durType = "int" then
+                                        begin
+
+                                            print_string ("this ans: " ^ (string_of_int (getInt oct)) ^ "\n");
+                                            print_string ("this ans: " ^ (string_of_bool (NameMap.is_empty noteMap)) ^ "---" ^(string_of_int (getInt dur))^"\n");
+                                            (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env);
+
+                                        end
                                         else raise (Failure ("Duration does not evaluate to an integer")))
                 else  raise (Failure ("Octave does not evaluate to an integer"))
     | BinOp(e1,o,e2) -> print_string ("I am a binary operation\n");
@@ -260,6 +271,78 @@ let rec eval env = function
                 if getType v = "int" then
                     Int(Random.int (getInt v)), env
                 else raise (Failure ("argument of randint must be an integer"))
+    (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
+    | MethodCall("compose", [e]) -> (* Writes the specified part to a java file to be written into midi *)
+            ignore (match e with
+                        Id(i) -> i
+                        | _ ->  raise (Failure ("compose takes an identifier as input")));
+            let ee1, env = eval env e in
+                (if getType ee1 = "score" then
+                    let pp = getScore(ee1) in
+                    (let headers = csv_head in
+                        let csvf = open_out "musicfi.csv" in
+                            (fprintf csvf "%s" headers;
+                            (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
+                            let print_note nt =
+                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
+                                                    (string_of_int nt.duration) ^ "," ^
+                                                    (string_of_int nt.pitch));
+                                (tick := !tick + nt.duration )
+                            in
+                            let print_chord cd =
+                                List.iter (fun nt ->
+                                            fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
+                                                            (string_of_int cd.chord_duration) ^ "," ^
+                                                            (string_of_int nt.pitch));
+                                            );
+                                (tick := !tick + cd.chord_duration)
+                                       (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
+                                        begin   print_note ((List.hd  a));
+                                    end *)
+                            in
+                            let print_stanza stan =
+                                    if (List.length stan.chordlist = 1) then
+                                        begin
+                                            let nt = (List.hd stan.chordlist);
+                                            in print_note (List.hd nt.notelist );
+                                        end
+                                    else
+                                        List.iter  print_chord (List.rev stan.chordlist);
+                            in
+                        List.iter print_stanza (List.rev pp.stanzalist)
+                    );
+                    close_out csvf);
+                    ee1
+                    , env
+                else raise (Failure ("compose takes a score only")));
+    | MethodCall(name, el) ->
+        let locals, globals, fdecls = env in
+            let fdecl =
+                        try (NameMap.find name fdecls)
+                        with Not_found -> raise (Failure ("Undefined function: " ^ name))
+            in
+                let actuals, env =
+                    List.fold_left
+                        (fun (al, env) actual ->
+                            let v, env = ((eval env) actual) in (v :: al), env
+                        ) ([], env) el
+                in
+                    let locals =
+                        try List.fold_left2 (fun locals formal actual ->
+                                                if (getType actual) = (string_of_cbtype formal.paramtype) then
+                                                    (NameMap.add formal.paramname actual locals)
+                                                else
+                                                    raise (Failure ("Wrong parameter type in method call to " ^ fdecl.fname))
+                                            ) NameMap.empty fdecl.formals actuals
+                        with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
+
+                    in
+                        (* try *)
+                            let globals =
+                                (call fdecl.body locals globals fdecls) in
+                                    Bool false, (locals, globals, fdecls) (* This gets hit if you never see a return statement *)
+                       (*  with ReturnException(v, g) -> v, (locals, g, fdecls) (* This gets hit if you hit a return statement *) *)
+
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
         let vType = getType v in
@@ -291,53 +374,119 @@ let rec eval env = function
     (* | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
     (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
-
-let rec exec env tail = function
-        Expr(e) -> let _, env = (eval (NameMap.empty, (snd env)) e) in
-            run tail env
+    | _ -> print_string ("No matching for eval\n"); Bool true, env
+and exec env = function
+        Expr(e) -> let _, env = (eval env e) in
+            env
         | Return(e) -> print_string ("I am an a return statement" ^ "\n");
-            run tail env
-        | Block(sl) -> print_string ("I am a block statement" ^ "\n");
-            run tail env
+            (* let v, (locals, globals, fdecls) = (eval env e) in
+                if (getType v) = fdecl.rettype then
+                    raise (ReturnException(v, globals))
+                else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ getType v ^ " instead of " ^ fdecl.rettype)) *)
+            env
+        | Block(s1) -> print_string ("I am a block statement" ^ "\n");
+                let env = List.fold_left (fun acc x ->
+                    match x with
+                        Stmt2(x) -> print_string ("processing stmt in block");
+                                let locals, globals, fdecls = acc in
+                                    let env_return = exec (locals, globals, fdecls) x
+                                    in env_return;
+                        | VDecl2(x) ->
+                                    print_string ("processing vdecl in block");
+                                    let locals, globals, fdecls = acc in
+                                        let env_return =
+                                            (locals, (NameMap.add x.varname (initIdentifier (string_of_cbtype x.vartype)) globals), fdecls)
+                                        in env_return;
+                        | FullDecl2(x) -> print_string ("Processing Full Declaration: " ^ x.fvname ^ " in block \n");
+                                            let locals, globals, fdecls = acc in
+                                                let env_return =
+                                                    let v, acc = eval (locals, globals, fdecls) x.fvexpr in
+                                                        let vType = getType v in
+                                                            if vType = (string_of_cbtype x.fvtype)
+                                                            then
+                                                                match vType with
+                                                                    "int" -> (locals, (NameMap.add x.fvname (Int (getInt v)) globals), fdecls);
+                                                                    | "note" -> (locals, (NameMap.add x.fvname (Note (getNote v)) globals), fdecls);
+                                                                    | "chord" -> (locals, (NameMap.add x.fvname (Chord (getChord v)) globals), fdecls);
+                                                                    | "bool" -> (locals, (NameMap.add x.fvname (Bool (getBool v)) globals), fdecls);
+                                                                    | "scale" -> (locals, (NameMap.add x.fvname (Scale (getScale v)) globals), fdecls);
+                                                                    | "stanza" -> (locals, (NameMap.add x.fvname (Stanza (getStanza v)) globals), fdecls);
+                                                                    | "score" -> (locals, (NameMap.add x.fvname (Score (getScore v)) globals), fdecls);
+                                                                    | _ -> raise (Failure ("Unknown type: " ^ vType))
+                                                            else
+                                                                raise (Failure ("LHS = " ^ (string_of_cbtype x.fvtype) ^ " <> RHS = " ^ vType))
+                                                in env_return
+                    ) env s1;
+                in env
         | If(e, sl, s1, s2) -> print_string ("I am a if statement" ^ "\n");
-            run tail env
+            env
         | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n");
-            run tail env
+            env
         | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n");
-            run tail env
+            env
         | While(e, sl) -> print_string ("I am a while statement" ^ "\n");
-            run tail env
+            env
         | _ -> raise (Failure ("Unable to match the statment "))
-and run prog env =
-    let locals, globals = env in
-        if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals in non-empty\n");
-        match prog with
-            [] -> print_string ("Fuck it I'm done\n");
-                Bool true, (locals, globals)
+(* Execute the body of a method and return an updated global map *)
+and call fdecl_body locals globals fdecls = print_string ("---Call Running---\n");
+        match fdecl_body with
+            [] -> print_string ("---Method Call Complete---\n");
+                globals (*When we are done return the updated globals*)
             | head::tail ->
                 match head with
-                    VDecl(head) -> print_string ("Processing Variable Declaration: " ^ head.varname ^ "\n");
-                        run tail (locals, (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals));
-                    | FullDecl(head) -> print_string ("Processing Full Declaration: " ^ head.fvname ^ "\n");
-                        let v, env = eval (locals, globals) head.fvexpr in
+                    VDecl2(head) -> print_string ("---Method Processing Variable Declaration: " ^ head.varname ^ "\n");
+                        call tail (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) locals) globals fdecls
+                    | FullDecl2(head) -> print_string ("---Method Processing Full Declaration: " ^ head.fvname ^ "\n");
+                        let v, env = eval (locals, globals, fdecls) head.fvexpr in
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
                                         match vType with
-                                            "int" -> run tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals));
-                                            | "note" -> run tail (locals, (NameMap.add head.fvname (Note (getNote v)) globals));
-                                            | "chord" -> run tail (locals, (NameMap.add head.fvname (Chord (getChord v)) globals));
-                                            | "bool" -> run tail (locals, (NameMap.add head.fvname (Bool (getBool v)) globals));
-                                            | "scale" -> run tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals));
-                                            | "stanza" -> run tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals));
-                                            | "score" -> run tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals));
+                                            "int" -> call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls
+                                            | "note" -> call tail (NameMap.add head.fvname (Note (getNote v)) locals) globals fdecls
+                                            | "chord" -> call tail (NameMap.add head.fvname (Chord (getChord v)) locals) globals fdecls
+                                            | "bool" -> call tail (NameMap.add head.fvname (Bool (getBool v)) locals) globals fdecls
+                                            | "scale" -> call tail (NameMap.add head.fvname (Scale (getScale v)) locals) globals fdecls
+                                            | "stanza" -> call tail (NameMap.add head.fvname (Stanza (getStanza v)) locals) globals fdecls
+                                            | "score" -> call tail (NameMap.add head.fvname (Score (getScore v)) locals) globals fdecls
                                             | _ -> raise (Failure ("Unknown type: " ^ vType))
                                 else
                                     raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType))
-                    | MDecl(head) -> print_string ("Processing Method Declaration: " ^ head.fname ^ "\n");
-                        (NameMap.add head.fname head func_decls);
-                        run tail (locals, globals)
-                    | Stmt(head) -> print_string ("Processing Statement\n");
-                        exec (locals, globals) tail head
+                    | Stmt2(head) -> print_string ("---Method Processing Statement---\n");
+                        let locals, globals, fdecls = (exec (locals, globals, fdecls) head) in
+                            call tail locals globals fdecls
+(* Executes the body of a program *)
+and run prog env =
+    let locals, globals, fdecls = env in
+        if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals in non-empty\n");
+        match prog with
+            [] -> print_string ("##Program Completed##\n");
+                Bool true, (locals, globals, fdecls)
+            | head::tail ->
+                match head with
+                    VDecl(head) -> print_string ("<<<Processing Variable Declaration: " ^ head.varname ^ ">>>\n");
+                        run tail (locals, (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals), fdecls)
+                    | FullDecl(head) -> print_string ("<<<Processing Full Declaration: " ^ head.fvname ^ ">>>\n");
+                        let v, env = eval (locals, globals, fdecls) head.fvexpr in
+                            let vType = getType v in
+                                if vType = (string_of_cbtype head.fvtype)
+                                    then
+                                        match vType with
+                                            "int" -> run tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals), fdecls)
+                                            | "note" -> run tail (locals, (NameMap.add head.fvname (Note (getNote v)) globals), fdecls)
+                                            | "chord" -> run tail (locals, (NameMap.add head.fvname (Chord (getChord v)) globals), fdecls)
+                                            | "bool" -> run tail (locals, (NameMap.add head.fvname (Bool (getBool v)) globals), fdecls)
+                                            | "scale" -> run tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals), fdecls)
+                                            | "stanza" -> run tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals), fdecls)
+                                            | "score" -> run tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals), fdecls)
+                                            | _ -> raise (Failure ("Unknown type: " ^ vType))
+                                else
+                                    raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType))
+                    | MDecl(head) -> print_string ("<<<Processing Method Declaration: " ^ head.fname ^ ">>>\n");
+                        run tail (locals, globals, (NameMap.add head.fname head fdecls))
+                    | Stmt(head) -> print_string ("<<<Processing Statement>>>\n");
+                        run tail (exec (locals, globals, fdecls) head)
 
-let helper prog = run prog (NameMap.empty, NameMap.empty)
+let helper prog =
+
+    run prog (NameMap.empty, NameMap.empty, NameMap.empty)

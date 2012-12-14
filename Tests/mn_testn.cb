@@ -1,0 +1,12 @@
+<-
+main() {
+  Note a;
+  Sequence b;
+  a = A3q;
+  b = new_sequence() + a;
+  play(b);
+}
+
+->
+
+note b = (C#,1,whole );
