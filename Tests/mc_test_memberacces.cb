@@ -1,0 +1,2 @@
+note n = (C#,0,whole);
+n.octave;
