@@ -380,15 +380,17 @@ and exec env fname = function
                     else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype)))
             env
         | Block(s1) -> print_string ("I am a block statement" ^ "\n");
-                let env = call_inner_block env s1 fname
-                in env
+            let (locals, globals, fdecls) = env in
+                let g = call s1 locals globals fdecls fname
+                in (locals, g, fdecls)
         | If(e, sl, s1, s2) -> print_string ("I am an if statement" ^ "\n");
                 env
         | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n");
             let v, env = eval env e in
                 if getBool v = true then
-                    let env = call_inner_block env sl fname
-                    in env
+                    let (locals, globals, fdecls) = env in
+                        let g = call sl locals globals fdecls fname
+                        in (locals, g, fdecls)
                 else
                     env
         | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n");
@@ -397,7 +399,8 @@ and exec env fname = function
             let rec loop env =
                 let v, env = eval env e in
                 if getBool v = false then
-                    loop (call_inner_block env sl fname)
+                    let (locals, globals, fdecls) = env in
+                        loop (locals, (call sl locals globals fdecls fname), fdecls)
                 else
                     env
             in loop env
@@ -431,8 +434,8 @@ and call fdecl_body locals globals fdecls fdecl_name = print_string ("---Call Ru
                         let locals, globals, fdecls = (exec (locals, globals, fdecls) fdecl_name head) in
                             call tail locals globals fdecls fdecl_name
 (* Executes the body of a program *)
-and call_inner_block env list1 fname = 
-    let env = 
+(* and call_inner_block env list1 fname =
+    let env =
         List.fold_left (fun acc x ->
             match x with
                 Stmt2(x) -> print_string ("processing stmt in block");
@@ -465,7 +468,7 @@ and call_inner_block env list1 fname =
                                                         raise (Failure ("LHS = " ^ (string_of_cbtype x.fvtype) ^ " <> RHS = " ^ vType))
                                         in env_return
             ) env list1;
-    in env
+    in env *)
 and run prog env =
     let locals, globals, fdecls = env in
         if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals in non-empty\n");
