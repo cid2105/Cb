@@ -383,16 +383,8 @@ and exec env fname = function
             let (locals, globals, fdecls) = env in
                 let g = call s1 locals globals fdecls fname
                 in (locals, g, fdecls)
-        | If(e, sl, s1, s2) -> print_string ("I am an if statement" ^ "\n");
+        | If(e, sl, s2) -> print_string ("I am an if statement" ^ "\n");
                 env
-        | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n");
-            let v, env = eval env e in
-                if getBool v = true then
-                    let (locals, globals, fdecls) = env in
-                        let g = call sl locals globals fdecls fname
-                        in (locals, g, fdecls)
-                else
-                    env
         | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n");
             env
         | While(e, sl) -> print_string ("I am a while statement" ^ "\n");

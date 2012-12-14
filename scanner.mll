@@ -34,7 +34,7 @@ rule token = parse
 	| "or" { OR }
 	| "if" { IF } (* keywords *)
 	| "else" { ELSE }
-	| "elseif" { ELSIF }
+	(*| "elseif" { ELSIF } *)
 	| "foreach" { FOREACH }
 	| "in" { IN }
 	| "is" { IS }
