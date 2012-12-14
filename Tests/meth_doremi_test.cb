@@ -1,4 +1,3 @@
-<-
 meth stanza doremi(int octave, int duration, int n)
 	
 	int o = octave;
@@ -20,17 +19,16 @@ meth stanza doremi(int octave, int duration, int n)
     stanza s = [do, re, mi, fa, so, la, ti, upper_do];
 	int c = 0;
 
-->
-
 	note rest = (R, 0, whole);
 
-<-
-     While(c < n)
+     while(c < n)
          st.put(s);
          st.put(rest);
          s^+;
          c = c +1;
 	end
+
+end
 	
 	return st;
 end 
