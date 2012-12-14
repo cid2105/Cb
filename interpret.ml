@@ -156,18 +156,24 @@ let rec eval env = function
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
-    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
-        List.iter (fun a ->
-        (let chord_elem, env = eval env a in
-            let vType = getType( chord_elem ) in
-                if ( vType = "note") then raise (Failure ("Chord must be composed of notes "))
-        )) el;
-        (Chord ({notelist=[]; chord_duration=0}), env)
+
+    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n"); 
+        let note_list = List.map (fun (note_elem) -> 
+            (let chord_elem, env = eval env note_elem in
+                let vType = (getType chord_elem) in
+                    if ( vType = "note") then (getNote (chord_elem))
+                    else raise (Failure ("Chord must be composed of notes "))
+            )) el in 
+                let dur, env = eval env e in
+                    let durType = getType dur in
+                        if durType = "int" then (Chord ({notelist=note_list; chord_duration=(getInt dur)}), env)
+                        else raise (Failure ("Duration does not evaluate to an integer"))
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
         if s = "whole" then Int 64, env
             else if s = "half" then Int 32, env
             else if s = "quarter" then Int 16, env
             else raise (Failure ("Duration constant unknown"))
+
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n");
         let oct, env = eval env e in
             let octType = getType oct in
@@ -330,7 +336,7 @@ and run prog env =
     let locals, globals = env in
         if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals in non-empty\n");
         match prog with
-            [] -> print_string "Fuck it I'm done\n";
+            [] -> print_string ("Fuck it I'm done\n");
                 Bool true, (locals, globals)
             | head::tail ->
                 match head with
