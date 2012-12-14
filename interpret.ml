@@ -58,14 +58,49 @@ let rec eval env = function
     | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n")
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n")
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n")
-    | Assign(toE, fromE) -> print_string ("I am an assign expression\n")
+    | Assign(toE, fromE) -> 
+      let e1_data_type = get_data_type locals globals func_decls varName in
+      let e2_data_type = get_data_type locals globals func_decls e in
+      let v1 = string_of_expr locals globals func_decls varName in
+      let v2 = string_of_expr locals globals func_decls e
+      in
+        (* Check to make sure what is being assigned is the correct datatype *)
+        if (e2_data_type = "element") or (e2_data_type = "scan")
+        then
+          if (NameMap.mem v1 locals) or (NameMap.mem v1 globals)
+          then v1 ^ (" = " ^ v2)
+          else raise (Failure ("undeclared identifier " ^ v1))
+        else
+          if (e1_data_type = "bool") && (e2_data_type = "int")
+          then
+            if (NameMap.mem v1 locals) or (NameMap.mem v1 globals)
+            then v1 ^ (" = " ^ v2)
+            else raise (Failure ("undeclared identifier " ^ v1))
+          else
+            if e1_data_type <> e2_data_type
+            then
+              raise
+                (Failure
+                   ("incompatible datatype during assignment. Expecting " ^
+                      (e1_data_type ^
+                         (" but " ^ (e2_data_type ^ " is found")))))
+            else
+              if (NameMap.mem v1 locals) or (NameMap.mem v1 globals)
+              then
+                if e1_data_type = "card"
+                then v1 ^ ("->setname(\"" ^ (v2 ^ "\")"))
+                else
+                  if e1_data_type = "list"
+                  then "@" ^ ((get_name v1) ^ (" = " ^ v2))
+                  else v1 ^ (" = " ^ v2)
+              else raise (Failure ("undeclared identifier " ^ v1))
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n")
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n")
-    | ListExpr(el) -> print_string ("I am a list epxression\n"); (List.map (eval (NameMap.empty, globals)) el)
+    | ListExpr(el) -> print_string ("I am a list epxression\n"); 
     | BinOp(e1,o,e2) -> print_string ("I am a binary operator\n")
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n")
-    | NoExpr -> print_string ("I am nothingness\n")
+    | NoExpr -> print_string ("I am nothingness\n"); 
 
 (* Main entry point: run a program *)
 let rec run prog = match prog with
@@ -85,3 +120,5 @@ let rec run prog = match prog with
                         | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n"); run tail
                         | While(e, sl) -> print_string ("I am a while statement" ^ "\n"); run tail
                         | _ -> raise (Failure ("Unable to match the statment "))
+
+
