@@ -58,6 +58,11 @@ let getChord v =
         Chord(v) -> v
         | _ -> {notelist=[]; chord_duration=0}
 
+let getBool v =
+    match v with
+        Bool(v) -> v
+        | _ -> false
+
 let initIdentifier t =
   match t with
     "int" -> Int(0)
@@ -99,42 +104,58 @@ let rec eval env = function
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n")
     | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
     | BinOp(e1,o,e2) ->
-        let v1, env = eval env e1 in
-        let v2, env = eval env e2 in
-        let v1Type = getType v1 in
-        let v2Type = getType v2 in
-        (* Two variables have to be of the same type for binop *)
-        if v1Type = v2Type then
-            (match o with
-                Add ->  (* Only accept ints for now *)
-                    if v1Type = "int" then
-                        Int (getInt v1 + getInt v2)
-                    else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type))
-                | Sub ->
-                    if v1Type = "int" then
-                            Int (getInt v1 - getInt v2)
-                    else raise (Failure ("incorrect type: " ^ v1Type ^ " - " ^ v2Type))
-                | Mult ->
-                    if v1Type = "int" then
-                        Int (getInt v1 * getInt v2)
-                    else raise (Failure ("incorrect type: " ^ v1Type ^ " * " ^ v2Type))
-                | Div ->
-                    if v1Type = "int" then
-                        Int (getInt v1 / getInt v2)
-                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type)) ), env
-(*
-                | Mod ->
-                | And ->
-                | Or ->
-                | Eq ->
-                | NEq ->
-                | Less ->
-                | LEq ->
-                | Greater ->
-                | GEq ->
-                | IDTimes -> ), env *)
+         let v1, env = eval env e1 in
+         let v2, env = eval env e2 in
+         let v1Type = getType v1 in
+         let v2Type = getType v2 in
+         (* Two variables have to be of the same type for binop *)
+         if v1Type = v2Type then
+             (match o with (* Only accept ints for now *)
+                 Add ->
+                     if v1Type = "int" then
+                     Int (getInt v1 + getInt v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type))
+                 | Sub ->
+                     if v1Type = "int" then
+                     Int (getInt v1 - getInt v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " - " ^ v2Type))
+                 | Mult ->
+                     if v1Type = "int" then
+                     Int (getInt v1 * getInt v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " * " ^ v2Type))
+                 | Div ->
+                     if v1Type = "int" then
+                     Int (getInt v1 / getInt v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type))
+                 | Mod ->
+                     if v1Type = "int" then
+                     Int (getInt v1 mod getInt v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " % " ^ v2Type))
+                 | And ->
+                     if v1Type = "bool" then
+                     Bool (getBool v1 && getBool v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " and " ^ v2Type))
+                 | Or ->
+                     if v1Type = "bool" then
+                     Bool (getBool v1 || getBool v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " or " ^ v2Type))
+                 | Eq ->
+                     if v1Type = "int" then
+                     Bool (getInt v1 = getInt v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " is " ^ v2Type))
+                 | NEq ->
+                     if v1Type = "int" then
+                     Bool (getInt v1 != getInt v2)
+                     else raise (Failure ("incorrect type: " ^ v1Type ^ " isnt " ^ v2Type))
+                 | _ -> raise (Failure ("Unknown binary operation"))
+             ), env
+         (*) | Less ->
+         | LEq ->
+         | Greater ->
+         | GEq ->
+         | IDTimes -> ), env *)
 
-        else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
+         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
 
     (*| UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n")
