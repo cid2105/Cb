@@ -132,8 +132,30 @@ let rec eval env = function
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
+
+   (* | Assign(toE, fromE) -> print_string ("I am an assignment\n")
+    | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n") *)
+    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
+        if List.fold_left (fun a b ->  ( (getType a) = "note") && b) true el then
+            let dur, env = eval env e in
+                let durType = getType dur in
+                    if durType = "int" then (Chord ({notelist=[]; chord_duration=0}), env)
+                    else raise (Failure ("Duration does not evaluate to an integer")))
+        else raise (Failure ("Chord must consist only of notes"))
+    | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
+        if s = "whole" then Int 64, env
+            else if s = "half" then Int 32, env
+            else if s = "quarter" then Int 16, env
+            else raise (Failure ("Duration constant unknown"))
    (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
-    (*| NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n") *)
+    | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n");
+        let oct, env = eval env e in
+            let octType = getType oct in
+                if octType = "int" then (let dur, env = eval env e1 in
+                                    let durType = getType dur in
+                                        if durType = "int" then (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env)
+                                        else raise (Failure ("Duration does not evaluate to an integer")))
+                else  raise (Failure ("Octave does not evaluate to an integer"))
     (* | ChordExpr(el, e) -> print_string ("I am a chord expression: \n") *)
     (* | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
     | BinOp(e1,o,e2) ->

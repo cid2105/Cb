@@ -171,8 +171,9 @@ expr:
 	ID { Id($1) }
 	| ID DOT ID { MemberAccess($1, $3) }								/* score.put 	*/
 	| INTLITERAL { IntLiteral($1) }
-	| NOTECONST { NoteConst($1)}
-	| BOOLLITERAL {BoolLiteral($1)}
+	| NOTECONST { NoteConst($1) }
+	| DURATIONCONST { DurConst($1) }
+	| BOOLLITERAL { BoolLiteral($1) }
 	/*| ID LBRAC expr RBRAC { ElemOp($1, $3) }*/
 	/*| cb_type ID ASSIGN expr { IntTypeAssign($2, $4) } */
 	/*| INT expr { IntTypeAssign($2) }*/
