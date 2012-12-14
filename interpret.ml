@@ -91,27 +91,27 @@ let rec eval env = function
                     "duration" -> Int (getChord v).chord_duration
                   | _ -> raise (Failure ("invalid property of staff: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
-    | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env)
-  (*  | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n") *)
+    | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env);
+   (* | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n") *)
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
    (* | Assign(toE, fromE) -> print_string ("I am an assignment\n")
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n")
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n")
     | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
-    | BinOp(e1,o,e2) -> 
+    | BinOp(e1,o,e2) ->
         let v1, env = eval env e1 in
         let v2, env = eval env e2 in
         let v1Type = getType v1 in
         let v2Type = getType v2 in
         (* Two variables have to be of the same type for binop *)
         if v1Type = v2Type then
-            (match o with 
+            (match o with
                 Add ->  (* Only accept ints for now *)
                     if v1Type = "int" then
                         Int (getInt v1 + getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type)) ), env
-            
-            (*    | Sub -> 
+
+            (*    | Sub ->
                 | Mult ->
                 | Div ->
                 | Mod ->
@@ -126,7 +126,7 @@ let rec eval env = function
                 | IDTimes -> ), env *)
 
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
-    
+
     (*| UnaryOp(uo,e) -> print_string ("I am a unary operation\n")
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n")
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env *)
