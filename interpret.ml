@@ -15,11 +15,11 @@ type note = {
 
 type chord = {
     mutable notelist : note list;
-    mutable duration : int;
+    mutable chord_duration : int;
 }
 
 type scale = {
-    mutable notelist : note list;
+    mutable scale_notelist : note list;
 }
 
 (*Assumes notes in a stanza are auto-converted to chords*)
@@ -48,6 +48,16 @@ let getInt v =
         Int(v) -> v
         | _ -> 0
 
+let getNote v =
+    match v with
+        Note(v) -> v
+        | _ -> {pitch=128; octave=0; duration=0}
+
+let getChord v =
+    match v with
+        Chord(v) -> v
+        | _ -> {notelist=[]; chord_duration=0}
+
 let initIdentifier t =
   match t with
     "int" -> Int(0)
@@ -60,13 +70,27 @@ let csv = ""
 
 let rec eval env = function
     Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n");
-                let locals, globals = env in
-                    if NameMap.mem name locals then
-                        (NameMap.find name locals), env
-                    else if NameMap.mem name globals then
-                        (NameMap.find name globals), env
-                    else raise (Failure ("undeclared identifier: " ^ name))
-    (*| MemberAccess(vname, memname) -> print_string ("I am a member access on var: " ^ vname ^ " member: " ^ memname ^ "\n") *)
+        let locals, globals = env in
+            if NameMap.mem name locals then
+                (NameMap.find name locals), env
+            else if NameMap.mem name globals then
+                (NameMap.find name globals), env
+            else raise (Failure ("undeclared identifier: " ^ name))
+    | MemberAccess(vname, memname) -> print_string ("I am a member access on var: " ^ vname ^ " member: " ^ memname ^ "\n");
+        let v, env = eval env (Id vname) in
+            let vType = getType v in
+            (match vType with
+              | "note" ->
+                (match memname with
+                  "pitch" -> Int (getNote v).pitch
+                  | "octave" -> Int (getNote v).octave
+                  | "duration" -> Int (getNote v).duration
+                  | _ -> raise (Failure ("invalid property of note: " ^ memname)))
+              | "chord" ->
+                (match memname with
+                    "duration" -> Int (getChord v).chord_duration
+                  | _ -> raise (Failure ("invalid property of staff: " ^ memname)))
+              | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
     | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env)
   (*  | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n") *)
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
