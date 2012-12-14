@@ -408,10 +408,47 @@ and exec env = function
                                                 in env_return
                     ) env s1;
                 in env
-        | If(e, sl, s1, s2) -> print_string ("I am a if statement" ^ "\n");
-            env
+        | If(e, sl, s1, s2) -> print_string ("I am an if statement" ^ "\n");
+                env
         | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n");
-            env
+            let v, env = eval env e in
+                if getBool v = true then
+                    let env = List.fold_left (fun acc x ->
+                        match x with
+                            Stmt2(x) -> print_string ("processing stmt in block");
+                            let locals, globals, fdecls = acc in
+                                let env_return = exec (locals, globals, fdecls) x
+                                in env_return;
+                            | VDecl2(x) ->
+                                print_string ("processing vdecl in block");
+                                let locals, globals, fdecls = acc in
+                                    let env_return =
+                                        (locals, (NameMap.add x.varname (initIdentifier (string_of_cbtype x.vartype)) globals), fdecls)
+                                    in env_return;
+                            | FullDecl2(x) -> print_string ("Processing Full Declaration: " ^ x.fvname ^ " in block \n");
+                                let locals, globals, fdecls = acc in
+                                    let env_return =
+                                        let v, acc = eval (locals, globals, fdecls) x.fvexpr in
+                                            let vType = getType v in
+                                            if vType = (string_of_cbtype x.fvtype) then
+                                                match vType with
+                                                "int" -> (locals, (NameMap.add x.fvname (Int (getInt v)) globals), fdecls);
+                                                | "note" -> (locals, (NameMap.add x.fvname (Note (getNote v)) globals), fdecls);
+                                                | "chord" -> (locals, (NameMap.add x.fvname (Chord (getChord v)) globals), fdecls);
+                                                | "bool" -> (locals, (NameMap.add x.fvname (Bool (getBool v)) globals), fdecls);
+                                                | "scale" -> (locals, (NameMap.add x.fvname (Scale (getScale v)) globals), fdecls);
+                                                | "stanza" -> (locals, (NameMap.add x.fvname (Stanza (getStanza v)) globals), fdecls);
+                                                | "score" -> (locals, (NameMap.add x.fvname (Score (getScore v)) globals), fdecls);
+                                                | _ -> raise (Failure ("Unknown type: " ^ vType))
+                                            else
+                                                raise (Failure ("LHS = " ^ (string_of_cbtype x.fvtype) ^ "<> RHS = " ^ vType))
+                                    in env_return
+                    ) env sl;
+                    in env
+                else
+                    env
+(* *)
+
         | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n");
             env
         | While(e, sl) -> print_string ("I am a while statement" ^ "\n");
