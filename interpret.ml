@@ -404,7 +404,7 @@ and exec env = function
                                                                     | "score" -> (locals, (NameMap.add x.fvname (Score (getScore v)) globals), fdecls);
                                                                     | _ -> raise (Failure ("Unknown type: " ^ vType))
                                                             else
-                                                                raise (Failure ("LHS = " ^ (string_of_cbtype x.fvtype) ^ "<> RHS = " ^ vType))
+                                                                raise (Failure ("LHS = " ^ (string_of_cbtype x.fvtype) ^ " <> RHS = " ^ vType))
                                                 in env_return
                     ) env s1;
                 in env
