@@ -142,17 +142,22 @@ let rec eval env = function
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n"); 
-        List.iter (fun a -> 
-        (let chord_elem, env = eval env a in
-            let vType = getType( chord_elem ) in
-                if ( vType = "note") then raise (Failure ("Chord must be composed of notes "))
-        )) el; 
-        (Chord ({notelist=[]; chord_duration=0}), env)
+        let note_list = List.fold_left (fun (accum, note_elem) -> 
+            (let chord_elem, env = eval env note_elem in
+                let vType = (getType chord_elem) in
+                    if ( vType = "note") then note_elem::accum
+                    else raise (Failure ("Chord must be composed of notes "))
+            )) [] el in 
+                let dur, env = eval env e in
+                    let durType = getType dur in
+                        if durType = "int" then (Chord ({notelist=note_list; chord_duration=(getInt dur)}), env)
+                        else raise (Failure ("Duration does not evaluate to an integer"))
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
         if s = "whole" then Int 64, env
             else if s = "half" then Int 32, env
             else if s = "quarter" then Int 16, env
             else raise (Failure ("Duration constant unknown"))
+
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n");
         let oct, env = eval env e in
             let octType = getType oct in
@@ -239,6 +244,51 @@ let rec eval env = function
                 if getType v = "int" then 
                     Int(Random.int (getInt v)), env
                 else raise (Failure ("argument of randint must be an integer"))
+    | MethodCall("compose", [e]) -> (* Writes the specified part to a java file to be written into midi *)
+            ignore (match e with
+                        Id(i) -> i
+                        | _ ->  raise (Failure ("argument of play must be an identifier")));   
+            let e1, env = eval env e in
+                (if getType e1 = "part" then
+                    let p = getPart(e1) in
+                    (let start = (import_decl ^ class_start ^ staff_start) in
+                    let oc = open_out "Output.java" in
+                        (fprintf oc "%s" start;
+                    let print_note x = 
+                        fprintf oc "%s\n" ("\nt.add(createNoteOnEvent(" ^ (string_of_int x.pitch) ^ 
+                            ", tick," ^ (string_of_int x.intensity) ^ "));" ^
+                            "\ntick += getDuration(" ^ (string_of_float x.duration) ^ ");" ^
+                            "\nt.add(createNoteOffEvent(" ^ (string_of_int x.pitch) ^ ", tick));");
+                    in
+                    let print_chord x = 
+                        fprintf oc "%s\n" ("\nt.add(createNoteOnEvent(" ^ (string_of_int x.pitch) ^
+                            ", tick," ^ (string_of_int x.intensity) ^ "));" ^
+                            "\nt.add(createNoteOffEvent(" ^ (string_of_int x.pitch) ^ ", tick + getDuration(" ^ (string_of_float x.duration) ^ ")));");
+                    in  
+                    let chord_iter y =
+                        (if List.length y.notelist < 2 then
+                            (List.iter print_note y.notelist)
+                        else
+                            (List.iter print_chord y.notelist;
+                            fprintf oc "%s\n" ("\ntick += getDuration(" ^ (string_of_float (List.hd y.notelist).duration) ^ ");");)
+                        )
+                        in
+                        let staff_iter staff = 
+                            (fprintf oc "%s\n" ("\nt = createTrack(" ^ (string_of_int staff.instrument) ^ ");" ^ "\ntick = 0;");
+                            List.iter chord_iter (List.rev staff.chordlist))
+                        in
+                            List.iter staff_iter (List.rev p.stafflist));
+                    fprintf oc "%s" "t.add(createNoteOnEvent(0, tick, 0)); \ntick += getDuration(0.5);\nt.add(createNoteOffEvent(0, tick));";
+                    fprintf oc "%s" staff_end;
+                    fprintf oc "%s" (
+                        main_start ^ "new Output(" ^ 
+                        (string_of_int (p.bpm)) ^ ", " ^ (string_of_float (p.beatsig)) ^
+                        ");");
+                    fprintf oc "%s" main_end;
+                    fprintf oc "%s" class_end;
+                    close_out oc)
+                else raise (Failure ("argument of play must be a part")));
+            (Bool false), env
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
         let vType = getType v in
