@@ -146,15 +146,13 @@ let rec eval env = function
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
-    (*| ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
-        let isValid = List.fold_left (fun a b ->  ( getType(eval(a)) == "note") && b) true el in
-        if (List.for_all (fun b -> (b =  getType(eval(b)) = "note") ) el) then
-            let dur, env = eval env e in
-                let durType = getType dur in
-                    if durType = "int" then (Chord ({notelist=el; chord_duration=(getInt dur)}), env)
-                    else raise (Failure ("Duration does not evaluate to an integer"))
-        else raise (Failure ("Chord must consist only of notes"))
-    *)
+    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n"); 
+        List.iter (fun a -> 
+        (let chord_elem, env = eval env a in
+            let vType = getType( chord_elem ) in
+                if ( vType = "note") then raise (Failure ("Duration does not evaluate to an integer"))
+        )) el; 
+        (Chord ({notelist=[]; chord_duration=0}), env)
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
         if s = "whole" then Int 64, env
             else if s = "half" then Int 32, env
@@ -232,6 +230,15 @@ let rec eval env = function
                 (* | IDTimes -> ), env *)
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
+    | MethodCall("print", [e]) ->
+        let v, env = eval env e in
+          (if getType v = "int" then
+            print_endline (string_of_int (getInt v))
+          else if getType v = "bool" then
+            print_endline (string_of_bool (getBool v))
+          else
+            print_endline(getType v));
+          (Bool false), env      
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
         let vType = getType v in
