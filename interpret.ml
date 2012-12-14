@@ -145,7 +145,7 @@ let rec eval env = function
         List.iter (fun a -> 
         (let chord_elem, env = eval env a in
             let vType = getType( chord_elem ) in
-                if ( vType = "note") then raise (Failure ("Duration does not evaluate to an integer"))
+                if ( vType = "note") then raise (Failure ("Chord must be composed of notes "))
         )) el; 
         (Chord ({notelist=[]; chord_duration=0}), env)
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
@@ -226,13 +226,13 @@ let rec eval env = function
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
     | MethodCall("print", [e]) ->
-        let v, env = eval env e in
-          (if getType v = "int" then
-            print_endline (string_of_int (getInt v))
-          else if getType v = "bool" then
-            print_endline (string_of_bool (getBool v))
+        let arg, env = eval env e in
+          (if getType arg = "int" then
+            print_endline (string_of_int (getInt arg))
+          else if getType arg = "bool" then
+            print_endline (string_of_bool (getBool arg))
           else
-            print_endline(getType v));
+            print_endline(getType arg));
           (Bool false), env      
     | MethodCall("randint", [e]) -> 
             let v, env = eval env e in
