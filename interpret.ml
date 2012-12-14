@@ -239,6 +239,11 @@ let rec eval env = function
           else
             print_endline(getType v));
           (Bool false), env      
+    | MethodCall("randint", [e]) -> 
+            let v, env = eval env e in
+                if getType v = "int" then 
+                    Int(Random.int (getInt v)), env
+                else raise (Failure ("argument of randint must be an integer"))
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
         let vType = getType v in
