@@ -257,7 +257,7 @@ let rec eval env = function
 (* Main entry point: run a program *)
 let rec run prog env =
     let locals, globals = env in
-        if NameMap.is_empty globals then print_string ("In run, globals is empty\n");
+        if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals in non-empty\n");
         match prog with
             [] -> print_string "Fuck it I'm done\n"
             | head::tail ->

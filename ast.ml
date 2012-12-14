@@ -5,8 +5,6 @@ type op =
 type uop =
     Raise | Lower
 
-(*type cb_type = Int of int | Bool of bool | Note of note | Chord of chord | Scale of scale | Stanza of stanza | Score of score*)
-
 type cb_type = Void | Int | Note | Bool | Chord | Scale | Stanza | Score
 
 type expr = (* Expressions *)
@@ -26,7 +24,6 @@ type expr = (* Expressions *)
     | UnaryOp of uop * expr
     | MethodCall of string * expr list (*mn foo(x, y) *)
     | NoExpr (* for (;;) *)
-
 
 type par_decl = {
     paramname : string; (* Name of the variable *)
@@ -160,14 +157,12 @@ let rec string_of_stmt = function
                 )
              s);(* no elsif part given *)
             | _ -> "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
-
                 (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
                 )
-
             s) ^ "\n" ^ string_of_stmt els;
         end
     | If(e, s1, els, s2) -> begin
@@ -188,8 +183,6 @@ let rec string_of_stmt = function
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
                 )
-
-
              s1) ^ "\n" ^ string_of_stmt els ^
                     "else\n" ^ string_of_stmt s2; end
     | ElseIf(e, els) ->  "elsif (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
@@ -199,7 +192,6 @@ let rec string_of_stmt = function
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
                 )
-
      els)
     | Foreach(p, id, s) ->
         "foreach (" ^ string_of_pdecl p  ^ " in " ^ id ^ " )\n" ^ String.concat "\n" (List.map
