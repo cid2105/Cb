@@ -67,6 +67,31 @@ let initIdentifier t =
   match t with
     "int" -> Int(0)
 
+let noteMap = NameMap.empty
+
+let initNoteMap =
+    NameMap.add "C" 0 noteMap;
+    NameMap.add "B#" 0 noteMap;
+    NameMap.add "C#" 1 noteMap;
+    NameMap.add "Db" 1 noteMap;
+    NameMap.add "D" 2 noteMap;
+    NameMap.add "Eb" 3 noteMap;
+    NameMap.add "D#" 3 noteMap;
+    NameMap.add "E" 4 noteMap;
+    NameMap.add "Fb" 4 noteMap;
+    NameMap.add "F" 5 noteMap;
+    NameMap.add "E#" 5 noteMap;
+    NameMap.add "F#" 6 noteMap;
+    NameMap.add "Gb" 6 noteMap;
+    NameMap.add "G" 7 noteMap;
+    NameMap.add "Ab" 8 noteMap;
+    NameMap.add "G#" 8 noteMap;
+    NameMap.add "A" 9 noteMap;
+    NameMap.add "Bb" 10 noteMap;
+    NameMap.add "A#" 10 noteMap;
+    NameMap.add "B" 11 noteMap;
+    NameMap.add "Cb" 11 noteMap;
+
 exception ReturnException of cbtype * cbtype NameMap.t
 
 let func_decls = NameMap.empty
@@ -97,7 +122,8 @@ let rec eval env = function
                   | _ -> raise (Failure ("invalid property of staff: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
     | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env);
-   (* | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n") *)
+    | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
+        Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
    (* | Assign(toE, fromE) -> print_string ("I am an assignment\n")
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n")
