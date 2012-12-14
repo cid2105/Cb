@@ -158,12 +158,12 @@ let rec eval env = function
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
 
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n"); 
-        let note_list = List.fold_left (fun (accum, note_elem) -> 
+        let note_list = List.map (fun (note_elem) -> 
             (let chord_elem, env = eval env note_elem in
                 let vType = (getType chord_elem) in
-                    if ( vType = "note") then note_elem::accum
+                    if ( vType = "note") then (getNote (chord_elem))
                     else raise (Failure ("Chord must be composed of notes "))
-            )) [] el in 
+            )) el in 
                 let dur, env = eval env e in
                     let durType = getType dur in
                         if durType = "int" then (Chord ({notelist=note_list; chord_duration=(getInt dur)}), env)
