@@ -135,8 +135,11 @@ let rec eval env = function
     | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n") *)
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
         if List.fold_left (fun a b ->  ( (getType a) = "note") && b) true el then
-            print_string("I am a Chord Expression")
-        else raise (Failure ("Chord must consist only of "))
+            let dur, env = eval env e in
+                let durType = getType dur in
+                    if durType = "int" then (Chord ({notelist=[]; chord_duration=(getInt dur)}), env)
+                    else raise (Failure ("Duration does not evaluate to an integer")))
+        else raise (Failure ("Chord must consist only of notes"))
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
         if s = "whole" then Int 64, env
             else if s = "half" then Int 32, env
