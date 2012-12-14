@@ -99,10 +99,10 @@ let rec string_of_expr = function
     | DurConst(c) -> c
     | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e (* expr = expr ?????? *)
     | NoteExpr(id, e1, e2) -> " ( " ^ id ^ " , " ^ string_of_expr e1 ^ " , " ^ string_of_expr e2 ^ " ) "
-    | ChordExpr(l, e) -> "( [ " ^ String.concat "\n" (List.map string_of_expr l) ^ " , " ^ string_of_expr e
+    | ChordExpr(l, e) -> "( [ " ^ String.concat " , " (List.map string_of_expr l) ^ "] , " ^ string_of_expr e ^ " ) ";
     (*| TypeAssign(v, e) -> v ^ " = " ^ string_of_expr e (* Chord a = ... *) *)
   (*| ElementOp(s, e1) -> s ^ "[" ^ string_of_expr e1 ^ "]";*)
-    | ListExpr(e) -> " [ " ^ String.concat "," (List.map string_of_expr e) ^ " ] "
+    | ListExpr(e) -> " [ " ^ String.concat " , " (List.map string_of_expr e) ^ " ] "
 
 (*type op =
     Add | Sub | Mult | Div | Mod
@@ -116,16 +116,18 @@ let rec string_of_expr = function
             | Eq -> "==" | NEq -> "!="
             | Less -> "<" | LEq -> "<=" | Greater -> ">" | GEq -> ">="
             | And -> "&&" | Or -> "||" | Mod -> "%" | Mult -> "*" | Div -> "/") ^
+
             " " ^ string_of_expr e2
         end
 
     | UnaryOp(up, e) -> string_of_uop up ^ " " ^ string_of_expr e
     | MethodCall(f, el) ->
-      f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")" (*?????*)
+      f ^ "(" ^ String.concat " , " (List.map string_of_expr el) ^ " ) " (*?????*)
     | NoExpr -> "";;
 
 let string_of_fvdl fvdel =
     string_of_cbtype fvdel.fvtype ^ " " ^ fvdel.fvname ^ " = " ^ string_of_expr fvdel.fvexpr ^ ";\n"
+
 
 let rec string_of_stmt = function
     Block(stmts) -> begin
@@ -169,6 +171,7 @@ let rec string_of_stmt = function
         match els with
             Block([]) ->    "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
                  (fun innerb ->
+
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;

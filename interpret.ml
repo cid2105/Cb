@@ -53,11 +53,6 @@ let getInt v =
         Int(v) -> v
         | _ -> 0
 
-let getBool v =
-    match v with
-        Bool(v) -> v
-        | _ -> false
-
 let getNote v =
     match v with
         Note(v) -> v
@@ -141,35 +136,33 @@ let rec eval env = function
                 (NameMap.find name locals), env
             else if NameMap.mem name globals then
                 (NameMap.find name globals), env
-            else raise (Failure ("Undeclared identifier: " ^ name))
+            else raise (Failure ("undeclared identifier: " ^ name))
     | MemberAccess(vname, memname) -> print_string ("I am a member access on var: " ^ vname ^ " member: " ^ memname ^ "\n");
         let v, env = eval env (Id vname) in
             let vType = getType v in
             (match vType with
-                | "note" ->
-                    (match memname with
-                        "pitch" -> Int (getNote v).pitch
-                        | "octave" -> Int (getNote v).octave
-                        | "duration" -> Int (getNote v).duration
-                        | _ -> raise (Failure ("invalid property of note: " ^ memname)))
-                | "chord" ->
-                    (match memname with
-                        "duration" -> Int (getChord v).chord_duration
-                        | _ -> raise (Failure ("invalid property of chord: " ^ memname)))
-                | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
+              | "note" ->
+                (match memname with
+                  "pitch" -> Int (getNote v).pitch
+                  | "octave" -> Int (getNote v).octave
+                  | "duration" -> Int (getNote v).duration
+                  | _ -> raise (Failure ("invalid property of note: " ^ memname)))
+              | "chord" ->
+                (match memname with
+                    "duration" -> Int (getChord v).chord_duration
+                  | _ -> raise (Failure ("invalid property of staff: " ^ memname)))
+              | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
     | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n"); (Int i, env);
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
-    (*| ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
-        let isValid = List.fold_left (fun a b ->  ( getType(eval(a)) == "note") && b) true el in
-        if (List.for_all (fun b -> (b =  getType(eval(b)) = "note") ) el) then
-            let dur, env = eval env e in
-                let durType = getType dur in
-                    if durType = "int" then (Chord ({notelist=el; chord_duration=(getInt dur)}), env)
-                    else raise (Failure ("Duration does not evaluate to an integer"))
-        else raise (Failure ("Chord must consist only of notes"))
-    *)
+    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
+        List.iter (fun a ->
+        (let chord_elem, env = eval env a in
+            let vType = getType( chord_elem ) in
+                if ( vType = "note") then raise (Failure ("Duration does not evaluate to an integer"))
+        )) el;
+        (Chord ({notelist=[]; chord_duration=0}), env)
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
         if s = "whole" then Int 64, env
             else if s = "half" then Int 32, env
@@ -247,6 +240,20 @@ let rec eval env = function
                 (* | IDTimes -> ), env *)
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
+    | MethodCall("print", [e]) ->
+        let v, env = eval env e in
+          (if getType v = "int" then
+            print_endline (string_of_int (getInt v))
+          else if getType v = "bool" then
+            print_endline (string_of_bool (getBool v))
+          else
+            print_endline(getType v));
+          (Bool false), env
+    | MethodCall("randint", [e]) ->
+            let v, env = eval env e in
+                if getType v = "int" then
+                    Int(Random.int (getInt v)), env
+                else raise (Failure ("argument of randint must be an integer"))
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
         let vType = getType v in
