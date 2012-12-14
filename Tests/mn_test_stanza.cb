@@ -1,0 +1,4 @@
+
+note cs = (Bb, 3, 40);
+
+stanza s = [cs];
