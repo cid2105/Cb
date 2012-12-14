@@ -120,13 +120,13 @@ let assign r x = r.content <- x; x *)
     let noteMap = NameMap.add "F#" 6 noteMap
     let noteMap = NameMap.add "Gb" 6 noteMap
     let noteMap = NameMap.add "G" 7 noteMap
-(*     NameMap.add "Ab" 8 noteMap;
-    NameMap.add "G#" 8 noteMap;
-    NameMap.add "A" 9 noteMap;
-    NameMap.add "Bb" 10 noteMap;
-    NameMap.add "A#" 10 noteMap;
-    NameMap.add "B" 11 noteMap;
-    NameMap.add "Cb" 11 noteMap; *)
+    let noteMap = NameMap.add "Ab" 8 noteMap
+    let noteMap = NameMap.add "G#" 8 noteMap
+    let noteMap = NameMap.add "A" 9 noteMap
+    let noteMap = NameMap.add "Bb" 10 noteMap
+    let noteMap = NameMap.add "A#" 10 noteMap
+    let noteMap = NameMap.add "B" 11 noteMap
+    let noteMap = NameMap.add "Cb" 11 noteMap
 
 
 
