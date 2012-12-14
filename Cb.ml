@@ -2,8 +2,13 @@ type action = Ast | Interpret
 
 (** find out how to call java from inside ml? *)
 
+module NameMap = Map.Make(struct
+    type t = string
+    let compare x y = Pervasives.compare x y
+end)
+
 let _ =
-  let action = 
+  let action =
   if Array.length Sys.argv > 1 then
     List.assoc Sys.argv.(1) [ ("-a", Ast);
                     ("-i", Interpret) ]
@@ -16,5 +21,4 @@ let _ =
   (*| Bytecode -> let listing =
       Bytecode.string_of_prog (Compile.translate program)
     in print_endline listing*)
-        | Interpret -> ignore (Interpret.run (List.rev program))
- 
+        | Interpret -> ignore (Interpret.helper (List.rev program))

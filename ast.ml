@@ -5,8 +5,7 @@ type op =
 type uop =
     Raise | Lower
 
-type cb_type =
-    Void | Int | Note | Bool | Chord | Scale | Stanza | Score
+type cb_type = Void | Int | Note | Bool | Chord | Scale | Stanza | Score
 
 type expr = (* Expressions *)
     Id of string (* foo *)
@@ -25,7 +24,6 @@ type expr = (* Expressions *)
     | UnaryOp of uop * expr
     | MethodCall of string * expr list (*mn foo(x, y) *)
     | NoExpr (* for (;;) *)
-
 
 type par_decl = {
     paramname : string; (* Name of the variable *)
@@ -71,8 +69,7 @@ generic =
 
 type program =  generic list
 
-
-let string_of_cbtype cbt = 
+let string_of_cbtype cbt =
     match cbt with
         Note -> "note"
         | Int -> "int"
@@ -81,16 +78,22 @@ let string_of_cbtype cbt =
         | Bool -> "bool" | Scale -> "scale" | Stanza -> "stanza" | Score -> "score";
         | _ -> "";;
 
-let string_of_uop uop = 
+let string_of_uop uop =
     match uop with
+<<<<<<< HEAD
     Raise -> "raise" | Lower -> "lower"
     
 let string_of_pdecl var = 
+=======
+    | Raise -> "raise" | Lower -> "lower"
+    | _ -> "hi";;
+
+let string_of_pdecl var =
+>>>>>>> a179823680bac846ee2c665270a4a4dd95c6d800
     string_of_cbtype var.paramtype ^ " " ^ var.paramname
 
-let string_of_vdecl var = 
+let string_of_vdecl var =
     string_of_cbtype var.vartype ^ " " ^ var.varname ^ ";\n"
-
 
 let rec string_of_expr = function
     Id(s) -> s
@@ -118,7 +121,11 @@ let rec string_of_expr = function
             (*| DotAdd -> ".+" | DotSub -> ".-" *)
             | Eq -> "==" | NEq -> "!="
             | Less -> "<" | LEq -> "<=" | Greater -> ">" | GEq -> ">="
+<<<<<<< HEAD
             | And -> "&&" | Or -> "||" | Mod -> "%" | Mult -> "*" | Div -> "/" | IDTimes -> ".*") ^ 
+=======
+            | And -> "&&" | Or -> "||" | Mod -> "%" | Mult -> "*" | Div -> "/") ^
+>>>>>>> a179823680bac846ee2c665270a4a4dd95c6d800
             " " ^ string_of_expr e2
         end
 
@@ -127,8 +134,13 @@ let rec string_of_expr = function
       f ^ "(" ^ String.concat " , " (List.map string_of_expr el) ^ " ) " (*?????*)
     | NoExpr -> "";;
 
+<<<<<<< HEAD
 let string_of_fvdl fvdel = 
     string_of_cbtype fvdel.fvtype ^ " " ^ fvdel.fvname ^ " = " ^ string_of_expr fvdel.fvexpr ^ " ;\n"
+=======
+let string_of_fvdl fvdel =
+    string_of_cbtype fvdel.fvtype ^ " " ^ fvdel.fvname ^ " = " ^ string_of_expr fvdel.fvexpr ^ ";\n"
+>>>>>>> a179823680bac846ee2c665270a4a4dd95c6d800
 
 let rec string_of_stmt = function
     Block(stmts) -> begin
@@ -139,11 +151,11 @@ let rec string_of_stmt = function
                     Stmt2(st) -> string_of_stmt st ^ "\n" ^ string_of_abst abstr;
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ^ string_of_abst abstr;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ^ string_of_abst abstr;
-        in 
+        in
         "\n" ^  string_of_abst stmts ^ "\nend\n" (* ) Block end *)
         end
     | Expr(expr) -> string_of_expr expr ^ ";\n";
-    | Return(expr) -> begin 
+    | Return(expr) -> begin
         match expr with
             NoExpr -> "\n" (* print nothing user has to input Return ; though *)
             | _ -> "return " ^ string_of_expr expr ^ ";\n"; end
@@ -151,111 +163,91 @@ let rec string_of_stmt = function
         | Continue -> "continue;\n";*)
     | If(e, s, els, Block([])) -> begin
         match els with
+<<<<<<< HEAD
             Block([]) -> "if (" ^ string_of_expr e ^ ")\n" ^ String.concat " " (List.map 
                 (fun x -> 
+=======
+            Block([]) -> "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
+                (fun x ->
+>>>>>>> a179823680bac846ee2c665270a4a4dd95c6d800
                     match x with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
              s);(* no elsif part given *)
-            | _ -> "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map 
-
-                (fun innerb -> 
+            | _ -> "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
+                (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
-
-            s) ^ "\n" ^ string_of_stmt els; 
+            s) ^ "\n" ^ string_of_stmt els;
         end
-    | If(e, s1, els, s2) -> begin 
+    | If(e, s1, els, s2) -> begin
         match els with
+<<<<<<< HEAD
             Block([]) ->    "if (" ^ string_of_expr e ^ ")\n" ^ String.concat " " (List.map 
 
                  (fun innerb -> 
+=======
+            Block([]) ->    "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
+                 (fun innerb ->
+>>>>>>> a179823680bac846ee2c665270a4a4dd95c6d800
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
-
-
-             s1) ^ 
+             s1) ^
                             "else\n" ^ string_of_stmt s2;
-            | _ ->  "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map 
-
-                 (fun innerb -> 
+            | _ ->  "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
+                 (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
-
-
-             s1) ^ "\n" ^ string_of_stmt els ^ 
+             s1) ^ "\n" ^ string_of_stmt els ^
                     "else\n" ^ string_of_stmt s2; end
     | ElseIf(e, els) ->  "elsif (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
-
-         (fun innerb -> 
+         (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
-
-
      els)
     | Foreach(p, id, s) ->
-        "foreach (" ^ string_of_pdecl p  ^ " in " ^ id ^ " )\n" ^ String.concat "\n" (List.map 
-
-             (fun innerb -> 
+        "foreach (" ^ string_of_pdecl p  ^ " in " ^ id ^ " )\n" ^ String.concat "\n" (List.map
+             (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
-
-
          s);
 
-    | While(e, s) -> "while (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map 
-
-         (fun innerb -> 
+    | While(e, s) -> "while (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
+         (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
-
-
      s);;
-
-
-
 
 let string_of_mdecl mdecl =
     mdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_pdecl mdecl.formals) ^ ")\n" ^
    (* String.concat "" (List.map string_of_vdecl mdecl.locals) ^*)
-    String.concat "" (List.map 
-
-         (fun innerb -> 
+    String.concat "" (List.map
+         (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-
                 )
-
-
      mdecl.body) ^ "\nend\n"
 
 let rec string_of_program = function
