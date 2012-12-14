@@ -37,8 +37,6 @@ type var_decl = {
     vartype : cb_type; (* Name of variable type *)
 }
 
-
-
 type fullvdecl = {
     fvtype : cb_type;
     fvname : string;
