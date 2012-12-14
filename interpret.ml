@@ -366,7 +366,45 @@ let rec eval env = function
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
     (* | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
     (* | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
-    (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
+    | Assign(toE, fromE) -> print_string ("I am an assignment\n");
+        let lft_expr, env = eval env toE in
+            let rht_expr, (locals, globals, fdecls) = eval env fromE in
+                let lftInfo = 
+                    match toE with
+                        Id(i) -> ("id", (i, ""))
+                        | MemberAccess(i, j) -> ("member", (i, j))
+                        | _ -> raise (Failure ("left side of assignment must be an identifier or member access")) in         
+                let lftIdType = fst lftInfo in
+                    let lftName = snd lftInfo in
+                        let lftType = (* ("note", "locals") *)
+                            (if NameMap.mem (fst lftName) locals then
+                                (getType (NameMap.find (fst lftName) locals), "locals")
+                            else if NameMap.mem (fst lftName) globals then
+                                (getType (NameMap.find (fst lftName) globals), "globals")
+                            else raise (Failure ("undeclared identifier: " ^ fst lftName))) in  
+                        let lftRetType = getType lft_expr in 
+                            let rhtType = getType rht_expr in     
+                            if lftRetType = rhtType then
+                                match lftRetType with
+                                    "int" ->
+                                        if lftIdType = "id" then
+                                            (if snd lftType = "locals" then
+                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls)
+                                            else if snd lftType = "globals" then
+                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls)
+                                            else raise (Failure ("fatal error")))
+                                        else if lftIdType = "member" then
+                                            (* print_string ("MemberAccess"); *)
+                                            raise (Failure ("members not implemented, FUCK OFF")) 
+                                        else raise (Failure ("cannot assign to: " ^ (fst lftType))) 
+                                    | _ -> raise (Failure ("Only integers dick, FUCK OFF")) 
+                                    (* print_string ("Some other BS type, not int") *)
+                            else if lftIdType = "id" then
+                                raise (Failure ("cannot assign: " ^ fst lftType ^ " = " ^ rhtType))
+                            else if lftIdType = "member" then
+                                raise (Failure ("cannot assign: " ^ lftRetType ^ " = " ^ rhtType))
+                            else raise (Failure ("fatal error"))
+
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
     | _ -> print_string ("No matching for eval\n"); Bool true, env
 and exec env fname = function
