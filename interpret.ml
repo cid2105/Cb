@@ -339,7 +339,7 @@ let rec eval env = function
                     in
                         (* try *)
                             let globals =
-                                (call fdecl.body locals globals fdecls) in
+                                (call fdecl.body locals globals fdecls name) in
                                     Bool false, (locals, globals, fdecls) (* This gets hit if you never see a return statement *)
                        (*  with ReturnException(v, g) -> v, (locals, g, fdecls) (* This gets hit if you hit a return statement *) *)
 
@@ -365,7 +365,7 @@ let rec eval env = function
     (* | Assign(toE, fromE) -> print_string ("I am an assignment\n") *)
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
     | _ -> print_string ("No matching for eval\n"); Bool true, env
-and exec env = function
+and exec env fname = function
         Expr(e) -> let _, env = (eval env e) in
             env
         | Return(e) -> print_string ("I am an a return statement" ^ "\n");
@@ -379,7 +379,7 @@ and exec env = function
                     match x with
                         Stmt2(x) -> print_string ("processing stmt in block");
                                 let locals, globals, fdecls = acc in
-                                    let env_return = exec (locals, globals, fdecls) x
+                                    let env_return = exec (locals, globals, fdecls) fname x
                                     in env_return;
                         | VDecl2(x) ->
                                     print_string ("processing vdecl in block");
@@ -418,33 +418,33 @@ and exec env = function
             env
         | _ -> raise (Failure ("Unable to match the statment "))
 (* Execute the body of a method and return an updated global map *)
-and call fdecl_body locals globals fdecls = print_string ("---Call Running---\n");
+and call fdecl_body locals globals fdecls fdecl_name = print_string ("---Call Running---\n");
         match fdecl_body with
             [] -> print_string ("---Method Call Complete---\n");
                 globals (*When we are done return the updated globals*)
             | head::tail ->
                 match head with
                     VDecl2(head) -> print_string ("---Method Processing Variable Declaration: " ^ head.varname ^ "\n");
-                        call tail (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) locals) globals fdecls
+                        call tail (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) locals) globals fdecls fdecl_name
                     | FullDecl2(head) -> print_string ("---Method Processing Full Declaration: " ^ head.fvname ^ "\n");
                         let v, env = eval (locals, globals, fdecls) head.fvexpr in
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
                                         match vType with
-                                            "int" -> call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls
-                                            | "note" -> call tail (NameMap.add head.fvname (Note (getNote v)) locals) globals fdecls
-                                            | "chord" -> call tail (NameMap.add head.fvname (Chord (getChord v)) locals) globals fdecls
-                                            | "bool" -> call tail (NameMap.add head.fvname (Bool (getBool v)) locals) globals fdecls
-                                            | "scale" -> call tail (NameMap.add head.fvname (Scale (getScale v)) locals) globals fdecls
-                                            | "stanza" -> call tail (NameMap.add head.fvname (Stanza (getStanza v)) locals) globals fdecls
-                                            | "score" -> call tail (NameMap.add head.fvname (Score (getScore v)) locals) globals fdecls
+                                            "int" -> call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls fdecl_name
+                                            | "note" -> call tail (NameMap.add head.fvname (Note (getNote v)) locals) globals fdecls fdecl_name
+                                            | "chord" -> call tail (NameMap.add head.fvname (Chord (getChord v)) locals) globals fdecls fdecl_name
+                                            | "bool" -> call tail (NameMap.add head.fvname (Bool (getBool v)) locals) globals fdecls fdecl_name
+                                            | "scale" -> call tail (NameMap.add head.fvname (Scale (getScale v)) locals) globals fdecls fdecl_name
+                                            | "stanza" -> call tail (NameMap.add head.fvname (Stanza (getStanza v)) locals) globals fdecls fdecl_name
+                                            | "score" -> call tail (NameMap.add head.fvname (Score (getScore v)) locals) globals fdecls fdecl_name
                                             | _ -> raise (Failure ("Unknown type: " ^ vType))
                                 else
-                                    raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType))
+                                    raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ " <> RHS = " ^ vType))
                     | Stmt2(head) -> print_string ("---Method Processing Statement---\n");
-                        let locals, globals, fdecls = (exec (locals, globals, fdecls) head) in
-                            call tail locals globals fdecls
+                        let locals, globals, fdecls = (exec (locals, globals, fdecls) fdecl_name head) in
+                            call tail locals globals fdecls fdecl_name
 (* Executes the body of a program *)
 and run prog env =
     let locals, globals, fdecls = env in
@@ -475,7 +475,7 @@ and run prog env =
                     | MDecl(head) -> print_string ("<<<Processing Method Declaration: " ^ head.fname ^ ">>>\n");
                         run tail (locals, globals, (NameMap.add head.fname head fdecls))
                     | Stmt(head) -> print_string ("<<<Processing Statement>>>\n");
-                        run tail (exec (locals, globals, fdecls) head)
+                        run tail (exec (locals, globals, fdecls) "" head)
 
 let helper prog =
 
