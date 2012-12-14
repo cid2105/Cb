@@ -133,8 +133,7 @@ let rec eval env = function
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
-        let isValid = List.fold_left (fun a b ->  ( getType(eval(a)) == "note") && b) true el in
-        if isValid then
+        if (List.for_all (fun b -> (b =  getType(eval(b)) = "note") ) el) then
             let dur, env = eval env e in
                 let durType = getType dur in
                     if durType = "int" then (Chord ({notelist=el; chord_duration=(getInt dur)}), env)
