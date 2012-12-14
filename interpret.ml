@@ -132,9 +132,6 @@ let rec eval env = function
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
-
-   (* | Assign(toE, fromE) -> print_string ("I am an assignment\n")
-    | NoteExpr(s,e,e1) -> print_string ("I am a note expression: " ^ s ^ "," ^ "\n") *)
     | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
         if List.fold_left (fun a b ->  ( (getType a) = "note") && b) true el then
             let dur, env = eval env e in
@@ -222,24 +219,24 @@ let rec eval env = function
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
 
-    | UnaryOp(uo,e) -> print_string ("I am a unary operation\n"); 
+    | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
         let vType = getType v in
         if ( vType = "note" or vType = "chord" ) then
             (match uo with (* Only accept notes for now *)
-                Raise -> 
+                Raise ->
                     if vType = "note" then
                         setPitch v ((getNote v).pitch + 1)
                     else
                         raise (Failure ("cannot raise: " ^ vType))
-                | Lower -> 
+                | Lower ->
                     if vType = "note" then
                         setPitch v ((getNote v).pitch - 1)
                     else
                         raise (Failure ("cannot lower: " ^ vType))
             ), env
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
- 
+
 
     (*
     | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
