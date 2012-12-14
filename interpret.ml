@@ -6,7 +6,6 @@ module NameMap = Map.Make(struct
     let compare x y = Pervasives.compare x y
 end)
 
-
 type note = {
     mutable pitch : int;
     mutable octave : int;
@@ -31,7 +30,13 @@ type score = {
     mutable stanzalist : stanza list;
 }
 
-type cbtype =   Int of int | Bool of bool | Note of note | Chord of chord | Scale of scale | Stanza of stanza | Score of score
+(*
+type void = {
+
+}
+*)
+
+type cb_type =   Int of int | Bool of bool | Note of note | Chord of chord | Scale of scale | Stanza of stanza | Score of score
 
 let getType v =
     match v with
@@ -71,6 +76,13 @@ let getBool v =
 let initIdentifier t =
   match t with
     "int" -> Int(0)
+    | "bool" -> Bool(false)
+    | "note" -> Note({pitch=128; octave=0; duration=0})
+    | "chord" -> Chord({notelist=[]; chord_duration=0})
+    | "scale" -> Scale({scale_notelist=[]})
+    | "stanza" -> Stanza({chordlist=[]})
+    | "score" -> Score({stanzalist=[]})
+    | _ -> Bool(false)
 
 let setPitch v a = ((getNote v).pitch <- a); v
 
@@ -99,16 +111,18 @@ let initNoteMap =
     NameMap.add "B" 11 noteMap;
     NameMap.add "Cb" 11 noteMap;
 
-exception ReturnException of cbtype * cbtype NameMap.t
+exception ReturnException of cb_type * cb_type NameMap.t
 
+(*this will need to be passed around*)
 let func_decls = NameMap.empty
-let globals = NameMap.empty
 let csv = ""
 
 let rec eval env = function
     Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n");
         let locals, globals = env in
-            if NameMap.mem name locals then
+            if NameMap.is_empty globals then
+                raise (Failure ("Fuck, globals is empty"))
+            else if NameMap.mem name locals then
                 (NameMap.find name locals), env
             else if NameMap.mem name globals then
                 (NameMap.find name globals), env
@@ -132,13 +146,15 @@ let rec eval env = function
     | NoteConst(s) -> print_string ("I am a note constant: " ^ s ^ "\n");
         Int (NameMap.find s noteMap), env
     | BoolLiteral(b) -> print_string ("I am a bool literal: " ^ (string_of_bool b) ^ "\n"); (Bool b, env)
-    | ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
+    (*| ChordExpr(el, e) -> print_string ("I am a chord expression: \n");
+        let isValid = List.fold_left (fun a b ->  ( getType(eval(a)) == "note") && b) true el in
         if (List.for_all (fun b -> (b =  getType(eval(b)) = "note") ) el) then
             let dur, env = eval env e in
                 let durType = getType dur in
                     if durType = "int" then (Chord ({notelist=el; chord_duration=(getInt dur)}), env)
                     else raise (Failure ("Duration does not evaluate to an integer"))
         else raise (Failure ("Chord must consist only of notes"))
+    *)
     | DurConst(s) -> print_string ("I am a duration constant: " ^ s ^ "\n");
         if s = "whole" then Int 64, env
             else if s = "half" then Int 32, env
@@ -152,7 +168,7 @@ let rec eval env = function
                                         if durType = "int" then (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env)
                                         else raise (Failure ("Duration does not evaluate to an integer")))
                 else  raise (Failure ("Octave does not evaluate to an integer"))
-    | BinOp(e1,o,e2) ->
+    | BinOp(e1,o,e2) -> print_string ("I am a binary operation\n");
         let v1, env = eval env e1 in
         let v2, env = eval env e2 in
         let v1Type = getType v1 in
@@ -239,20 +255,26 @@ let rec eval env = function
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
 
 (* Main entry point: run a program *)
-let rec run prog = match prog with
-    [] -> print_string "Fuck it I'm done\n"
-    | head::tail ->
-        match head with
-        VDecl(head) -> print_string ("Variable Declaration: " ^ head.varname ^ "\n"); (NameMap.add head.varname (initIdentifier "int") globals); run tail
-        | FullDecl(head) -> print_string ("Full Declaration: " ^ head.fvname ^ "\n"); run tail
-        | MDecl(head) -> print_string ("Method Declaration: " ^ head.fname ^ "\n"); (NameMap.add head.fname head func_decls); run tail
-        | Stmt(head) -> match head with
-                        Expr(e) -> (eval (NameMap.empty, globals) e);
-                                    run tail
-                        | Return(e) -> print_string ("I am an a return statement" ^ "\n"); run tail
-                        | Block(sl) -> print_string ("I am a block statement" ^ "\n"); run tail
-                        | If(e, sl, s1, s2) -> print_string ("I am a if statement" ^ "\n"); run tail
-                        | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n"); run tail
-                        | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n"); run tail
-                        | While(e, sl) -> print_string ("I am a while statement" ^ "\n"); run tail
-                        | _ -> raise (Failure ("Unable to match the statment "))
+let rec run prog env =
+    let locals, globals = env in
+        if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals in non-empty\n");
+        match prog with
+            [] -> print_string "Fuck it I'm done\n"
+            | head::tail ->
+                match head with
+                    VDecl(head) -> print_string ("Variable Declaration: " ^ head.varname ^ "\n");
+                        run tail (locals, (NameMap.add head.varname (initIdentifier "note") globals));
+                    | FullDecl(head) -> print_string ("Full Declaration: " ^ head.fvname ^ "\n"); run tail (locals, globals)
+                    | MDecl(head) -> print_string ("Method Declaration: " ^ head.fname ^ "\n"); (NameMap.add head.fname head func_decls); run tail (locals, globals)
+                    | Stmt(head) -> match head with
+                                    Expr(e) -> (eval (NameMap.empty, globals) e);
+                                                run tail (locals, globals)
+                                    | Return(e) -> print_string ("I am an a return statement" ^ "\n"); run tail (locals, globals)
+                                    | Block(sl) -> print_string ("I am a block statement" ^ "\n"); run tail (locals, globals)
+                                    | If(e, sl, s1, s2) -> print_string ("I am a if statement" ^ "\n"); run tail (locals, globals)
+                                    | ElseIf(e, sl) -> print_string ("I am a elseif statement" ^ "\n"); run tail (locals, globals)
+                                    | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n"); run tail (locals, globals)
+                                    | While(e, sl) -> print_string ("I am a while statement" ^ "\n"); run tail (locals, globals)
+                                    | _ -> raise (Failure ("Unable to match the statment "))
+
+let helper prog = run prog (NameMap.empty, NameMap.empty)
