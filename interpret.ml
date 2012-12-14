@@ -327,7 +327,7 @@ let rec run prog env =
             | head::tail ->
                 match head with
                     VDecl(head) -> print_string ("Variable Declaration: " ^ head.varname ^ "\n");
-                        run tail (locals, (NameMap.add head.varname (initIdentifier "note") globals));
+                        run tail (locals, (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals));
                     | FullDecl(head) -> print_string ("Full Declaration: " ^ head.fvname ^ "\n"); run tail (locals, globals)
                     | MDecl(head) -> print_string ("Method Declaration: " ^ head.fname ^ "\n"); (NameMap.add head.fname head func_decls); run tail (locals, globals)
                     | Stmt(head) -> match head with
