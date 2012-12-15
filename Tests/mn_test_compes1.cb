@@ -8,7 +8,7 @@ note a = (C, 3, whole);
 note b = (D, 3, whole);
 note c = (F, 3, whole);
 
-
+c--;
 chord c1 = ([(Db,4,quarter), (C#, 2, half)], half);
 
 chord c2 = ([a,b,c], half);
