@@ -131,12 +131,12 @@ let csv_head = ""
 (* A ref is the simplest mutable data structure. *)
 let tick : int ref = ref 0
 
-let getNoteList cbtypelist = List.map ( fun a -> Note( getNote a ) ) cbtypelist
+(* let getNoteList cbtypelist = List.map ( fun a -> Note( getNote a ) ) cbtypelist
 
 let getChordList cbtypelist = List.map ( fun a -> Chord( getChord a ) ) cbtypelist
 
 let getStanzaList cbtypelist = List.map ( fun a -> Stanza( getStanza a ) ) cbtypelist
-
+ *)
 
 let rec eval env = function
     Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n");
@@ -581,9 +581,4 @@ and run prog env =
                     | Stmt(head) -> print_string ("<<<Processing Statement>>>\n");
                         run tail (exec (locals, globals, fdecls) "" head)
 
-
-
-
-let helper prog =
-
-    run prog (NameMap.empty, NameMap.empty, NameMap.empty)
+let helper prog = run prog (NameMap.empty, NameMap.empty, NameMap.empty)
