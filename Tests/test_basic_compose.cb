@@ -6,3 +6,5 @@ chord test = ([one, two, three], whole);
 stanza p = [test];
 
 score m = [p];
+
+compose(m);
