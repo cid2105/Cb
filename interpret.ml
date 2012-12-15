@@ -141,9 +141,7 @@ let getStanzaList cbtypelist = List.map ( fun a -> Stanza( getStanza a ) ) cbtyp
 let rec eval env = function
     Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n");
         let locals, globals, fdecls = env in
-            if NameMap.is_empty globals then
-                raise (Failure ("Fuck, globals is empty"))
-            else if NameMap.mem name locals then
+            if NameMap.mem name locals then
                 (NameMap.find name locals), env
             else if NameMap.mem name globals then
                 (NameMap.find name globals), env
@@ -339,7 +337,7 @@ let rec eval env = function
                         let v, env = ((eval env) actual) in (v :: al), env
                     ) ([], env) el
                 in
-                    let locals =
+                    let l1 =
                         try List.fold_left2 (fun locals formal actual ->
                                                 if (getType actual) = (string_of_cbtype formal.paramtype) then
                                                     (NameMap.add formal.paramname actual locals)
@@ -350,9 +348,9 @@ let rec eval env = function
                     in
                     begin
                         try
-                            let l, g = (call fdecl.body locals globals fdecls name) in
+                            let l, g = (call fdecl.body l1 globals fdecls name) in
                                 Bool false, (l, g, fdecls) (* This gets hit if you never see a return statement *)
-                       with ReturnException(v, g) -> v, (locals, globals, fdecls) (* This gets hit if you hit a return statement *)
+                       with ReturnException(v, g) -> v, (l1, globals, fdecls) (* This gets hit if you hit a return statement *)
                    end
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
