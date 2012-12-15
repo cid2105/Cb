@@ -64,7 +64,7 @@ public class CSV2MIDI{
 		Track track = sequence.createTrack();                    //create track
 
 	    // channel/velocity set to default; note/tick/duration will depend on input.
-		int channel=0,velocity=127;
+		int channel=0,velocity=150;
 		int note=0,tick=0,duration=0;
 		
 		int currentCSVPos = 0;

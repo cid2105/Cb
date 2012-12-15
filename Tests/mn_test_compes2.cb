@@ -1,0 +1,22 @@
+
+note a = (C, 0, whole);
+note b = (E, 0, whole);
+note c = (G, 0, whole);
+note ch = (R, 0, whole);
+
+chord c2 = ([ch], half);
+
+chord c3 = ([a,b,c], half);
+
+stanza p = [c2, c3,c2,c3,c3,c2,c3];
+
+score m = [p];
+
+compose(m);
+m.instrument = 127;
+compose(m);
+m.instrument = 53;
+compose(m);
+
+
+
