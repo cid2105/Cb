@@ -93,6 +93,7 @@ let initIdentifier t =
     | _ -> Bool(false)
 
 let setOctave v a = ((getNote v).octave <- a); v
+let setPitch v a = ((getNote v).pitch <- a); v
 let setDuration v a = ((getNote v).duration <- a); v
 
 
@@ -105,7 +106,8 @@ let assign r x = r.content <- x; x *)
 
 
  let noteMap =
-     NameMap.add "C" 0 NameMap.empty
+     NameMap.add "R" (-1) NameMap.empty
+    let noteMap = NameMap.add "C" 0 noteMap
     let noteMap = NameMap.add "B#" 0 noteMap
     let noteMap = NameMap.add "C#" 1 noteMap
     let noteMap = NameMap.add "Db" 1 noteMap
@@ -134,6 +136,7 @@ let csv_head = ""
 
 (* A ref is the simplest mutable data structure. *)
 let tick : int ref = ref 0
+let f : int ref = ref 0
 
 (* let getNoteList cbtypelist = List.map ( fun a -> Note( getNote a ) ) cbtypelist
 
@@ -410,30 +413,33 @@ let rec eval env = function
              let ee1, env = eval env e in
                 (if getType ee1 = "score" then
                     let pp = getScore(ee1) in
-                    (let headers = csv_head in
-                        let csvf = open_out "musicfi.csv" in
+                    (let headers = csv_head ^ "Instrument," ^ (string_of_int pp.instrument) ^ "\n"; in (* has to be less than 127 *)
+                        let csvf = open_out ("musiccb"^ (string_of_int !f) ^" .csv"); in
                             (fprintf csvf "%s" headers;
 
                             (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
                             let print_note nt =
 
                                 fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
-                                                    (string_of_int nt.duration) ^ "," ^ 
-                                                    (string_of_int nt.pitch));
+                                                    (string_of_int (nt.duration / 4 )) ^ "," ^ 
+                                                    (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
 
-                                (tick := !tick + nt.duration );
+                                (tick := !tick + ( nt.duration / 4 ) );
                             in 
                             let print_chord cd = 
                                 List.map (fun nt ->
-                                            fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
+                                        if (nt.pitch <> -1) then
+                                           
+                                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
                                                             (string_of_int (cd.chord_duration / 4)) ^ "," ^ 
-                                                            (string_of_int nt.pitch));
-                                            ) cd.notelist;
-                                (tick := !tick + cd.chord_duration);
+                                                            (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
+                                                   
+                                                
                                        (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
                                         begin   print_note ((List.hd  a));
                                     end *)
-                            
+                                ) cd.notelist;
+                                (tick := !tick + (cd.chord_duration / 4) );
                             in
                             let print_stanza stan =
                                    (*  if (List.length stan.chordlist = 1) then
@@ -450,6 +456,8 @@ let rec eval env = function
                     );
 
                     close_out csvf);
+                    (f := !f + 1);
+                    (tick := 0);
                     ee1
                     , env
                 else raise (Failure ("compose takes a score only")));

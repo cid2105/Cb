@@ -98,10 +98,10 @@ let rec string_of_expr = function
     | DurConst(c) -> c
     | Assign(v, e) -> string_of_expr v ^ " = " ^ string_of_expr e (* expr = expr ?????? *)
     | NoteExpr(id, e1, e2) -> " ( " ^ id ^ " , " ^ string_of_expr e1 ^ " , " ^ string_of_expr e2 ^ " ) "
-    | ChordExpr(l, e) -> "( [ " ^ String.concat " , " (List.map string_of_expr l) ^ "] , " ^ string_of_expr e ^ " ) ";
+    | ChordExpr(l, e) -> "( [ " ^ String.concat " , " (List.map string_of_expr (List.rev l)) ^ "] , " ^ string_of_expr e ^ " ) ";
     (*| TypeAssign(v, e) -> v ^ " = " ^ string_of_expr e (* Chord a = ... *) *)
   (*| ElementOp(s, e1) -> s ^ "[" ^ string_of_expr e1 ^ "]";*)
-    | ListExpr(e) -> " [ " ^ String.concat " , " (List.map string_of_expr e) ^ " ] "
+    | ListExpr(e) -> " [ " ^ String.concat " , " (List.map string_of_expr (List.rev e)) ^ " ] "
 
 (*type op =
     Add | Sub | Mult | Div | Mod
@@ -121,7 +121,7 @@ let rec string_of_expr = function
 
     | UnaryOp(up, e) -> string_of_uop up ^ " " ^ string_of_expr e
     | MethodCall(f, el) ->
-      f ^ "(" ^ String.concat " , " (List.map string_of_expr el) ^ " ) " (*?????*)
+      f ^ "(" ^ String.concat " , " (List.map string_of_expr (List.rev el)) ^ " ) " (*?????*)
     | NoExpr -> "";;
 
 let string_of_fvdl fvdel =
@@ -156,7 +156,7 @@ let rec string_of_stmt = function
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
                 )
-                s) ^ "\n";
+                (List.rev s)) ^ "\n";
 
     | If(e, s1, s2) -> 
         "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
@@ -166,7 +166,7 @@ let rec string_of_stmt = function
                 | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                 | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
             )
-            s1) ^ "\n" ^ "else\n" ^ string_of_stmt s2;
+            (List.rev s1)) ^ "\n" ^ "else\n" ^ string_of_stmt s2;
     | Foreach(p, id, s) ->
         "foreach (" ^ string_of_pdecl p  ^ " in " ^ id ^ " )\n" ^ String.concat "\n" (List.map
              (fun innerb ->
@@ -175,7 +175,7 @@ let rec string_of_stmt = function
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
                 )
-         s);
+         (List.rev s));
 
     | While(e, s) -> "while (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
          (fun innerb ->
@@ -184,7 +184,7 @@ let rec string_of_stmt = function
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
                 )
-     s);;
+     (List.rev s));;
 
 let string_of_mdecl mdecl =
     mdecl.fname ^ "(" ^ String.concat ", " (List.map string_of_pdecl mdecl.formals) ^ ")\n" ^
