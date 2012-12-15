@@ -368,20 +368,23 @@ let rec eval env = function
                         raise (Failure ("cannot lower: " ^ vType))
             ), env
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
-(*     | ListExpr(el) -> print_string ("I am a list epxression\n");
-        let master, _ = (eval env (List.hd el)) in
-            let master_type = (getType master) in
+   (*  | ListExpr(el) -> print_string ("I am a list epxression\n"); (*  el is elment list *)
+        let master, _ = (eval env (List.hd el)) in (* pull of the first element in el and evalute *)
+            let master_type = (getType master) in (* the type of the first element, everything gets compared to this *)
+            
             begin
-                match master_type with
-                    "note" ->
-                        let note_list = List.map (fun (list_elem) ->
+                match master_type with (* what is the master type? *)
+                    "note" -> (* if it is a note create a scale *)
+                        let note_list = List.map (fun (list_elem) ->  (* apply eval func to each elemnt of el *)
                             (let evaled, env = eval env list_elem in
                                 let vType = (getType evaled) in
-                                    if (vType = "note") then (Note (getNote(evaled)))
-                                    else raise (Failure ("List expressions must contain elements of only 1 type"))
-                            )) el in
-                                (Scale ({scale_notelist=note_list}), env);
-                    | "chord" ->
+                                    if (vType = "note") then 
+                                        (Note (getNote(evaled))) (* return a note *)
+                                    else raise (Failure ("List expressions must contain elements of only 1 type")) (* not a note break *)
+                            )) el in 
+                                (Scale ({scale_notelist = note_list}), env);
+
+                    | "chord" -> (* if it is a chord create a stanza *)
                         let chord_list = List.map (fun (list_elem) ->
                             (let evaled, env = eval env list_elem in
                                 let vType = (getType evaled) in
@@ -389,7 +392,8 @@ let rec eval env = function
                                     else raise (Failure ("List expressions must contain elements of only 1 type"))
                             )) el in
                                 (Stanza ({chordlist=getChordList(chord_list)}), env);
-                    | "stanza" ->
+
+                    | "stanza" -> (* if it is a stanza create a score *)
                         let stanza_list = List.map (fun (list_elem) ->
                             (let evaled, env = eval env list_elem in
                                 let vType = (getType evaled) in
@@ -398,7 +402,9 @@ let rec eval env = function
                             )) el in
                                 (Score ({stanzalist=getStanzaList(stanza_list)}), env);
                     | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
-            end *)
+            end
+ *)
+
     | Assign(toE, fromE) -> print_string ("I am an assignment\n");
         let lft_expr, env = eval env toE in
             let rht_expr, (locals, globals, fdecls) = eval env fromE in
