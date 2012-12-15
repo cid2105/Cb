@@ -4,9 +4,9 @@ note b = (E, 0, whole);
 note c = (G, 0, whole);
 note ch = (C, 1, whole);
 
-chord c2 = ([a,b,c,ch], whole);
+chord c2 = ([a,b,c,ch], half);
 
-chord c3 = ([a,b,c], whole);
+chord c3 = ([a,b,c], half);
 
 stanza p = [c2, c2,c2,c2,c2,c2,c2];
 
