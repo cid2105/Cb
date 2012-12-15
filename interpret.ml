@@ -27,7 +27,7 @@ type stanza = {
 
 type score = {
     mutable stanzalist : stanza list;
-    
+    mutable instrument : int;
 }
 
 
@@ -79,7 +79,7 @@ let getStanza v =
 let getScore v =
     match v with
         Score(v) -> v
-        | _ -> {stanzalist=[]}
+        | _ -> {stanzalist=[]; instrument=0}
 
 let initIdentifier t =
   match t with
@@ -89,7 +89,7 @@ let initIdentifier t =
     | "chord" -> Chord({notelist=[]; chord_duration=0})
     | "scale" -> Scale({scale_notelist=[]})
     | "stanza" -> Stanza({chordlist=[]})
-    | "score" -> Score({stanzalist=[]})
+    | "score" -> Score({stanzalist=[]; instrument=0})
     | _ -> Bool(false)
 
 let setPitch v a = ((getNote v).pitch <- a); v
@@ -165,6 +165,10 @@ let rec eval env = function
                     "duration" -> Int (getChord v).chord_duration
                     | "notelist" -> Scale ({scale_notelist = (getChord v).notelist })
                   | _ -> raise (Failure ("invalid property of chord: " ^ memname)))
+              | "score" ->
+                (match memname with
+                   "instrument" -> Int (getScore v).instrument
+                  | _ -> raise (Failure ("invalid property of score: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
     | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n");
         (Int i, env);
@@ -352,7 +356,7 @@ let rec eval env = function
                 else raise (Failure ("compose takes a score only")));
 ======= *)
     (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
-    | MethodCall("compose", [e]) -> (* Writes the specified part to a java file to be written into midi *)
+    | MethodCall("compose", [e]) -> print_string "yoohoo i got it!"; (* Writes the specified part to a java file to be written into midi *)
             ignore (match e with
                         Id(i) -> i
                         | _ ->  raise (Failure ("compose takes an identifier as input")));
@@ -362,30 +366,28 @@ let rec eval env = function
                     (let headers = csv_head in
                         let csvf = open_out "musicfi.csv" in
                             (fprintf csvf "%s" headers;
-                                                             (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
-                            let print_note nt =
 
+                            (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
+                            let print_note nt =
                                 fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
-                                                    (string_of_int (nt.duration / 4) ) ^ "," ^ 
+                                                    (string_of_int nt.duration) ^ "," ^ 
                                                     (string_of_int nt.pitch));
 
-                                (tick := !tick + (nt.duration / 4) )
+                                (tick := !tick + nt.duration )
                             in 
                             let print_chord cd = 
-                                print_string "yoohoo i got it!\n";
-                                List.map (fun nt -> 
+                                List.map (fun nt ->
                                             fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
                                                             (string_of_int (cd.chord_duration / 4)) ^ "," ^ 
-                                                            (string_of_int (((nt.octave + 5) * 12) + nt.pitch) ));
-                                            ) cd.notelist;
-                                (tick := !tick + (cd.chord_duration / 4) );
+                                                            (string_of_int nt.pitch));
+                                            );
+                                (tick := !tick + cd.chord_duration);
                                        (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
                                         begin   print_note ((List.hd  a));
                                     end *)
                             
                             in
                             let print_stanza stan =
-
                                    (*  if (List.length stan.chordlist = 1) then
                                         begin 
                                             let nt = (List.hd stan.chordlist); 
@@ -516,7 +518,7 @@ let rec eval env = function
                                         getStanza evaled
                                     else raise (Failure ("List expressions must contain elements of only 1 type"))
                             )) el in
-                                (Score ({stanzalist = stanza_list}), env);
+                                (Score ({stanzalist = stanza_list; instrument = 0}), env);
                     | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
             end
     | Assign(toE, fromE) -> print_string ("I am an assignment\n");
@@ -581,6 +583,16 @@ let rec eval env = function
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
+                                            else if fst lftType = "score" then
+                                                if snd lftName = "instrument" then
+                                                    if getInt rht_expr >= 0 && getInt rht_expr <= 127 then
+                                                        if snd lftType = "locals" then
+                                                            rht_expr, (((getScore (NameMap.find (fst lftName) locals)).instrument <- getInt rht_expr); (locals, globals, fdecls))
+                                                    else if snd lftType = "globals" then
+                                                        rht_expr, (((getScore (NameMap.find (fst lftName) globals)).instrument <- getInt rht_expr); (locals, globals, fdecls))           
+                                                    else raise (Failure ("fatal error"))
+                                                else raise (Failure ("invalid score instrument: " ^ string_of_int (getInt rht_expr) ^ ". instrument must be between 0-127."))
+                                            else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                                     | "scale" ->
