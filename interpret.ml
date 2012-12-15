@@ -96,9 +96,6 @@ let setOctave v a = ((getNote v).octave <- a); v
 let setDuration v a = ((getNote v).duration <- a); v
 let setPitch v a = ((getNote v).pitch <- a); v
 
-
-
-
 let incrementNote v = 
     let note_pitch = (getNote v).pitch in
     let note_octave = (getNote v).octave in
@@ -123,7 +120,7 @@ let decrementNote v =
             else
                 raise (Failure ("Cannot decrement note: already at highest pitch" ))
 
-let minorChord v = 
+let minorChord v dur = 
     let scale_notes = (getScale v).scale_notelist in
         if List.length scale_notes = 8 then
             let first_note = Note (List.nth scale_notes 0) in
@@ -131,11 +128,11 @@ let minorChord v =
             let fifth_note = Note (List.nth scale_notes 4) in
             let eight_note = Note (List.nth scale_notes 7) in
                 let chord_notes =(List.map (fun e -> getNote e) [first_note;  (decrementNote (third_note)); fifth_note; eight_note]) in
-                    Chord ({notelist=chord_notes; chord_duration= (getNote first_note).duration })
+                    Chord ({notelist=chord_notes; chord_duration = (getInt dur) })
         else
             raise (Failure ("Can only apply the minor function to scales of 8 notes" ))
 
-let majorChord v = 
+let majorChord v dur = 
     let scale_notes = (getScale v).scale_notelist in
         if List.length scale_notes = 8 then
             let first_note = Note (List.nth scale_notes 0) in
@@ -143,7 +140,7 @@ let majorChord v =
             let fifth_note = Note (List.nth scale_notes 4) in
             let eight_note = Note (List.nth scale_notes 7) in
                 let chord_notes =(List.map (fun e -> getNote e) [first_note;  (incrementNote (third_note)); fifth_note; eight_note]) in
-                    Chord ({notelist=chord_notes; chord_duration= (getNote first_note).duration })
+                    Chord ({notelist=chord_notes; chord_duration= (getInt dur) })
         else
             raise (Failure ("Can only apply the minor function to scales of 8 notes" ))
 
@@ -216,7 +213,7 @@ let rec eval env = function
                   | _ -> raise (Failure ("invalid property of note: " ^ memname)))
               | "chord" ->
                 (match memname with
-                    "duration" -> Int (getChord v).chord_duration
+                    "chord_duration" -> Int (getChord v).chord_duration
                     | "notelist" -> Scale ({scale_notelist = (getChord v).notelist })
                   | _ -> raise (Failure ("invalid property of chord: " ^ memname)))
               | "score" ->
@@ -347,15 +344,17 @@ let rec eval env = function
             else
                 print_endline(getType arg));
             (Bool false), env
-    | MethodCall("major", [e]) ->
+    | MethodCall("major", [e; dur]) ->
         let arg, env = eval env e in
-            if getType arg = "scale" then
-                majorChord arg, env
+        let arg2, env = eval env dur in
+            if getType arg = "scale" && getType arg2 = "int" then
+                (majorChord arg  arg2), env
             else raise (Failure ("argument of major must be a scale")) 
-    | MethodCall("minor", [e]) ->
+    | MethodCall("minor", [e; dur]) ->
         let arg, env = eval env e in
-            if getType arg = "scale" then
-                minorChord arg, env
+        let arg2, env = eval env dur in
+            if (getType arg = "scale") && (getType arg2 = "int") then
+                (minorChord arg  arg2), env
             else raise (Failure ("argument of minor must be a scale"))
     | MethodCall("sharp", [e]) ->
         let arg, env = eval env e in
