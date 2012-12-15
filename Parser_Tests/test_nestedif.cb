@@ -1,0 +1,17 @@
+if(true)
+    if(true)
+        print("PASS");
+    else
+        print("FAIL");
+    end
+end
+
+if(true)
+    if(false)
+        print("FAIL 2");
+    else
+        print("PASS 2");
+    end
+else
+    print("FAIL 3");
+end

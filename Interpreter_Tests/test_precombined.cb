@@ -1,0 +1,25 @@
+int b;
+
+
+meth int test_from_use()
+
+    return 10;
+
+end
+
+
+b = test_from_use();
+
+
+int a;
+
+
+meth int test()
+
+    return 5;
+
+end
+
+
+a = test();
+

@@ -203,62 +203,71 @@ let rec eval env = function
         let v2, env = eval env e2 in
         let v1Type = getType v1 in
         let v2Type = getType v2 in
+        print_string ("V1=" ^ (string_of_int (getInt v1)) ^ "\n");
+        print_string ("V2=" ^ (string_of_int (getInt v2)) ^ "\n");
         (* Two variables have to be of the same type for binop *)
         if v1Type = v2Type then
             (match o with (* Only accept ints for now *)
-                Add ->
+                Add -> print_string ("Evaluating an add expression\n");
                     if v1Type = "int" then
                     Int (getInt v1 + getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type))
-                | Sub ->
+                | Sub -> print_string ("Evaluating a subtract expression\n");
                     if v1Type = "int" then
                     Int (getInt v1 - getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " - " ^ v2Type))
-                | Mult ->
+                | Mult -> print_string ("Evaluating a multiply expression\n");
                     if v1Type = "int" then
                     Int (getInt v1 * getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " * " ^ v2Type))
-                | Div ->
+                | Div -> print_string ("Evaluating a divide expression\n");
                     if v1Type = "int" then
                     Int (getInt v1 / getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type))
-                | Mod ->
+                | Mod -> print_string ("Evaluating a mod expression\n");
                     if v1Type = "int" then
                     Int (getInt v1 mod getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " % " ^ v2Type))
-                | And ->
+                | And -> print_string ("Evaluating an and expression\n");
                     if v1Type = "bool" then
                     Bool (getBool v1 && getBool v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " and " ^ v2Type))
-                | Or ->
+                | Or -> print_string ("Evaluating an or expression\n");
                     if v1Type = "bool" then
-                    Bool (getBool v1 || getBool v2)
+                    if (getBool v1 || getBool v2)
+                    then (print_string ("Evaluated to true\n"); Bool true)
+                    else (print_string ("Evaluated to false\n"); Bool false)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " or " ^ v2Type))
-                | Eq ->
+                | Eq -> print_string ("Evaluating an is expression\n");
                     if v1Type = "int" then
-                    Bool (getInt v1 = getInt v2)
+                        if getInt v1 = getInt v2
+                        then (print_string ("Evaluated to true\n"); Bool true)
+                        else (print_string ("Evaluated to false\n"); Bool false)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " is " ^ v2Type))
-                | NEq ->
+                | NEq -> print_string ("Evaluating an isnt expression\n");
                     if v1Type = "int" then
-                    Bool (getInt v1 != getInt v2)
-                    else raise (Failure ("incorrect type: " ^ v1Type ^ " isnt " ^ v2Type))
-                | _ -> raise (Failure ("Unknown binary operation"))
-                | Less ->
+                        if (getInt v1 <> getInt v2)
+                        then (print_string ("Evaluated to true\n"); (Bool true))
+                        else (print_string ("Evaluated to false\n"); (Bool false))
+                    else
+                        raise (Failure ("incorrect type: " ^ v1Type ^ " isnt " ^ v2Type))
+                | Less -> print_string ("Evaluating a less than expression\n");
                     if v1Type = "int" then
                         Bool (getInt v1 < getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " < " ^ v2Type))
-                | LEq ->
+                | LEq -> print_string ("Evaluating a less than or equals expression\n");
                     if v1Type = "int" then
                         Bool (getInt v1 <= getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " <= " ^ v2Type))
-                | Greater ->
+                | Greater -> print_string ("Evaluating a greater than expression\n");
                     if v1Type = "int" then
                         Bool (getInt v1 > getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " > " ^ v2Type))
-                | GEq ->
+                | GEq -> print_string ("Evaluating a greater than or equals expression\n");
                     if v1Type = "int" then
                         Bool (getInt v1 >= getInt v2)
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " >= " ^ v2Type))
+                | _ -> raise (Failure ("Unknown binary operation"))
                 (* | IDTimes -> ), env *)
             ), env
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
@@ -336,15 +345,14 @@ let rec eval env = function
                                                     (NameMap.add formal.paramname actual locals)
                                                 else
                                                     raise (Failure ("Wrong parameter type in method call to " ^ fdecl.fname))
-                                            ) NameMap.empty fdecl.formals actuals
+                                            ) NameMap.empty fdecl.formals (List.rev actuals)
                         with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
                     in
                     begin
                         try
-                            let globals =
-                                (call fdecl.body locals globals fdecls name) in
-                                    Bool false, (locals, globals, fdecls) (* This gets hit if you never see a return statement *)
-                       with ReturnException(v, g) -> v, (locals, g, fdecls) (* This gets hit if you hit a return statement *)
+                            let l, g = (call fdecl.body locals globals fdecls name) in
+                                Bool false, (l, g, fdecls) (* This gets hit if you never see a return statement *)
+                       with ReturnException(v, g) -> v, (locals, globals, fdecls) (* This gets hit if you hit a return statement *)
                    end
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
@@ -418,7 +426,7 @@ let rec eval env = function
                             let rhtType = getType rht_expr in
                             if lftRetType = rhtType then
                                 match lftRetType with
-                                    "int" ->
+                                    "int" -> print_string ("Assigning to an integer\n");
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
                                                 rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls)
@@ -481,26 +489,27 @@ and exec env fname = function
             env
         | Block(s1) -> print_string ("I am a block statement" ^ "\n");
             let (locals, globals, fdecls) = env in
-                let g = call s1 locals globals fdecls fname
-                in (locals, g, fdecls)
-        | If(e, sl, s2) -> print_string ("I am an if statement" ^ "\n");
+                let l, g = call s1 locals globals fdecls fname
+                in (l, g, fdecls)
+        | If(e, ibl, s) -> print_string ("I am an if statement" ^ "\n");
             let (locals, globals, fdecls) = env in
                 let v, env = eval env e in
                     if getBool v = true
-                    then
-                        let g = call sl locals globals fdecls fname
-                            in (locals, g, fdecls)
-                    else
-                        let env_return = exec env fname s2
-                            in env_return
+                    then (print_string ("if evaluated to true\n");
+                        let l, g = call (List.rev ibl) locals globals fdecls fname
+                            in (l, g, fdecls))
+                    else (print_string ("if evaluated to false\n");
+                        let env_return = exec env fname s
+                            in env_return)
         | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n");
             env
         | While(e, sl) -> print_string ("I am a while statement" ^ "\n");
             let rec loop env =
                 let v, env = eval env e in
-                if getBool v = false then
+                if getBool v = true then
                     let (locals, globals, fdecls) = env in
-                        loop (locals, (call sl locals globals fdecls fname), fdecls)
+                        let l, g = call sl locals globals fdecls fname in
+                            loop (l, g, fdecls)
                 else
                     env
             in loop env
@@ -508,8 +517,8 @@ and exec env fname = function
 (* Execute the body of a method and return an updated global map *)
 and call fdecl_body locals globals fdecls fdecl_name = print_string ("---Call Running---\n");
         match fdecl_body with
-            [] -> print_string ("---Method Call Complete---\n");
-                globals (*When we are done return the updated globals*)
+            [] -> print_string ("---Call Complete---\n");
+                (locals, globals) (*When we are done return the updated globals*)
             | head::tail ->
                 match head with
                     VDecl2(head) -> print_string ("---Method Processing Variable Declaration: " ^ head.varname ^ "\n");
@@ -571,7 +580,7 @@ and call fdecl_body locals globals fdecls fdecl_name = print_string ("---Call Ru
     in env *)
 and run prog env =
     let locals, globals, fdecls = env in
-        if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals in non-empty\n");
+        if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals is non-empty\n");
         match prog with
             [] -> print_string ("##Program Completed##\n");
                 Bool true, (locals, globals, fdecls)
