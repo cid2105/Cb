@@ -293,11 +293,58 @@ let rec eval env = function
             else
                 print_endline(getType arg));
             (Bool false), env
+    | MethodCall("major", [e]) ->
+        let arg, env = eval env e in
+            (if getType arg = "int" then
+                print_endline (string_of_int (getInt arg))
+            else if getType arg = "bool" then
+                print_endline (string_of_bool (getBool arg))
+            else
+                print_endline(getType arg));
+            (Bool false), env
+    | MethodCall("minor", [e]) ->
+        let arg, env = eval env e in
+            (if getType arg = "int" then
+                print_endline (string_of_int (getInt arg))
+            else if getType arg = "bool" then
+                print_endline (string_of_bool (getBool arg))
+            else
+                print_endline(getType arg));
+            (Bool false), env    
+    | MethodCall("augment", [e]) ->
+        let arg, env = eval env e in
+            (if getType arg = "int" then
+                print_endline (string_of_int (getInt arg))
+            else if getType arg = "bool" then
+                print_endline (string_of_bool (getBool arg))
+            else
+                print_endline(getType arg));
+            (Bool false), env
+    | MethodCall("diminish", [e]) ->
+        let arg, env = eval env e in
+            (if getType arg = "int" then
+                print_endline (string_of_int (getInt arg))
+            else if getType arg = "bool" then
+                print_endline (string_of_bool (getBool arg))
+            else
+                print_endline(getType arg));
+            (Bool false), env
+    | MethodCall("sharp", [e]) ->
+        let arg, env = eval env e in
+            if getType arg = "note" then
+                (setPitch arg ((getNote arg).pitch + 1), env)
+            else raise (Failure ("argument of flat must be a note"))
+    | MethodCall("flat", [e]) ->
+        let arg, env = eval env e in
+            if getType arg = "note" then
+                (setPitch arg ((getNote arg).pitch - 1), env)
+            else raise (Failure ("argument of flat must be a note"))
     | MethodCall("randint", [e]) ->
-            let v, env = eval env e in
-                if getType v = "int" then
-                    Int(Random.int (getInt v)), env
-                else raise (Failure ("argument of randint must be an integer"))
+        let v, env = eval env e in
+            if getType v = "int" then
+                Int(Random.int (getInt v)), env
+            else raise (Failure ("argument of randint must be an integer"))
+
 (* <<<<<<< HEAD
 
 
