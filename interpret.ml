@@ -234,11 +234,15 @@ let rec eval env = function
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " and " ^ v2Type))
                 | Or -> print_string ("Evaluating an or expression\n");
                     if v1Type = "bool" then
-                    Bool (getBool v1 || getBool v2)
+                    if (getBool v1 || getBool v2)
+                    then (print_string ("Evaluated to true\n"); Bool true)
+                    else (print_string ("Evaluated to false\n"); Bool false)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " or " ^ v2Type))
                 | Eq -> print_string ("Evaluating an is expression\n");
                     if v1Type = "int" then
-                    Bool (getInt v1 = getInt v2)
+                        if getInt v1 = getInt v2
+                        then (print_string ("Evaluated to true\n"); Bool true)
+                        else (print_string ("Evaluated to false\n"); Bool false)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " is " ^ v2Type))
                 | NEq -> print_string ("Evaluating an isnt expression\n");
                     if v1Type = "int" then

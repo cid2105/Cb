@@ -1,16 +1,10 @@
+<-The Recursive GCD Algorithm->
 meth int gcd(int a, int b)
-    while(a isnt b)
-        if(a > b)
-            gcd(a%b, b);
-        else
-            gcd(a, b%a);
-        end
+    if(b is 0)
+       return a;
+    else
+       return gcd(b,a%b);
     end
-    return a;
 end
 
-int a = 20;
-int b = 15;
-
-print(gcd(a,b));
-print(5);
+print(gcd(20,15));
