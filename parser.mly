@@ -142,10 +142,10 @@ statement:
 	| WHILE LEFTPAREN expr RIGHTPAREN abstraction END { While($3, $5) }
 	| FOREACH LEFTPAREN param_decl IN ID RIGHTPAREN abstraction END { Foreach($3, $5, $7)}
 
-duration_expr:
+/*duration_expr:
 	INTLITERAL { IntLiteral($1) }
 	| ID { Id($1) }
-	| DURATIONCONST { DurConst($1) }								/* 5 			*/
+	| DURATIONCONST { DurConst($1) }						*/		/* 5 			*/
 	/* | duration_expr PLUS duration_expr { Binop($1, Add, $3)  }
 	| duration_expr MINUS duration_expr { Binop($1, Sub, $3)  }
 	| duration_expr TIMES duration_expr { Binop($1, Mult, $3)  }
@@ -173,8 +173,8 @@ expr:
 	/*| cb_type ID ASSIGN expr { IntTypeAssign($2, $4) } */
 	/*| INT expr { IntTypeAssign($2) }*/
 	/*| duration_expr { $1 } */
-	| LEFTPAREN NOTECONST COMMA expr COMMA duration_expr RIGHTPAREN  { NoteExpr($2, $4, $6) }  /* x = (A#, 4, 34) 		*/
-	| LEFTPAREN LBRAC generic_list RBRAC COMMA duration_expr RIGHTPAREN   { ChordExpr($3, $6) }
+	| LEFTPAREN NOTECONST COMMA expr COMMA expr RIGHTPAREN  { NoteExpr($2, $4, $6) }  /* x = (A#, 4, 34) 		*/
+	| LEFTPAREN LBRAC generic_list RBRAC COMMA expr RIGHTPAREN   { ChordExpr($3, $6) }
 	| LBRAC generic_list RBRAC { ListExpr($2) }
 	/* | generic_list COMMA ID TIMES INTLITERAL { BinOp(Id($1), IDTimes, IntLiteral($3))}   a, b, c*5, b  */
     | expr ASSIGN expr 		{ Assign($1, $3) }							/* x = y 		*/
