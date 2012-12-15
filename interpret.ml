@@ -41,7 +41,7 @@ let getType v =
         | Note(v) -> "note"
         | Chord(v) -> "chord"
         | Scale(v) -> "scale"
-        | Stanza(v) -> "part"
+        | Stanza(v) -> "stanza"
         | Score(v) -> "score"
         (* | Notelist(v) -> "note list" *)
 
@@ -195,7 +195,7 @@ let rec eval env = function
                                         begin
 (* <<<<<<< HEAD
 
-                                           (*  print_string ("this ans: " ^ (string_of_int (getInt oct)) ^ "\n");  
+                                           (*  print_string ("this ans: " ^ (string_of_int (getInt oct)) ^ "\n");
                                             print_string ("this ans: " ^ (string_of_bool (NameMap.is_empty noteMap)) ^ "---" ^(string_of_int (getInt dur))^"\n");    *)
 =======
                                             print_string ("this ans: " ^ (string_of_int (getInt oct)) ^ "\n");
@@ -299,7 +299,7 @@ let rec eval env = function
     | MethodCall("compose", [e]) ->  (* Writes the specified part to a java file to be written into midi *)
             ignore (match e with
                         Id(i) -> i
-                        | _ ->  raise (Failure ("compose takes an identifier as input"))); 
+                        | _ ->  raise (Failure ("compose takes an identifier as input")));
                 let ee1, env = eval env e in
                 (if getType ee1 = "chord" then
                     let pp = getChord(ee1) in
@@ -309,22 +309,22 @@ let rec eval env = function
                                 print_string "give me my music\n";
                             (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
                             let print_note nt =
-                                fprintf csvf "%s\n"  ( (string_of_int !tick) ^ "," ^ 
-                                                                (string_of_int (nt.duration / 4)) ^ "," ^ 
+                                fprintf csvf "%s\n"  ( (string_of_int !tick) ^ "," ^
+                                                                (string_of_int (nt.duration / 4)) ^ "," ^
                                                                 (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
 
                                 (tick := !tick + nt.duration )
-                            in 
-                            let print_chord cd = 
+                            in
+                            let print_chord cd =
                                 (* print_string "give me my chord\n"; *)
                                 (* List.iter (fun nt -> *) print_string "give me my chord\n\n";
-                                            (fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
-                                                            (string_of_int cd.chord_duration) ^ "," ^ 
+                                            (fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
+                                                            (string_of_int cd.chord_duration) ^ "," ^
                                                             (string_of_int nt.pitch))); (5 + octive )*12 +pitch
                                         (
 
-                                           List.map (fun nt -> print_note nt; (* fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
-                                                                (string_of_int (cd.chord_duration / 4)) ^ "," ^ 
+                                           List.map (fun nt -> print_note nt; (* fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
+                                                                (string_of_int (cd.chord_duration / 4)) ^ "," ^
                                                                 (string_of_int ((5 + nt.octave) * 12 + nt.pitch)) ^ "\n");
 
                                             (tick := !tick + (cd.chord_duration / 4)); *)
@@ -338,8 +338,8 @@ let rec eval env = function
                                        (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
                                         begin   print_note ((List.hd  a));
                                     end *)
-                            
-                            in  
+
+                            in
                              print_chord pp;
 
                     );
@@ -347,7 +347,7 @@ let rec eval env = function
                     close_out csvf);
                     ee1
                     , env
-                else raise (Failure ("compose takes a score only"))); 
+                else raise (Failure ("compose takes a score only")));
 ======= *)
     (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
     | MethodCall("compose", [e]) -> (* Writes the specified part to a java file to be written into midi *)
@@ -506,34 +506,34 @@ let rec eval env = function
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) locals)).pitch <- getInt rht_expr); (locals, globals, fdecls))
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).pitch <- getInt rht_expr); (locals, globals, fdecls))         
+                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).pitch <- getInt rht_expr); (locals, globals, fdecls))
                                                         else raise (Failure ("fatal error"))
                                                     else raise (Failure ("invalid note pitch: " ^ string_of_int (getInt rht_expr) ^ ". pitch must be between 0-127."))
-                                                else if snd lftName = "duration" then (* min max checking *)                                                   
+                                                else if snd lftName = "duration" then (* min max checking *)
                                                     if snd lftType = "locals" then
                                                         rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls))
                                                     else if snd lftType = "globals" then
-                                                        rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))         
+                                                        rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))
                                                     else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else if snd lftName = "octave" then (* min max checking *)
                                                     if getInt rht_expr >= 0 && getInt rht_expr <= 8 then
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) locals)).octave <- getInt rht_expr); (locals, globals, fdecls))
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).octave <- getInt rht_expr); (locals, globals, fdecls))         
+                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).octave <- getInt rht_expr); (locals, globals, fdecls))
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                     else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between 0-8."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
-                                                if snd lftName = "duration" then (* min max checking *)                                                        
+                                                if snd lftName = "duration" then (* min max checking *)
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls))
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))         
+                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
-                                            else raise (Failure ("cannot assign to: " ^ fst lftType)) 
-                                        else raise (Failure ("cannot assign to: " ^ (fst lftType)))        
+                                            else raise (Failure ("cannot assign to: " ^ fst lftType))
+                                        else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                                     | _ -> (* bool, note, chord, staff, part *)
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
