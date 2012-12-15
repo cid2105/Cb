@@ -1,0 +1,11 @@
+use Interpreter_Tests/test_foruse.cb;
+
+b = test_from_use();
+
+int a;
+
+meth int test()
+    return 5;
+end
+
+a = test();

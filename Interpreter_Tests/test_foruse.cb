@@ -1,0 +1,5 @@
+int b;
+
+meth int test_from_use()
+    return 10;
+end
