@@ -1,0 +1,10 @@
+note n;
+n = (B,5,whole);
+
+print(n.octave);
+print(n.pitch);
+
+n = sharp(n);
+
+print(n.octave);
+print(n.pitch);

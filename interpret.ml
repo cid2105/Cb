@@ -95,7 +95,34 @@ let initIdentifier t =
 let setOctave v a = ((getNote v).octave <- a); v
 let setPitch v a = ((getNote v).pitch <- a); v
 let setDuration v a = ((getNote v).duration <- a); v
+let setPitch v a = ((getNote v).pitch <- a); v
 
+let incrementNote v = 
+    let note_pitch = (getNote v).pitch in
+    let note_octave = (getNote v).octave in
+    let note_duration = (getNote v).duration in
+        if note_pitch < 11 then
+            Note({pitch=note_pitch+1; octave=note_octave; duration=note_duration})
+        else
+            if note_octave < 5 then
+                Note({pitch=0; octave=note_octave+1; duration=note_duration})
+            else
+                raise (Failure ("Cannot increment note: already at highest pitch" ))
+
+let decrementNote v = 
+    let note_pitch = (getNote v).pitch in
+    let note_octave = (getNote v).octave in
+    let note_duration = (getNote v).duration in
+        if note_pitch > 0 then
+            Note({pitch=note_pitch - 1; octave=note_octave; duration=note_duration})
+        else
+            if note_octave > -5 then
+                Note({pitch=11; octave=note_octave-1; duration=note_duration})
+            else
+                raise (Failure ("Cannot decrement note: already at highest pitch" ))
+
+    (* setOctave v a = ((getNote v).octave <- a); v
+setOctave v ((getNote v).octave + 1) *)
 
 (* let noteMap = NameMap.empty in  *)
 
@@ -335,12 +362,12 @@ let rec eval env = function
     | MethodCall("sharp", [e]) ->
         let arg, env = eval env e in
             if getType arg = "note" then
-                (setPitch arg ((getNote arg).pitch + 1), env)
+                incrementNote arg, env
             else raise (Failure ("argument of flat must be a note"))
     | MethodCall("flat", [e]) ->
         let arg, env = eval env e in
             if getType arg = "note" then
-                (setPitch arg ((getNote arg).pitch - 1), env)
+                decrementNote arg, env
             else raise (Failure ("argument of flat must be a note"))
     | MethodCall("randint", [e]) ->
         let v, env = eval env e in
