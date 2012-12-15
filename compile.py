@@ -26,7 +26,7 @@ def compile(fName):
       print line.strip()
     else:
       break
-    if line_count > 10000000:
+    if line_count > 100000000:
       break
   print "\n=====PYTHON COMPILER COMPLETE=====\n"
 
