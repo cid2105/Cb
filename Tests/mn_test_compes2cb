@@ -1,0 +1,12 @@
+
+note a = (C, 3, whole);
+note b = (D, 3, whole);
+note c = (F, 3, whole);
+
+chord c2 = ([a,b,c], half);
+
+stanza p = [c2];
+
+score m = [p];
+
+compose(m);
