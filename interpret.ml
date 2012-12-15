@@ -21,7 +21,6 @@ type scale = {
     mutable scale_notelist : note list;
 }
 
-(*Assumes notes in a stanza are auto-converted to chords*)
 type stanza = {
     mutable chordlist : chord list;
 }
@@ -93,6 +92,7 @@ let initIdentifier t =
 let setPitch v a = ((getNote v).pitch <- a); v
 let setDuration v a = ((getNote v).duration <- a); v
 
+
 (* let noteMap = NameMap.empty in  *)
 
 (* type 'a ref = { mutable content : 'a }
@@ -131,8 +131,11 @@ let csv_head = ""
 (* A ref is the simplest mutable data structure. *)
 let tick : int ref = ref 0
 
+let getNoteList cbtypelist = List.map ( fun a -> Note( getNote a ) ) cbtypelist
 
+let getChordList cbtypelist = List.map ( fun a -> Chord( getChord a ) ) cbtypelist
 
+let getStanzaList cbtypelist = List.map ( fun a -> Stanza( getStanza a ) ) cbtypelist
 
 
 let rec eval env = function
@@ -319,7 +322,7 @@ let rec eval env = function
                     ee1
                     , env
                 else raise (Failure ("compose takes a score only")));
-    | MethodCall(name, el) ->
+    | MethodCall(name, el) -> print_string ("Calling Method: " ^ name ^ "\n");
         let locals, globals, fdecls = env in
             let fdecl =
                         try (NameMap.find name fdecls)
@@ -341,12 +344,13 @@ let rec eval env = function
                         with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
 
                     in
-                        (* try *)
+                    begin
+                        try
                             let globals =
                                 (call fdecl.body locals globals fdecls name) in
                                     Bool false, (locals, globals, fdecls) (* This gets hit if you never see a return statement *)
-                       (*  with ReturnException(v, g) -> v, (locals, g, fdecls) (* This gets hit if you hit a return statement *) *)
-
+                       with ReturnException(v, g) -> v, (locals, g, fdecls) (* This gets hit if you hit a return statement *)
+                   end
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in
         let vType = getType v in
@@ -364,16 +368,45 @@ let rec eval env = function
                         raise (Failure ("cannot lower: " ^ vType))
             ), env
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
-    (* | ListExpr([el]) -> print_string ("I am a list epxression\n") *)
-    (* | MethodCall(s,el) -> print_string ("I am a method call on: " ^ s ^ "\n") *)
+(*     | ListExpr(el) -> print_string ("I am a list epxression\n");
+        let master, _ = (eval env (List.hd el)) in
+            let master_type = (getType master) in
+            begin
+                match master_type with
+                    "note" ->
+                        let note_list = List.map (fun (list_elem) ->
+                            (let evaled, env = eval env list_elem in
+                                let vType = (getType evaled) in
+                                    if (vType = "note") then (Note (getNote(evaled)))
+                                    else raise (Failure ("List expressions must contain elements of only 1 type"))
+                            )) el in
+                                (Scale ({scale_notelist=note_list}), env);
+                    | "chord" ->
+                        let chord_list = List.map (fun (list_elem) ->
+                            (let evaled, env = eval env list_elem in
+                                let vType = (getType evaled) in
+                                    if (vType = "chord") then (Chord (getChord(evaled)))
+                                    else raise (Failure ("List expressions must contain elements of only 1 type"))
+                            )) el in
+                                (Stanza ({chordlist=getChordList(chord_list)}), env);
+                    | "stanza" ->
+                        let stanza_list = List.map (fun (list_elem) ->
+                            (let evaled, env = eval env list_elem in
+                                let vType = (getType evaled) in
+                                    if (vType = "stanza") then (Stanza (getStanza(evaled)))
+                                    else raise (Failure ("List expressions must contain elements of only 1 type"))
+                            )) el in
+                                (Score ({stanzalist=getStanzaList(stanza_list)}), env);
+                    | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
+            end *)
     | Assign(toE, fromE) -> print_string ("I am an assignment\n");
         let lft_expr, env = eval env toE in
             let rht_expr, (locals, globals, fdecls) = eval env fromE in
-                let lftInfo = 
+                let lftInfo =
                     match toE with
                         Id(i) -> ("id", (i, ""))
                         | MemberAccess(i, j) -> ("member", (i, j))
-                        | _ -> raise (Failure ("left side of assignment must be an identifier or member access")) in         
+                        | _ -> raise (Failure ("left side of assignment must be an identifier or member access")) in
                 let lftIdType = fst lftInfo in
                     let lftName = snd lftInfo in
                         let lftType = (* ("note", "locals") *)
@@ -381,9 +414,9 @@ let rec eval env = function
                                 (getType (NameMap.find (fst lftName) locals), "locals")
                             else if NameMap.mem (fst lftName) globals then
                                 (getType (NameMap.find (fst lftName) globals), "globals")
-                            else raise (Failure ("undeclared identifier: " ^ fst lftName))) in  
-                        let lftRetType = getType lft_expr in 
-                            let rhtType = getType rht_expr in     
+                            else raise (Failure ("undeclared identifier: " ^ fst lftName))) in
+                        let lftRetType = getType lft_expr in
+                            let rhtType = getType rht_expr in
                             if lftRetType = rhtType then
                                 match lftRetType with
                                     "int" ->
@@ -395,9 +428,9 @@ let rec eval env = function
                                             else raise (Failure ("fatal error")))
                                         else if lftIdType = "member" then
                                             (* print_string ("MemberAccess"); *)
-                                            raise (Failure ("members not implemented, FUCK OFF")) 
-                                        else raise (Failure ("cannot assign to: " ^ (fst lftType))) 
-                                    | _ -> raise (Failure ("Only integers dick, FUCK OFF")) 
+                                            raise (Failure ("members not implemented, FUCK OFF"))
+                                        else raise (Failure ("cannot assign to: " ^ (fst lftType)))
+                                    | _ -> raise (Failure ("Only integers dick, FUCK OFF"))
                                     (* print_string ("Some other BS type, not int") *)
                             else if lftIdType = "id" then
                                 raise (Failure ("cannot assign: " ^ fst lftType ^ " = " ^ rhtType))
