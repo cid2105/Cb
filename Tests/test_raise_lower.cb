@@ -1,0 +1,6 @@
+note n = (C, 0, whole);
+print(n.octave);
+n^+;
+print(n.octave);
+n^-;
+print(n.octave);
