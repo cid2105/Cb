@@ -356,11 +356,11 @@ let rec eval env = function
                 else raise (Failure ("compose takes a score only")));
 ======= *)
     (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
-    | MethodCall("compose", [e]) -> print_string "yoohoo i got it!"; (* Writes the specified part to a java file to be written into midi *)
+    | MethodCall("compose", [e]) ->  (* Writes the specified part to a java file to be written into midi *)
             ignore (match e with
                         Id(i) -> i
                         | _ ->  raise (Failure ("compose takes an identifier as input")));
-            let ee1, env = eval env e in
+             let ee1, env = eval env e in
                 (if getType ee1 = "score" then
                     let pp = getScore(ee1) in
                     (let headers = csv_head in
@@ -369,18 +369,19 @@ let rec eval env = function
 
                             (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
                             let print_note nt =
+
                                 fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
                                                     (string_of_int nt.duration) ^ "," ^ 
                                                     (string_of_int nt.pitch));
 
-                                (tick := !tick + nt.duration )
+                                (tick := !tick + nt.duration );
                             in 
                             let print_chord cd = 
                                 List.map (fun nt ->
                                             fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
                                                             (string_of_int (cd.chord_duration / 4)) ^ "," ^ 
                                                             (string_of_int nt.pitch));
-                                            );
+                                            ) cd.notelist;
                                 (tick := !tick + cd.chord_duration);
                                        (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
                                         begin   print_note ((List.hd  a));
