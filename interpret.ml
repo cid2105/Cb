@@ -490,7 +490,7 @@ let rec eval env = function
                             let rhtType = getType rht_expr in
                             if lftRetType = rhtType then
                                 match lftRetType with
-                                    "int" -> print_string ("Assigning to an integer\n");
+                                    "int" -> print_string ("Assigning to an " ^ fst lftType ^ "\n");
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
                                                 rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls)
@@ -538,14 +538,6 @@ let rec eval env = function
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType)) 
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))        
-                                    | "note list" ->
-                                        if lftIdType = "id" then
-                                            (if snd lftType = "locals" then
-                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls)
-                                            else if snd lftType = "globals" then
-                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls)
-                                            else raise (Failure ("fatal error")))
-                                        else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                                     | _ -> (* bool, note, chord, staff, part *)
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
