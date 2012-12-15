@@ -29,6 +29,7 @@ type score = {
     mutable stanzalist : stanza list;
 }
 
+
 type cb_type =   Int of int | Bool of bool | Note of note | Chord of chord | Scale of scale | Stanza of stanza | Score of score
 
 exception ReturnException of cb_type * cb_type NameMap.t
@@ -125,6 +126,7 @@ let assign r x = r.content <- x; x *)
     let noteMap = NameMap.add "B" 11 noteMap
     let noteMap = NameMap.add "Cb" 11 noteMap
 
+
 (*this will need to be passed around*)
 let csv = ""
 let csv_head = ""
@@ -142,9 +144,7 @@ let getStanzaList cbtypelist = List.map ( fun a -> Stanza( getStanza a ) ) cbtyp
 let rec eval env = function
     Id(name) -> print_string ("I am an id with name: " ^ name ^ "\n");
         let locals, globals, fdecls = env in
-            if NameMap.is_empty globals then
-                raise (Failure ("Fuck, globals is empty"))
-            else if NameMap.mem name locals then
+            if NameMap.mem name locals then
                 (NameMap.find name locals), env
             else if NameMap.mem name globals then
                 (NameMap.find name globals), env
@@ -193,8 +193,14 @@ let rec eval env = function
                                     let durType = getType dur in
                                         if durType = "int" then
                                         begin
+(* <<<<<<< HEAD
+
+                                           (*  print_string ("this ans: " ^ (string_of_int (getInt oct)) ^ "\n");  
+                                            print_string ("this ans: " ^ (string_of_bool (NameMap.is_empty noteMap)) ^ "---" ^(string_of_int (getInt dur))^"\n");    *)
+=======
                                             print_string ("this ans: " ^ (string_of_int (getInt oct)) ^ "\n");
                                             print_string ("this ans: " ^ (string_of_bool (NameMap.is_empty noteMap)) ^ "---" ^(string_of_int (getInt dur))^"\n");
+>>>>>>> 698a4c2fc079d238a82f7361a1b3f506b5cf01b9 *)
                                             (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env);
                                         end
                                         else raise (Failure ("Duration does not evaluate to an integer")))
@@ -286,6 +292,63 @@ let rec eval env = function
                 if getType v = "int" then
                     Int(Random.int (getInt v)), env
                 else raise (Failure ("argument of randint must be an integer"))
+(* <<<<<<< HEAD
+
+
+                (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
+    | MethodCall("compose", [e]) ->  (* Writes the specified part to a java file to be written into midi *)
+            ignore (match e with
+                        Id(i) -> i
+                        | _ ->  raise (Failure ("compose takes an identifier as input"))); 
+                let ee1, env = eval env e in
+                (if getType ee1 = "chord" then
+                    let pp = getChord(ee1) in
+                    (let headers = csv_head in
+                        let csvf = open_out "musicfi.csv" in
+                            (fprintf csvf "%s" headers;
+                                print_string "give me my music\n";
+                            (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
+                            let print_note nt =
+                                fprintf csvf "%s\n"  ( (string_of_int !tick) ^ "," ^ 
+                                                                (string_of_int (nt.duration / 4)) ^ "," ^ 
+                                                                (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
+
+                                (tick := !tick + nt.duration )
+                            in 
+                            let print_chord cd = 
+                                (* print_string "give me my chord\n"; *)
+                                (* List.iter (fun nt -> *) print_string "give me my chord\n\n";
+                                            (fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
+                                                            (string_of_int cd.chord_duration) ^ "," ^ 
+                                                            (string_of_int nt.pitch))); (5 + octive )*12 +pitch
+                                        (
+
+                                           List.map (fun nt -> print_note nt; (* fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
+                                                                (string_of_int (cd.chord_duration / 4)) ^ "," ^ 
+                                                                (string_of_int ((5 + nt.octave) * 12 + nt.pitch)) ^ "\n");
+
+                                            (tick := !tick + (cd.chord_duration / 4)); *)
+                                       ) cd.notelist
+
+                                        );
+
+                                        print_string "\n--chord\n\n";
+                                            (* ); *)
+                                (tick := !tick + cd.chord_duration);
+                                       (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
+                                        begin   print_note ((List.hd  a));
+                                    end *)
+                            
+                            in  
+                             print_chord pp;
+
+                    );
+
+                    close_out csvf);
+                    ee1
+                    , env
+                else raise (Failure ("compose takes a score only"))); 
+======= *)
     (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
     | MethodCall("compose", [e]) -> (* Writes the specified part to a java file to be written into midi *)
             ignore (match e with
@@ -302,7 +365,7 @@ let rec eval env = function
                                 fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
                                                     (string_of_int nt.duration) ^ "," ^
                                                     (string_of_int nt.pitch));
-                                (tick := !tick + nt.duration )
+                                (tick := !tick + nt.duration );
                             in
                             let print_chord cd =
                                 List.iter (fun nt ->
@@ -310,7 +373,7 @@ let rec eval env = function
                                                             (string_of_int cd.chord_duration) ^ "," ^
                                                             (string_of_int nt.pitch));
                                             );
-                                (tick := !tick + cd.chord_duration)
+                                (tick := !tick + cd.chord_duration);
                                        (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
                                         begin   print_note ((List.hd  a));
                                     end *)
@@ -340,7 +403,7 @@ let rec eval env = function
                         let v, env = ((eval env) actual) in (v :: al), env
                     ) ([], env) el
                 in
-                    let locals =
+                    let l1 =
                         try List.fold_left2 (fun locals formal actual ->
                                                 if (getType actual) = (string_of_cbtype formal.paramtype) then
                                                     (NameMap.add formal.paramname actual locals)
@@ -351,9 +414,9 @@ let rec eval env = function
                     in
                     begin
                         try
-                            let l, g = (call fdecl.body locals globals fdecls name) in
+                            let l, g = (call fdecl.body l1 globals fdecls name) in
                                 Bool false, (l, g, fdecls) (* This gets hit if you never see a return statement *)
-                       with ReturnException(v, g) -> v, (locals, globals, fdecls) (* This gets hit if you hit a return statement *)
+                       with ReturnException(v, g) -> v, (l1, globals, fdecls) (* This gets hit if you hit a return statement *)
                    end
     | UnaryOp(uo,e) -> print_string ("I am a unary operation\n");
         let v, env = eval env e in

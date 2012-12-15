@@ -1,0 +1,11 @@
+
+<- testing compose method->
+
+chord c1 = ([(C, 0,quarter), (C, 0,  quarter)], quarter);
+
+<-
+stanza p = [c1];
+
+score m = [p];
+->
+compose(c1);
