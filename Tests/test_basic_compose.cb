@@ -1,0 +1,8 @@
+note one = (A, 0, half);
+note two = (B, 0, quarter);
+note three = (C, 0, whole);
+chord test = ([one, two, three], whole);
+
+stanza p = [test];
+
+score m = [p];
