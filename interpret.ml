@@ -509,14 +509,12 @@ let rec eval env = function
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) globals)).pitch <- getInt rht_expr); (locals, globals, fdecls))         
                                                         else raise (Failure ("fatal error"))
                                                     else raise (Failure ("invalid note pitch: " ^ string_of_int (getInt rht_expr) ^ ". pitch must be between 0-127."))
-                                                else if snd lftName = "duration" then (* min max checking *)
-                                                    if getInt rht_expr >= 0 && getInt rht_expr <= 127 then
-                                                        if snd lftType = "locals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls))
-                                                        else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))         
-                                                        else raise (Failure ("undeclared identifier: " ^ fst lftName))
-                                                    else raise (Failure ("invalid note duration: " ^ string_of_int (getInt rht_expr) ^ ". duration must be between 0-127."))
+                                                else if snd lftName = "duration" then (* min max checking *)                                                   
+                                                    if snd lftType = "locals" then
+                                                        rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls))
+                                                    else if snd lftType = "globals" then
+                                                        rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))         
+                                                    else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else if snd lftName = "octave" then (* min max checking *)
                                                     if getInt rht_expr >= 0 && getInt rht_expr <= 8 then
                                                         if snd lftType = "locals" then
@@ -527,14 +525,12 @@ let rec eval env = function
                                                     else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between 0-8."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
-                                                if snd lftName = "duration" then (* min max checking *)
-                                                        if getInt rht_expr >= 0 && getInt rht_expr <= 127 then
-                                                            if snd lftType = "locals" then
-                                                                rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls))
-                                                            else if snd lftType = "globals" then
-                                                                rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))         
-                                                            else raise (Failure ("undeclared identifier: " ^ fst lftName))
-                                                        else raise (Failure ("invalid chord duration: " ^ string_of_int (getInt rht_expr) ^ ". duration must be between 0-127."))
+                                                if snd lftName = "duration" then (* min max checking *)                                                        
+                                                        if snd lftType = "locals" then
+                                                            rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls))
+                                                        else if snd lftType = "globals" then
+                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))         
+                                                        else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType)) 
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))        

@@ -2,8 +2,3 @@ note n;
 n = (C#,0, whole);
 
 print(n.duration);
-
-chord c;
-c = ([n], whole);
-
-print(c.duration);
