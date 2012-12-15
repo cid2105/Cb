@@ -1,8 +1,4 @@
 note n;
-n = (C#,0,whole);
-
-chord c;
-c = ([n], half);
+n = (C#,0, whole);
 
 print(n.duration);
-print(c.duration);
