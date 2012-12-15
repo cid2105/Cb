@@ -5,7 +5,7 @@ type op =
 type uop =
     Raise | Lower
 
-type cb_type = Void | Int | Note | Bool | Chord | Scale | Stanza | Score
+type cb_type = Void | Int | Note | Bool | Chord | Scale | Stanza | Score | Part
 
 type expr = (* Expressions *)
     Id of string (* foo *)
