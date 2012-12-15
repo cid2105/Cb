@@ -1,0 +1,23 @@
+int a = 10;
+int n = 5;
+note x = (C, 0, whole);
+
+n += a;  <- Should equal 15 ->
+
+print(n);
+
+n *= 5;  <- Should equal 75 ->
+
+print(n);
+
+n /= 15;  <- Should equal 5 ->
+
+print(n);
+
+n -= n;   <- Should equal 0 ->
+
+print(n);
+
+x.pitch += 6;
+
+print(x.pitch);
