@@ -192,11 +192,9 @@ let rec eval env = function
                                     let durType = getType dur in
                                         if durType = "int" then
                                         begin
-
                                             print_string ("this ans: " ^ (string_of_int (getInt oct)) ^ "\n");
                                             print_string ("this ans: " ^ (string_of_bool (NameMap.is_empty noteMap)) ^ "---" ^(string_of_int (getInt dur))^"\n");
                                             (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env);
-
                                         end
                                         else raise (Failure ("Duration does not evaluate to an integer")))
                 else  raise (Failure ("Octave does not evaluate to an integer"))
@@ -266,13 +264,13 @@ let rec eval env = function
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
     | MethodCall("print", [e]) ->
         let arg, env = eval env e in
-          (if getType arg = "int" then
-            print_endline (string_of_int (getInt arg))
-          else if getType arg = "bool" then
-            print_endline (string_of_bool (getBool arg))
-          else
-            print_endline(getType arg));
-          (Bool false), env
+            (if getType arg = "int" then
+                print_endline (string_of_int (getInt arg))
+            else if getType arg = "bool" then
+                print_endline (string_of_bool (getBool arg))
+            else
+                print_endline(getType arg));
+            (Bool false), env
     | MethodCall("randint", [e]) ->
             let v, env = eval env e in
                 if getType v = "int" then
@@ -324,15 +322,13 @@ let rec eval env = function
                 else raise (Failure ("compose takes a score only")));
     | MethodCall(name, el) -> print_string ("Calling Method: " ^ name ^ "\n");
         let locals, globals, fdecls = env in
-            let fdecl =
-                        try (NameMap.find name fdecls)
+            let fdecl = try (NameMap.find name fdecls)
                         with Not_found -> raise (Failure ("Undefined function: " ^ name))
             in
-                let actuals, env =
-                    List.fold_left
-                        (fun (al, env) actual ->
-                            let v, env = ((eval env) actual) in (v :: al), env
-                        ) ([], env) el
+                let actuals, env = List.fold_left
+                    (fun (al, env) actual ->
+                        let v, env = ((eval env) actual) in (v :: al), env
+                    ) ([], env) el
                 in
                     let locals =
                         try List.fold_left2 (fun locals formal actual ->
@@ -342,7 +338,6 @@ let rec eval env = function
                                                     raise (Failure ("Wrong parameter type in method call to " ^ fdecl.fname))
                                             ) NameMap.empty fdecl.formals actuals
                         with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
-
                     in
                     begin
                         try
@@ -447,7 +442,6 @@ let rec eval env = function
                             else if lftIdType = "member" then
                                 raise (Failure ("cannot assign: " ^ lftRetType ^ " = " ^ rhtType))
                             else raise (Failure ("fatal error"))
-
     | NoExpr -> print_string ("I am nothingness\n"); Bool true, env
     | _ -> print_string ("No matching for eval\n"); Bool true, env
 and exec env fname = function
