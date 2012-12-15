@@ -92,9 +92,61 @@ let initIdentifier t =
     | "score" -> Score({stanzalist=[]; instrument=0})
     | _ -> Bool(false)
 
+let setOctave v a = ((getNote v).octave <- a); v
 let setPitch v a = ((getNote v).pitch <- a); v
 let setDuration v a = ((getNote v).duration <- a); v
+let setPitch v a = ((getNote v).pitch <- a); v
 
+let incrementNote v = 
+    let note_pitch = (getNote v).pitch in
+    let note_octave = (getNote v).octave in
+    let note_duration = (getNote v).duration in
+        if note_pitch < 11 then
+            Note({pitch=note_pitch+1; octave=note_octave; duration=note_duration})
+        else
+            if note_octave < 5 then
+                Note({pitch=0; octave=note_octave+1; duration=note_duration})
+            else
+                raise (Failure ("Cannot increment note: already at highest pitch" ))
+
+let decrementNote v = 
+    let note_pitch = (getNote v).pitch in
+    let note_octave = (getNote v).octave in
+    let note_duration = (getNote v).duration in
+        if note_pitch > 0 then
+            Note({pitch=note_pitch - 1; octave=note_octave; duration=note_duration})
+        else
+            if note_octave > -5 then
+                Note({pitch=11; octave=note_octave-1; duration=note_duration})
+            else
+                raise (Failure ("Cannot decrement note: already at highest pitch" ))
+
+let minorChord v dur = 
+    let scale_notes = (getScale v).scale_notelist in
+        if List.length scale_notes = 8 then
+            let first_note = Note (List.nth scale_notes 0) in
+            let third_note = Note (List.nth scale_notes 2) in
+            let fifth_note = Note (List.nth scale_notes 4) in
+            let eight_note = Note (List.nth scale_notes 7) in
+                let chord_notes =(List.map (fun e -> getNote e) [first_note;  (decrementNote (third_note)); fifth_note; eight_note]) in
+                    Chord ({notelist=chord_notes; chord_duration = (getInt dur) })
+        else
+            raise (Failure ("Can only apply the minor function to scales of 8 notes" ))
+
+let majorChord v dur = 
+    let scale_notes = (getScale v).scale_notelist in
+        if List.length scale_notes = 8 then
+            let first_note = Note (List.nth scale_notes 0) in
+            let third_note = Note (List.nth scale_notes 2) in
+            let fifth_note = Note (List.nth scale_notes 4) in
+            let eight_note = Note (List.nth scale_notes 7) in
+                let chord_notes =(List.map (fun e -> getNote e) [first_note;  (incrementNote (third_note)); fifth_note; eight_note]) in
+                    Chord ({notelist=chord_notes; chord_duration= (getInt dur) })
+        else
+            raise (Failure ("Can only apply the minor function to scales of 8 notes" ))
+
+    (* setOctave v a = ((getNote v).octave <- a); v
+setOctave v ((getNote v).octave + 1) *)
 
 (* let noteMap = NameMap.empty in  *)
 
@@ -105,7 +157,8 @@ let assign r x = r.content <- x; x *)
 
 
  let noteMap =
-     NameMap.add "C" 0 NameMap.empty
+     NameMap.add "R" (-1) NameMap.empty
+    let noteMap = NameMap.add "C" 0 noteMap
     let noteMap = NameMap.add "B#" 0 noteMap
     let noteMap = NameMap.add "C#" 1 noteMap
     let noteMap = NameMap.add "Db" 1 noteMap
@@ -134,6 +187,7 @@ let csv_head = ""
 
 (* A ref is the simplest mutable data structure. *)
 let tick : int ref = ref 0
+let f : int ref = ref 0
 
 (* let getNoteList cbtypelist = List.map ( fun a -> Note( getNote a ) ) cbtypelist
 
@@ -162,7 +216,7 @@ let rec eval env = function
                   | _ -> raise (Failure ("invalid property of note: " ^ memname)))
               | "chord" ->
                 (match memname with
-                    "duration" -> Int (getChord v).chord_duration
+                    "chord_duration" -> Int (getChord v).chord_duration
                     | "notelist" -> Scale ({scale_notelist = (getChord v).notelist })
                   | _ -> raise (Failure ("invalid property of chord: " ^ memname)))
               | "score" ->
@@ -223,7 +277,7 @@ let rec eval env = function
             (match o with (* Only accept ints for now *)
                 Add -> print_string ("Evaluating an add expression\n");
                     if v1Type = "int" then
-                    Int (getInt v1 + getInt v2)
+                        Int (getInt v1 + getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type))
                 | Sub -> print_string ("Evaluating a subtract expression\n");
                     if v1Type = "int" then
@@ -293,11 +347,34 @@ let rec eval env = function
             else
                 print_endline(getType arg));
             (Bool false), env
+    | MethodCall("major", [e; dur]) ->
+        let arg, env = eval env e in
+        let arg2, env = eval env dur in
+            if getType arg = "scale" && getType arg2 = "int" then
+                (majorChord arg  arg2), env
+            else raise (Failure ("argument of major must be a scale")) 
+    | MethodCall("minor", [e; dur]) ->
+        let arg, env = eval env e in
+        let arg2, env = eval env dur in
+            if (getType arg = "scale") && (getType arg2 = "int") then
+                (minorChord arg  arg2), env
+            else raise (Failure ("argument of minor must be a scale"))
+    | MethodCall("sharp", [e]) ->
+        let arg, env = eval env e in
+            if getType arg = "note" then
+                incrementNote arg, env
+            else raise (Failure ("argument of flat must be a note"))
+    | MethodCall("flat", [e]) ->
+        let arg, env = eval env e in
+            if getType arg = "note" then
+                decrementNote arg, env
+            else raise (Failure ("argument of flat must be a note"))
     | MethodCall("randint", [e]) ->
-            let v, env = eval env e in
-                if getType v = "int" then
-                    Int(Random.int (getInt v)), env
-                else raise (Failure ("argument of randint must be an integer"))
+        let v, env = eval env e in
+            if getType v = "int" then
+                Int(Random.int (getInt v)), env
+            else raise (Failure ("argument of randint must be an integer"))
+
 (* <<<<<<< HEAD
 
 
@@ -356,36 +433,40 @@ let rec eval env = function
                 else raise (Failure ("compose takes a score only")));
 ======= *)
     (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
-    | MethodCall("compose", [e]) -> print_string "yoohoo i got it!"; (* Writes the specified part to a java file to be written into midi *)
+    | MethodCall("compose", [e]) ->  (* Writes the specified part to a java file to be written into midi *)
             ignore (match e with
                         Id(i) -> i
                         | _ ->  raise (Failure ("compose takes an identifier as input")));
-            let ee1, env = eval env e in
+             let ee1, env = eval env e in
                 (if getType ee1 = "score" then
                     let pp = getScore(ee1) in
-                    (let headers = csv_head in
-                        let csvf = open_out "musicfi.csv" in
+                    (let headers = csv_head ^ "Instrument," ^ (string_of_int pp.instrument) ^ "\n"; in (* has to be less than 127 *)
+                        let csvf = open_out ("musiccb"^ (string_of_int !f) ^" .csv"); in
                             (fprintf csvf "%s" headers;
 
                             (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
                             let print_note nt =
-                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
-                                                    (string_of_int nt.duration) ^ "," ^ 
-                                                    (string_of_int nt.pitch));
 
-                                (tick := !tick + nt.duration )
+                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
+                                                    (string_of_int (nt.duration / 4 )) ^ "," ^ 
+                                                    (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
+
+                                (tick := !tick + ( nt.duration / 4 ) );
                             in 
                             let print_chord cd = 
                                 List.map (fun nt ->
-                                            fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
+                                        if (nt.pitch <> -1) then
+                                           
+                                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
                                                             (string_of_int (cd.chord_duration / 4)) ^ "," ^ 
-                                                            (string_of_int nt.pitch));
-                                            );
-                                (tick := !tick + cd.chord_duration);
+                                                            (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
+                                                   
+                                                
                                        (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
                                         begin   print_note ((List.hd  a));
                                     end *)
-                            
+                                ) cd.notelist;
+                                (tick := !tick + (cd.chord_duration / 4) );
                             in
                             let print_stanza stan =
                                    (*  if (List.length stan.chordlist = 1) then
@@ -402,6 +483,8 @@ let rec eval env = function
                     );
 
                     close_out csvf);
+                    (f := !f + 1);
+                    (tick := 0);
                     ee1
                     , env
                 else raise (Failure ("compose takes a score only")));
@@ -476,12 +559,12 @@ let rec eval env = function
             (match uo with (* Only accept notes for now *)
                 Raise ->
                     if vType = "note" then
-                        setPitch v ((getNote v).pitch + 1)
+                        setOctave v ((getNote v).octave + 1)
                     else
                         raise (Failure ("cannot raise: " ^ vType))
                 | Lower ->
                     if vType = "note" then
-                        setPitch v ((getNote v).pitch - 1)
+                        setOctave v ((getNote v).octave - 1)
                     else
                         raise (Failure ("cannot lower: " ^ vType))
             ), env
@@ -654,8 +737,75 @@ and exec env fname = function
                     else (print_string ("if evaluated to false\n");
                         let env_return = exec env fname s
                             in env_return)
-        | Foreach(p, a, sl) -> print_string ("I am a foreach statement" ^ "\n");
-            env
+    (*     | Foreach(par_decl, list_name, sl) -> print_string ("I am a foreach statement" ^ "\n"); 
+            let locals, globals, fdecls = env in (* env *)
+                let list1 = (*check for var existence in locals *)
+                    if NameMap.mem list_name locals then (*check if list_name is in locals *)
+                        NameMap.find list_name locals (*let list equal to the variable found in locals map*)
+                    else 
+                        if NameMap.mem list_name globals then (*let list equal to the variable found in globals map*)
+                            NameMap.find list_name globals
+                        else
+                            raise (Failure ("list variable undeclared"))
+                in let vType = getType list1 in
+                begin
+                    match vType with
+                        "chord" ->
+                            (*notes*)
+                            if (string_of_cbtype par_decl.paramtype) = "note" then
+                                let llist = (getChord list1).notelist in
+                                    List.fold_left (fun acc x -> let (l, g) = (call sl (NameMap.add par_decl.paramname (getNote x) locals) globals fdecls fname) in 
+                                                         (l, g, fdecls)                                                                                
+                                                ) (locals, globals, fdecls) llist
+                            else
+                                raise (Failure ("failure of type matching with chord list"))
+    
+                        | "scale" ->
+                            (*notes*)
+                            if (string_of_cbtype par_decl.paramtype) = "note"
+                            then
+                                let llist = 
+                                    (getScale list1).scale_notelist 
+                                in
+                                    List.fold_left 
+                                        (fun acc x ->
+                                            (locals, (call e1 (NameMap.add par_decl.paramname x locals) globals fdecls fname), fdecls)                                                               
+                                        ) (locals, globals, fdecls) llist
+                            else
+                                raise (Failure ("failure of type matching with scale list"))
+
+                        | "stanza" ->
+                            (*chords*)
+                            if (string_of_cbtype par_decl.paramtype) = "chord"
+                            then
+                                let llist = 
+                                    (getStanza list1).chordlist 
+                                in
+                                    List.fold_left 
+                                        (fun acc x ->
+                                            (locals, (call sbl (NameMap.add par_decl.paramname x locals) globals fdecls fname), fdecls)                                                                       
+                                        ) (locals, globals, fdecls) llist
+                            else
+                                raise (Failure ("failure of type matching with stanza list"))
+                        | "score" ->
+                            (*stanzas*)
+                            if (string_of_cbtype par_decl.paramtype) = "stanza"
+                            then
+                                let llist = 
+                                    (getScore list1).stanzalist 
+                                in
+                                    List.fold_left 
+                                        (fun acc x ->         
+                                            (locals, (call sbl (NameMap.add par_decl.paramname v locals) globals fdecls fname), fdecls)                                                     
+                                                new_acc
+                                        ) (locals, globals, fdecls) llist
+                            else
+                                raise (Failure ("failure of type matching with score list"))
+   
+                        | _ -> 
+                            raise (Failure ("undesired list type for for_each loop"))
+    end
+ *)
         | While(e, sl) -> print_string ("I am a while statement" ^ "\n");
             let rec loop env =
                 let v, env = eval env e in

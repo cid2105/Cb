@@ -1,0 +1,16 @@
+note one = (A, 0, half);
+note two = (B, 0, quarter);
+note three = (C, 0, whole);
+note four = (D, 0, half);
+note five = (E, 0, quarter);
+note six = (F, 0, whole);
+note seven = (G, 0, half);
+note eight = (A, 1, quarter);
+
+scale test = [one, two, three, four, five, six, seven, eight];
+
+chord c = major(test, 10);
+chord d = minor(test, 10);
+
+print(c.chord_duration);
+print(d.chord_duration);

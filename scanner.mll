@@ -59,7 +59,7 @@ rule token = parse
 	| ((['A'-'G'](['b' '#']?))|'R') as noteconst { NOTECONST(noteconst) }
 	| ("whole" | "half" | "quarter") as durConst { DURATIONCONST(durConst) }
 	| eof { EOF } (* Endoffile *)
-	| ['0'-'9']['0'-'9']* as lxm { INTLITERAL(int_of_string lxm) } (* integers *)
+	| '-'?['0'-'9']+ as lxm { INTLITERAL(int_of_string lxm) } (* integers *)
 	| ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
 	| _ as char { raise (Failure("illegal character: " ^ Char.escaped char)) }
 
