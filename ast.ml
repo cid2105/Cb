@@ -51,8 +51,7 @@ stmt = (* Statements *)
     Expr of expr (* foo = bar + 3; *)
     | Return of expr (* return 42; *)
     | Block of innerblock list (* ) ... end *)
-    | If of expr * innerblock list * stmt * stmt (*mn if (foo isnt 42) ... elseif(foo > 42 ) ... else ... end *)
-    | ElseIf of expr * innerblock list (*mn elseif(x is 5) ..... end *)
+    | If of expr * innerblock list * stmt (*mn if (foo isnt 42) ... else ... end *)
     | Foreach of par_decl * string * innerblock list (*mn foreach (x in nots) ... end *)
     | While of expr * innerblock list(*mn while (i<10) ... end *)
 and
@@ -148,54 +147,26 @@ let rec string_of_stmt = function
             | _ -> "return " ^ string_of_expr expr ^ ";\n"; end
     (*| Break -> "break;\n";
         | Continue -> "continue;\n";*)
-    | If(e, s, els, Block([])) -> begin
-        match els with
-            Block([]) -> "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
-                (fun x ->
-                    match x with
-                    Stmt2(st) -> string_of_stmt st ^ "\n";
-                    | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
-                    | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-                )
-             s);(* no elsif part given *)
-            | _ -> "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
+    | If(e, s, Block([])) -> 
+
+        "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
                 (fun innerb ->
                     match innerb with
                     Stmt2(st) -> string_of_stmt st ^ "\n";
                     | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
                     | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
                 )
-            s) ^ "\n" ^ string_of_stmt els;
-        end
-    | If(e, s1, els, s2) -> begin
-        match els with
-            Block([]) ->    "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
-                 (fun innerb ->
+                s) ^ "\n";
 
-                    match innerb with
-                    Stmt2(st) -> string_of_stmt st ^ "\n";
-                    | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
-                    | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-                )
-             s1) ^
-                            "else\n" ^ string_of_stmt s2;
-            | _ ->  "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
-                 (fun innerb ->
-                    match innerb with
-                    Stmt2(st) -> string_of_stmt st ^ "\n";
-                    | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
-                    | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-                )
-             s1) ^ "\n" ^ string_of_stmt els ^
-                    "else\n" ^ string_of_stmt s2; end
-    | ElseIf(e, els) ->  "elsif (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
-         (fun innerb ->
-                    match innerb with
-                    Stmt2(st) -> string_of_stmt st ^ "\n";
-                    | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
-                    | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
-                )
-     els)
+    | If(e, s1, s2) -> 
+        "if (" ^ string_of_expr e ^ ")\n" ^ String.concat "\n" (List.map
+             (fun innerb ->
+                match innerb with
+                Stmt2(st) -> string_of_stmt st ^ "\n";
+                | VDecl2(v) -> string_of_vdecl v ^ "\n" ;
+                | FullDecl2(fv) -> string_of_fvdl fv ^ "\n" ;
+            )
+            s1) ^ "\n" ^ "else\n" ^ string_of_stmt s2;
     | Foreach(p, id, s) ->
         "foreach (" ^ string_of_pdecl p  ^ " in " ^ id ^ " )\n" ^ String.concat "\n" (List.map
              (fun innerb ->

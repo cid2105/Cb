@@ -11,15 +11,14 @@ def proc(fName):
     try:
         with open(fName) as f:
             asArray = f.readlines()
-            progString = "\n".join(asArray)
+            progString = "".join(asArray)
             without_comments = comments.sub('', progString)
             for match in uses.findall(without_comments):
-                print "MATCH: " + match
                 if os.path.isfile(match):
                     try:
                         with open(match) as f2:
                             toArr = f2.readlines()
-                            toStr = "\n".join(toArr)
+                            toStr = "".join(toArr)
                             progString = re.sub("use " + match + ";",toStr,progString)
                     except IOError:
                         print "Preprocessor Error: use statement file: " + match + " not found"

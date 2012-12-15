@@ -1,0 +1,16 @@
+meth int gcd(int a, int b)
+    while(a isnt b)
+        if(a > b)
+            gcd(a%b, b);
+        else
+            gcd(a, b%a);
+        end
+    end
+    return a;
+end
+
+int a = 20;
+int b = 15;
+
+print(gcd(a,b));
+print(5);

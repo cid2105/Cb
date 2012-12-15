@@ -15,7 +15,7 @@
 %token BOOL /* Added bool */
 %token IN
 %token IF
-%token ELSE NOELSE ELSIF
+%token ELSE NOELSE
 %token WHILE FOREACH
 %token ASSIGN
 %token PLUSEQ
@@ -50,7 +50,6 @@
 
 %nonassoc NOELSE
 %nonassoc ELSE
-%nonassoc ELSIF
 %left PLUSEQ MINUSEQ
 %left TIMESEQ DIVIDEEQ MODEQ
 %right ASSIGN
@@ -138,14 +137,10 @@ statement:
 	expr SEMICOLON { Expr($1) }
 	| RETURN expr_opt SEMICOLON { Return($2) }   /*return; or return 7;*/
 	| RIGHTPAREN abstraction END { Block(List.rev $2) }
-	| IF LEFTPAREN expr RIGHTPAREN abstraction elsif_statement %prec NOELSE END { If($3, $5, $6, Block([])) }
-	| IF LEFTPAREN expr RIGHTPAREN abstraction elsif_statement ELSE abstraction END { If($3, $5, $6, Block(List.rev $8)) }
+	| IF LEFTPAREN expr RIGHTPAREN abstraction %prec NOELSE END { If($3, $5, Block([])) }
+	| IF LEFTPAREN expr RIGHTPAREN abstraction ELSE abstraction END { If($3, $5, Block(List.rev $7)) }
 	| WHILE LEFTPAREN expr RIGHTPAREN abstraction END { While($3, $5) }
 	| FOREACH LEFTPAREN param_decl IN ID RIGHTPAREN abstraction END { Foreach($3, $5, $7)}
-
-elsif_statement:
-      /* nothing */ { Block([]) }
-	| ELSIF LEFTPAREN expr RIGHTPAREN abstraction { ElseIf($3, $5) }
 
 duration_expr:
 	INTLITERAL { IntLiteral($1) }

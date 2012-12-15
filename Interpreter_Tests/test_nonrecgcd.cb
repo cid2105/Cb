@@ -1,0 +1,19 @@
+meth int gcd(int d, int e)
+    while (d isnt e)
+        if(d > e)
+            d = d-e;
+        else
+            e = e-d;
+        end
+    end
+    return d;
+end
+
+int a = 20;
+int b = 15;
+
+int c;
+
+c = gcd(a,b);
+
+print(c);

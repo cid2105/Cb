@@ -1,0 +1,16 @@
+<-Testing integer arithmetic->
+1 + 2; 
+
+1 - 2;
+
+2 * 2;
+
+1 / 2;
+
+5 % 2;
+
+
+<-Order of operations with integer arithmetic->
+1 + 2 * 3 + 4;
+
+((1 + 2 ) * ( 3 + 4 ) );
