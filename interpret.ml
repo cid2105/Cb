@@ -378,7 +378,7 @@ let rec eval env = function
                             (let evaled, env = eval env list_elem in
                                 let vType = (getType evaled) in
                                     if (vType = "note") then
-                                        (Note (getNote(evaled))) (* return a note *)
+                                        getNote evaled (* return a note *)
                                     else raise (Failure ("List expressions must contain elements of only 1 type")) (* not a note break *)
                             )) el in
                                 (Scale ({scale_notelist = note_list}), env);
@@ -386,18 +386,21 @@ let rec eval env = function
                         let chord_list = List.map (fun (list_elem) ->
                             (let evaled, env = eval env list_elem in
                                 let vType = (getType evaled) in
-                                    if (vType = "chord") then (Chord (getChord(evaled)))
+                                    if (vType = "chord") then
+                                        (* (Chord (getChord(evaled))) *)
+                                        getChord evaled
                                     else raise (Failure ("List expressions must contain elements of only 1 type"))
                             )) el in
-                                (Stanza ({chordlist=getChordList(chord_list)}), env);
+                                (Stanza ({chordlist = chord_list}), env);
                     | "stanza" -> (* if it is a stanza create a score *)
                         let stanza_list = List.map (fun (list_elem) ->
                             (let evaled, env = eval env list_elem in
                                 let vType = (getType evaled) in
-                                    if (vType = "stanza") then (Stanza (getStanza(evaled)))
+                                    if (vType = "stanza") then
+                                        getStanza evaled
                                     else raise (Failure ("List expressions must contain elements of only 1 type"))
                             )) el in
-                                (Score ({stanzalist=getStanzaList(stanza_list)}), env);
+                                (Score ({stanzalist = stanza_list}), env);
                     | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
             end
     | Assign(toE, fromE) -> print_string ("I am an assignment\n");
