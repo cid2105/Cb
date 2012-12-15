@@ -1,11 +1,14 @@
 
-note a = (C, 3, whole);
-note b = (D, 3, whole);
-note c = (F, 3, whole);
+note a = (C, 0, whole);
+note b = (E, 0, whole);
+note c = (G, 0, whole);
+note ch = (C, 1, whole);
 
-chord c2 = ([a,b,c], half);
+chord c2 = ([a,b,c,ch], whole);
 
-stanza p = [c2];
+chord c3 = ([a,b,c], whole);
+
+stanza p = [c2, c2,c2,c2,c2,c2,c2];
 
 score m = [p];
 
