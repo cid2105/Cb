@@ -18,16 +18,16 @@ def compile(fName):
   ocaml = subprocess.Popen(['./Cb'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
   ocaml.stdin.write(output)
   ocaml.stdin.close()
-  line_count = 0
+  #line_count = 0
   while True:
     line = ocaml.stdout.readline()
-    line_count += 1
+    #line_count += 1
     if line != '':
       print line.strip()
     else:
       break
-    if line_count > 100000000:
-      break
+    #if line_count > 100000000:
+    #  break
   print "\n=====PYTHON COMPILER COMPLETE=====\n"
 
 if len(sys.argv) != 2:
