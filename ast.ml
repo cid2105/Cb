@@ -1,6 +1,6 @@
 type op =
     Add | Sub | Mult | Div | Mod
-    | And | Or | Eq | NEq | Less | LEq | Greater | GEq | IDTimes
+    | And | Or | Eq | NEq | Less | LEq | Greater | GEq (* | IDTimes *)
 
 type uop =
     Raise | Lower

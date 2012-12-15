@@ -2,10 +2,23 @@
 <- testing compose method->
 <-note p=(C#,3,half);
 compose(p);
--> int inc = 9;
+ int inc = 9;
 note a = (C, 3, whole);
 note b = (D, 3, whole);
 note c = (F, 3, whole);
+->
+
+if (true)
+int d;
+
+elseif(false)
+note o;
+
+else
+
+chord high;
+
+end
 
 chord c1 = ([(Db,4,quarter), (C#, 2, half)], half);
 
