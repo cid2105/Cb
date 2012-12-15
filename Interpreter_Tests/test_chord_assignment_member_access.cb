@@ -1,0 +1,9 @@
+note n;
+n = (C#,0,whole);
+
+chord c;
+c = ([n], half);
+
+c.duration = whole;
+
+print (c.duration);

@@ -42,6 +42,7 @@ let getType v =
         | Scale(v) -> "scale"
         | Stanza(v) -> "part"
         | Score(v) -> "score"
+        (* | Notelist(v) -> "note list" *)
 
 let getInt v =
     match v with
@@ -473,7 +474,15 @@ let rec eval env = function
                                                         else raise (Failure ("invalid chord duration: " ^ string_of_int (getInt rht_expr) ^ ". duration must be between 0-127."))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType)) 
-                                        else raise (Failure ("cannot assign to: " ^ (fst lftType)))                                    
+                                        else raise (Failure ("cannot assign to: " ^ (fst lftType)))        
+                                    | "note list" ->
+                                        if lftIdType = "id" then
+                                            (if snd lftType = "locals" then
+                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls)
+                                            else if snd lftType = "globals" then
+                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls)
+                                            else raise (Failure ("fatal error")))
+                                        else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                                     | _ -> (* bool, note, chord, staff, part *)
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
