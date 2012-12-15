@@ -27,6 +27,7 @@ type stanza = {
 
 type score = {
     mutable stanzalist : stanza list;
+    
 }
 
 
@@ -162,7 +163,8 @@ let rec eval env = function
               | "chord" ->
                 (match memname with
                     "duration" -> Int (getChord v).chord_duration
-                  | _ -> raise (Failure ("invalid property of staff: " ^ memname)))
+                    | "notelist" -> Scale ({scale_notelist = (getChord v).notelist })
+                  | _ -> raise (Failure ("invalid property of chord: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
     | IntLiteral(i) -> print_string ("I am an intliteral: " ^ (string_of_int i) ^ "\n");
         (Int i, env);
@@ -561,13 +563,13 @@ let rec eval env = function
                                                         rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))
                                                     else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else if snd lftName = "octave" then (* min max checking *)
-                                                    if getInt rht_expr >= 0 && getInt rht_expr <= 8 then
+                                                    if getInt rht_expr >= -5 && getInt rht_expr <= 5 then
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) locals)).octave <- getInt rht_expr); (locals, globals, fdecls))
                                                         else if snd lftType = "globals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) globals)).octave <- getInt rht_expr); (locals, globals, fdecls))
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
-                                                    else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between 0-8."))
+                                                    else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between -5-5."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
                                                 if snd lftName = "duration" then (* min max checking *)
@@ -576,6 +578,26 @@ let rec eval env = function
                                                         else if snd lftType = "globals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls))
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
+                                                else raise (Failure ("fatal error"))
+                                            else raise (Failure ("cannot assign to: " ^ fst lftType))
+                                        else raise (Failure ("cannot assign to: " ^ (fst lftType)))
+                                    | "scale" ->
+                                        if lftIdType = "id" then
+                                            (if snd lftType = "locals" then
+                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls)
+                                            else if snd lftType = "globals" then
+                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls)
+                                            else raise (Failure ("fatal error")))
+                                        (* MEMBER METHODS *)
+                                        else if lftIdType = "member" then
+                                            (* NOTE MEMBER METHODS *)
+                                            if fst lftType = "chord" then
+                                                if snd lftName = "notelist" then
+                                                    if snd lftType = "locals" then
+                                                        rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls))
+                                                    else if snd lftType = "globals" then
+                                                        rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls))
+                                                    else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))

@@ -1,0 +1,5 @@
+note n;
+n = (C#,0, whole);
+
+chord c = ([n], n.duration);
+c.notelist = [n];
