@@ -92,7 +92,7 @@ let initIdentifier t =
     | "score" -> Score({stanzalist=[]; instrument=0})
     | _ -> Bool(false)
 
-let setPitch v a = ((getNote v).pitch <- a); v
+let setOctave v a = ((getNote v).octave <- a); v
 let setDuration v a = ((getNote v).duration <- a); v
 
 
@@ -223,7 +223,7 @@ let rec eval env = function
             (match o with (* Only accept ints for now *)
                 Add -> print_string ("Evaluating an add expression\n");
                     if v1Type = "int" then
-                    Int (getInt v1 + getInt v2)
+                        Int (getInt v1 + getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type))
                 | Sub -> print_string ("Evaluating a subtract expression\n");
                     if v1Type = "int" then
@@ -476,12 +476,12 @@ let rec eval env = function
             (match uo with (* Only accept notes for now *)
                 Raise ->
                     if vType = "note" then
-                        setPitch v ((getNote v).pitch + 1)
+                        setOctave v ((getNote v).octave + 1)
                     else
                         raise (Failure ("cannot raise: " ^ vType))
                 | Lower ->
                     if vType = "note" then
-                        setPitch v ((getNote v).pitch - 1)
+                        setOctave v ((getNote v).octave - 1)
                     else
                         raise (Failure ("cannot lower: " ^ vType))
             ), env
