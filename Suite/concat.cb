@@ -1,0 +1,34 @@
+stanza s1;
+stanza s2;
+
+stanza test = concat(s1,s2);
+
+foreach(chord c in test)
+    print(8111);
+end
+
+
+note n = (C,0,quarter);
+chord c1 = ([n],whole);
+chord c2 = ([n],half);
+s1 = [c1];
+s2 = [c2];
+
+stanza s3 = concat(s1,s2);
+bool first = true;
+foreach(chord c in s3)
+    if(first and c.chord_duration is 64)
+        first = false;
+        print(0);
+    else
+        if(first)
+            first = false;
+            print(8112);
+        end
+        if(c.chord_duration is 32)
+            print(0);
+        else
+            print(8113);
+        end
+    end
+end

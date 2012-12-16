@@ -360,6 +360,73 @@ let rec eval env = function
                     let tmp_list = (getNote tmp_note)::[] in
                         Chord ({notelist=tmp_list; chord_duration=(getInt v)}), env
             else raise (Failure ("argument of rest must be an integer"))
+    | MethodCall("prepend", [item; alist]) ->
+        let arg1, env = eval env item in
+            let arg2, env = eval env alist in
+                if getType arg1 = "note" then
+                    (if getType arg2 = "scale" then
+                        (let tmp_note = arg1 in
+                            let tmp_list = (List.rev ((getNote tmp_note)::(List.rev ((getScale arg2).scale_notelist)))) in
+                                Scale ({scale_notelist=tmp_list}), env)
+                    else if getType arg2 = "chord" then (* Returns a new chord with the note appended *)
+                        (let tmp_note = arg1 in
+                            let tmp_list = (List.rev ((getNote tmp_note)::(List.rev ((getChord arg2).notelist)))) in
+                                Chord ({notelist=(tmp_list); chord_duration=(getChord arg2).chord_duration}), env)
+                    else raise (Failure ("A note can only be prepended to a chord or scale")))
+                else if getType arg1 = "chord" then
+                    (if getType arg2 = "stanza" then
+                        (let tmp_chord = arg1 in
+                            let tmp_list = (List.rev ((getChord tmp_chord)::(List.rev ((getStanza arg2).chordlist)))) in
+                                Stanza ({chordlist=tmp_list}), env)
+                    else raise (Failure ("A chord can only be prepended to a stanza")))
+                else if getType arg1 = "stanza" then
+                    (if getType arg2 = "score" then
+                        (let tmp_stanza = arg1 in
+                            let tmp_list = (List.rev ((getStanza tmp_stanza)::(List.rev ((getScore arg2).stanzalist)))) in
+                                Score ({stanzalist=tmp_list; instrument=(getScore arg2).instrument}), env)
+                    else raise (Failure ("a stanza can only be prepended to a score")))
+                else raise (Failure ("First argument for prepend must be of type note, chord, or stanza"))
+    | MethodCall("append", [item; alist]) ->
+        let arg1, env = eval env item in
+            let arg2, env = eval env alist in
+                if getType arg1 = "note" then
+                    (if getType arg2 = "scale" then
+                        (let tmp_note = arg1 in
+                            let tmp_list = (getNote tmp_note)::((getScale arg2).scale_notelist) in
+                                Scale ({scale_notelist=tmp_list}), env)
+                    else if getType arg2 = "chord" then (* Returns a new chord with the note appended *)
+                        (let tmp_note = arg1 in
+                            let tmp_list = (getNote tmp_note)::((getChord arg2).notelist) in
+                                Chord ({notelist=(tmp_list); chord_duration=(getChord arg2).chord_duration}), env)
+                    else raise (Failure ("A note can only be appended to a chord or scale")))
+                else if getType arg1 = "chord" then
+                    (if getType arg2 = "stanza" then
+                        (let tmp_chord = arg1 in
+                            let tmp_list = (getChord tmp_chord)::((getStanza arg2).chordlist) in
+                                Stanza ({chordlist=tmp_list}), env)
+                    else raise (Failure ("A chord can only be appended to a stanza")))
+                else if getType arg1 = "stanza" then
+                    (if getType arg2 = "score" then
+                        (let tmp_stanza = arg1 in
+                            let tmp_list = (getStanza tmp_stanza)::((getScore arg2).stanzalist) in
+                                Score ({stanzalist=tmp_list; instrument=(getScore arg2).instrument}), env)
+                    else raise (Failure ("a stanza can only be appended to a score")))
+                else raise (Failure ("First argument for append must be of type note, chord, or stanza"))
+    | MethodCall("concat", [list1; list2]) ->
+        let arg1, env = eval env list1 in
+            let arg2, env = eval env list2 in
+                if getType arg1 = getType arg2 then
+                    (if getType arg1 = "stanza" then
+                        (let tmp_chordlist = ((getStanza arg2).chordlist) @ ((getStanza arg1).chordlist) in
+                            Stanza ({chordlist=tmp_chordlist}), env)
+                    else if getType arg1 = "scale" then
+                        (let tmp_notelist = ((getScale arg2).scale_notelist) @ ((getScale arg1).scale_notelist) in
+                            Scale ({scale_notelist=tmp_notelist}), env)
+                    else if getType arg1 = "score" then
+                        (let tmp_stanzalist = ((getScore arg2).stanzalist) @ ((getScore arg1).stanzalist) in
+                            Score ({stanzalist=tmp_stanzalist; instrument=(getScore arg1).instrument}), env)
+                    else raise (Failure ("concat works only on stanzas and scores")))
+                else raise (Failure ("Both arguments to concat must be of the same type"))
     | MethodCall("compose", [e]) ->  (* Writes the specified part to a java file to be written into midi *)
             ignore (match e with
                         Id(i) -> i
@@ -370,14 +437,11 @@ let rec eval env = function
                     (let headers = csv_head ^ "Instrument," ^ (string_of_int pp.instrument) ^ "\n"; in (* has to be less than 127 *)
                         let csvf = open_out ("musiccb" ^ (string_of_int !f) ^ ".csv"); in
                             (fprintf csvf "%s" headers;
-
                             (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
                             let note nt =
-
                                 fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
                                                     (string_of_int (nt.duration / 4 )) ^ "," ^
                                                     (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
-
                                 (tick := !tick + ( nt.duration / 4 ) );
                             in
                             let print_chord cd =

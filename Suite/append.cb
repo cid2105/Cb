@@ -1,0 +1,58 @@
+note n = (C,2,quarter);
+
+chord c = ([n],whole);
+
+c = append(n, c);
+
+foreach(note n in c)
+    if(n.pitch is 0 and n.octave is 2 and n.duration is 16)
+        print(0);
+    else
+        print(1352);
+    end
+end
+
+stanza s = [c];
+
+s = append(c, s);
+
+int counter = 0;
+
+foreach(chord c_temp in s)
+    counter += 1;
+end
+
+if(counter is 2)
+    print(0);
+else
+    print(1353);
+end
+
+s = append(c, s);
+s = append(c, s);
+
+foreach(chord c_temp in s)
+    counter += 1;
+end
+
+if(counter is 6)
+    print(0);
+else
+    print(1354);
+end
+
+score sc;
+
+sc = append(s, sc);
+
+counter = 0;
+
+foreach(stanza s_temp in sc)
+    counter++;
+end
+
+if(counter is 1)
+    print(0);
+else
+    print(1355);
+end

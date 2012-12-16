@@ -1,0 +1,50 @@
+note a = (A,0,half);
+note b = (B,0,quarter);
+
+chord c;
+chord d;
+
+c = append(a, c); <-c is now (9,0,32)->
+c = append(b, c); <-c is now (9,0,32),(11,0,16)->
+
+d = prepend(a, d); <-d is now (9,0,32)->
+d = prepend(b, d); <-d is now (11,0,16),(9,0,32)->
+
+
+bool first = true;
+foreach(note e in c)
+    if(first and e.pitch is 9)
+        first = false;
+        print(0);
+    else
+        if(first and e.pitch isnt 9)
+            first = false;
+            print(7123);
+        else
+            if(e.pitch is 11)
+                print(0);
+            else
+                print(7124);
+            end
+        end
+    end
+end
+
+first = true;
+foreach(note f in d)
+    if(first and f.pitch is 11)
+        first = false;
+        print(0);
+    else
+        if(first and f.pitch isnt 11)
+            first = false;
+            print(7125);
+        else
+            if(f.pitch is 9)
+                print(0);
+            else
+                print(7126);
+            end
+        end
+    end
+end
