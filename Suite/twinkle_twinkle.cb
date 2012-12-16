@@ -1,0 +1,17 @@
+chord c1 = chordOfNote((C,0,quarter));
+chord c2 = chordOfNote((G,0,quarter));
+chord c3 = chordOfNote((A,0,quarter));
+chord c4 = chordOfNote((F,0,quarter));
+chord c5 = chordOfNote((E,0,quarter));
+chord c6 = chordOfNote((D,0,quarter));
+chord c7 = chordOfNote((G,0,half));
+chord c8 = chordOfNote((C,0,half));
+chord c9 = chordOfNote((D,0,half));
+
+stanza p1 = [c1, c1, c2, c2, c3, c3, c7];
+stanza p2 = [c4, c4, c5, c5, c6, c6, c8];
+stanza p3 = [c2, c2, c4, c4, c5, c5, c9];
+
+score m = [p1, p2, p3, p3, p1, p2];
+
+compose(m);
