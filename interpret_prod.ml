@@ -368,6 +368,7 @@ let rec eval env = function
                 (if getType ee1 = "score" then
                     let pp = getScore(ee1) in
                     (let headers = csv_head ^ "Instrument," ^ (string_of_int pp.instrument) ^ "\n\n"; in (* has to be less than 127 *)
+                        (* accepts multiple instruments(up to 16) *)
                         let csvf = open_out ("musiccb" ^ (string_of_int !f) ^ ".csv"); in
                             (fprintf csvf "%s" headers;
 
