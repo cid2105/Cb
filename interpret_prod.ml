@@ -314,6 +314,8 @@ let rec eval env = function
                 print_endline (string_of_int (getInt arg))
             else if getType arg = "bool" then
                 print_endline (string_of_bool (getBool arg))
+            else if getType arg = "note" then
+                print_endline ("(" ^ (string_of_int (getNote arg).pitch) ^ "," ^ (string_of_int (getNote arg).octave) ^ "," ^ (string_of_int (getNote arg).duration) ^ ")")
             else
                 print_endline(getType arg));
             (Bool false), env

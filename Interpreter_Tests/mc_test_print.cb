@@ -1,0 +1,5 @@
+note n = (C,0,whole);
+
+print(n);
+
+print((G,-2,quarter));
