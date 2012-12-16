@@ -730,7 +730,7 @@ and exec env fname = function
                     else (print_string ("if evaluated to false\n");
                         let env_return = exec env fname s
                             in env_return)
-    (*     | Foreach(par_decl, list_name, sl) -> print_string ("I am a foreach statement" ^ "\n");
+        | Foreach(par_decl, list_name, sl) ->
             let locals, globals, fdecls = env in (* env *)
                 let list1 = (*check for var existence in locals *)
                     if NameMap.mem list_name locals then (*check if list_name is in locals *)
@@ -746,59 +746,46 @@ and exec env fname = function
                         "chord" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                                let llist = (getChord list1).notelist in
-                                    List.fold_left (fun acc x -> let (l, g) = (call sl (NameMap.add par_decl.paramname (getNote x) locals) globals fdecls fname) in
-                                                         (l, g, fdecls)
+                                let llist = (List.rev (getChord list1).notelist) in
+                                    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
+                                        let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname) in
+                                                        (l, g, fdecls)
                                                 ) (locals, globals, fdecls) llist
                             else
                                 raise (Failure ("failure of type matching with chord list"))
-
                         | "scale" ->
                             (*notes*)
-                            if (string_of_cbtype par_decl.paramtype) = "note"
-                            then
-                                let llist =
-                                    (getScale list1).scale_notelist
-                                in
-                                    List.fold_left
-                                        (fun acc x ->
-                                            (locals, (call e1 (NameMap.add par_decl.paramname x locals) globals fdecls fname), fdecls)
+                            if (string_of_cbtype par_decl.paramtype) = "note" then
+                                let llist = (List.rev (getScale list1).scale_notelist) in
+                                    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
+                                        let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname) in
+                                                        (l, g, fdecls)
                                         ) (locals, globals, fdecls) llist
                             else
                                 raise (Failure ("failure of type matching with scale list"))
-
                         | "stanza" ->
                             (*chords*)
-                            if (string_of_cbtype par_decl.paramtype) = "chord"
-                            then
-                                let llist =
-                                    (getStanza list1).chordlist
-                                in
-                                    List.fold_left
-                                        (fun acc x ->
-                                            (locals, (call sbl (NameMap.add par_decl.paramname x locals) globals fdecls fname), fdecls)
+                            if (string_of_cbtype par_decl.paramtype) = "chord" then
+                                let llist = (List.rev (getStanza list1).chordlist) in
+                                    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
+                                        let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Chord x) l1) g1 f1 fname) in
+                                                        (l, g, fdecls)
                                         ) (locals, globals, fdecls) llist
                             else
                                 raise (Failure ("failure of type matching with stanza list"))
                         | "score" ->
                             (*stanzas*)
-                            if (string_of_cbtype par_decl.paramtype) = "stanza"
-                            then
-                                let llist =
-                                    (getScore list1).stanzalist
-                                in
-                                    List.fold_left
-                                        (fun acc x ->
-                                            (locals, (call sbl (NameMap.add par_decl.paramname v locals) globals fdecls fname), fdecls)
-                                                new_acc
+                            if (string_of_cbtype par_decl.paramtype) = "stanza" then
+                                let llist = (List.rev (getScore list1).stanzalist) in
+                                    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
+                                        let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Stanza x) l1) g1 f1 fname) in
+                                                        (l, g, fdecls)
                                         ) (locals, globals, fdecls) llist
                             else
                                 raise (Failure ("failure of type matching with score list"))
-
                         | _ ->
                             raise (Failure ("undesired list type for for_each loop"))
-    end
- *)
+                end
         | While(e, sl) -> print_string ("I am a while statement" ^ "\n");
             let rec loop env =
                 let v, env = eval env e in
