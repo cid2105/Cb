@@ -159,7 +159,7 @@ let assign r x = r.content <- x; x *)
 
 (*this will need to be passed around*)
 let csv = ""
-let csv_head = ""
+let csv_head = "Timing Resolution (pulses per quarter note)\n4\n\n"  (* always 4 for now*)
 
 (* A ref is the simplest mutable data structure. *)
 let tick : int ref = ref 0
@@ -440,7 +440,7 @@ let rec eval env = function
              let ee1, env = eval env e in
                 (if getType ee1 = "score" then
                     let pp = getScore(ee1) in
-                    (let headers = csv_head ^ "Instrument," ^ (string_of_int pp.instrument) ^ "\n"; in (* has to be less than 127 *)
+                    (let headers = csv_head ^ "Instrument," ^ (string_of_int pp.instrument) ^ "\n\n"; in (* has to be less than 127 *)
                         let csvf = open_out ("musiccb"^ (string_of_int !f) ^" .csv"); in
                             (fprintf csvf "%s" headers;
 
@@ -449,7 +449,8 @@ let rec eval env = function
 
                                 fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
                                                     (string_of_int (nt.duration / 4 )) ^ "," ^ 
-                                                    (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
+                                                    (string_of_int ((5 + nt.octave) * 12 + nt.pitch))^ "," ^
+                                                            (string_of_int 127));
 
                                 (tick := !tick + ( nt.duration / 4 ) );
                             in 
@@ -459,7 +460,8 @@ let rec eval env = function
                                            
                                                 fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
                                                             (string_of_int (cd.chord_duration / 4)) ^ "," ^ 
-                                                            (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
+                                                            (string_of_int ((5 + nt.octave) * 12 + nt.pitch)) ^ "," ^
+                                                            (string_of_int 127));
                                                    
                                                 
                                        (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in

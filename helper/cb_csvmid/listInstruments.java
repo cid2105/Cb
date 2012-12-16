@@ -1,9 +1,8 @@
 /**
  * listInstruments.java
- * 
- * @author: Stephen Steffes http://www.penguinpeepshow.com/CSV2MIDI.php
- * 
- * Creates list of instruments and their numbers. Taken from Stephen Steffes at http://www.penguinpeepshow.com/CSV2MIDI.php
+ * June 11, 2003
+ * @author: Stephen Steffes
+ * Purpose: prints out a list of available instruments in the java synthesizer and their instrument number
  */
 
 import java.io.*;
@@ -15,7 +14,7 @@ public class listInstruments{
   public static void listAvailableInstruments(){
     Instrument[] instrument = synth.getAvailableInstruments();
     for (int i=0; i<instrument.length; i++){
-      System.out.println(i + "   " + instrument[i].getName());
+      System.out.println(i + "," + instrument[i].getName());
     }
   }
 

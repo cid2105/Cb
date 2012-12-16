@@ -8,12 +8,12 @@ note a = (C, 3, whole);
 note b = (D, 3, whole);
 note c = (F, 3, whole);
 
-c--;
+inc--;
 chord c1 = ([(Db,4,quarter), (C#, 2, half)], half);
 
 chord c2 = ([a,b,c], half);
 
-stanza p = [c1, c2];
+stanza p = [c1, c1, c2];
 
 score m = [p];
 
