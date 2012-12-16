@@ -50,8 +50,6 @@ import javax.sound.midi.*;
  * Much of the MidiMessage information comes from
  * information provided by Matthias Pfisterer's Java Examples
  * at http://rupert.informatik.uni-stuttgart.de/~pfistere/jsexamples
- * 
- * Taken from Stephen Steffes at http://www.penguinpeepshow.com/CSV2MIDI.php
  */
 public class MessageInfo {
    public static String [] keyNames = 

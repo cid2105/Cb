@@ -1,0 +1,8 @@
+Timing Resolution (pulses per quarter note)
+4
+
+Instrument,71,Banjo,Instrument,114,Steel Drum,Instrument,71,Clarinet
+
+Tick,duration(5-10-20),Note (0-127),Velocity (0-127),Tick,duration(5-10-20),Note (0-127),Velocity (0-127),Tick,duration(5-10-20),Note (0-127),Velocity (0-127)
+0,10,-1,127,20,5,60,90,40,5,80,100
+20,5,10,120,0,0,0,0,60,5,0,120

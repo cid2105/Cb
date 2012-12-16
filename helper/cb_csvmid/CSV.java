@@ -1,9 +1,8 @@
 /**
  * CSV.java
- * 
- * @author: Stephen Steffes 
- * 
- * provides i/o for CSV files. Taken from http://www.penguinpeepshow.com/CSV2MIDI.php
+ * June 11, 2003
+ * @author: Stephen Steffes
+ * Purpose: fill and extract data from a CSV file
  */
 
 import java.util.*;
@@ -14,13 +13,13 @@ class CSV{
 	PrintWriter writer;
 	FileInputStream instr;
 	BufferedReader reader;
-	Vector data;							//holds data from the CSV file, commas, new lines and all
+	Vector<Object> data;				//holds data from the CSV file, commas, new lines and all
 	String fileName;					//name of CSV file to write or read
 	
 	//open the csv file
 	public CSV(String fileName){
 		this.fileName=fileName;
-		data=new Vector();
+		data=new Vector<Object>();
 	}
 	public CSV(){
 	}
@@ -47,7 +46,7 @@ class CSV{
 
 
 	//fill the data Vector from the CSV file
-	public Vector fillVector(){
+	public Vector<Object> fillVector(){
 		//Open and save the file
 		try{
 			FileInputStream instr=new FileInputStream(fileName);

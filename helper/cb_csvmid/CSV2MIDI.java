@@ -1,14 +1,16 @@
 /**
  * CSV2MIDI.java
+ * June 11, 2003
+ * @author: Stephen Steffes
+ * Purpose:  Converts a .csv file to a MIDI file according to ExampleMIDI.csv
  * 
- * @author: Ye
- * Modified from Stephen Steffes: http://www.penguinpeepshow.com/CSV2MIDI.php to support language-specific constructs
- * 
- * @author: Fredric
- * Modified to change initial instrument, and send tempo meta-event
- * 
- * Converts .csv files to MIDI files using the javax.sound.midi package
+ * Modified December 15, 2012
+ * @author: Marcellin Nshimiyimana
+ * purpose: allow to set the duration inside the csv file
+ *			CSV format is (tick, duration, note pitch, loudness)
+ * one can also use -1 (negative in general) in place of note pitch, to specify a silence/rest
  */
+
 
 import java.io.*;
 import javax.sound.midi.*;
@@ -16,20 +18,6 @@ import java.lang.*;
 
 
 public class CSV2MIDI{
-	public static final byte[] getIntBytes(int input)
-	{
-		byte[] retval = new byte[3];
-		
-		retval[0] = (byte)(input >> 16 & 0xff);
-		retval[1] = (byte)(input >> 8 & 0xff);
-		retval[2] = (byte)(input & 0xff);
-		
-		return retval;
-	}
-	
-	public static final String INSTRUMENTFILE = "sorted_instruments.csv";
-	public static final int MININST = 0;
-	public static final int MAXINST = 127;
 
 	public static void main(String[] args)	throws InvalidMidiDataException {
 
@@ -44,8 +32,57 @@ public class CSV2MIDI{
 		CSV csvFile=new CSV(args[0]);
 		csvFile.fillVector();
 
-		//instrument and timingRes are default.
-		int timingRes=4, instrument = 1;
+
+		//figure out how many channels there are
+		//nChannels=number of integers in the first line containing any numbers, skipping the first number encountered
+		int nChannels=0,temp=0;
+		for(int i=0;i<csvFile.data.size();i++){
+			try{																																//check if this is an integer
+				Integer.parseInt(csvFile.data.elementAt(i).toString());
+				temp++;																														//counts number of instruments
+			}catch(NumberFormatException e){																		//not a number
+				if(temp>1){																												//if other than first number
+					if(csvFile.data.elementAt(i).toString().compareTo("\n")==0){		//if a new line
+						nChannels=temp-1;
+						break;																												//found nChannels, so stop for loop.  this is the number of instruments counted
+					}
+				}
+			}
+		}
+
+
+/*		for(int i=0;i<csvFile.data.size();i++)
+			System.out.println(csvFile.data.elementAt(i));
+*/
+
+
+		//***** Read in timing resolution and instruments *****
+		int currentCSVPos=0, timingRes=1, instrument[]=new int[nChannels];
+
+		//read in timing resolution
+		for(;currentCSVPos<csvFile.data.size();currentCSVPos++)
+			try{																																//check if this is an integer
+				timingRes=Integer.parseInt(csvFile.data.elementAt(currentCSVPos).toString()); //this is the first number, therefore, it's the timing resolution
+				System.out.println("\nTiming Resolution set to "+timingRes+" PPQ\n");  
+				currentCSVPos++;
+				break;
+			}catch(NumberFormatException e){
+			}
+
+		//read in instrument numbers
+		temp=0;
+		for(;currentCSVPos<csvFile.data.size();currentCSVPos++)
+			try{																																//check if this is an integer
+				instrument[temp]=Integer.parseInt(csvFile.data.elementAt(currentCSVPos).toString()); //this is a number, it has to be an intrument
+				System.out.println("Instrument set to "+instrument[temp]+" on channel "+temp);
+				temp++;
+				if(temp>=nChannels){																							//collect numbers until you've reached the number of channels
+					currentCSVPos++;
+					break;
+				}
+			}catch(NumberFormatException e){
+			}
+
 
 		//***** Initialize Sequencer *****
 		try{
@@ -55,88 +92,29 @@ public class CSV2MIDI{
 			System.exit(1);
 		}
 
+
 		//***** Create tracks and notes *****
 		/* Track objects cannot be created by invoking their constructor
 		   directly. Instead, the Sequence object does the job. So we
 		   obtain the Track there. This links the Track to the Sequence
 		   automatically.
 		*/
-		Track track = sequence.createTrack();                    //create track
+		Track track[] = new Track[nChannels];
+		for(int i=0;i<nChannels;i++){
+			track[i]=sequence.createTrack();                    //create tracks
+	
+			ShortMessage sm = new ShortMessage( );
+        		sm.setMessage(ShortMessage.PROGRAM_CHANGE, i, instrument[i], 0);  //put in instrument[i] in this track
+	        	track[i].add(new MidiEvent(sm, 0));
+		}
 
-	    // channel/velocity set to default; note/tick/duration will depend on input.
-		int channel=0,velocity=150;
-		int note=0,tick=0,duration=0;
-		
-		int currentCSVPos = 0;
-		
-		// instrument
-		String str = csvFile.data.elementAt(currentCSVPos).toString();
-		if(str.compareToIgnoreCase("Instrument") == 0)
-		{
-			currentCSVPos += 2;
-			String instrumentName = csvFile.data.elementAt(currentCSVPos).toString();
-			instrumentName = instrumentName.trim();
-			try
-			{
-				instrument = Integer.parseInt(instrumentName);
-				// if the instrument is a number, check its range
-				if(instrument < MININST || instrument > MAXINST)
-				{
-					System.out.println("Instrument # " + instrument + " is not a valid instrument.\nReverting to Piano");
-					instrument = 1;
-				}
-			}
-			catch(NumberFormatException e)
-			{		
-				// look up the instrument's number from the file if it isn't a number
-				instrument = InstrumentCheck.checkInstrument(INSTRUMENTFILE, instrumentName, MININST, MAXINST);
-				if(instrument == -1)
-				{
-					System.out.println("Instrument: " + instrumentName + " is not a valid instrument.\nReverting to Piano");
-					instrument = 1;
-				}
-				
-				// handle a blank instrument name
-				if(instrumentName.length() < 1)
-					currentCSVPos -= 1;
-			
-			}
-			finally
-			{
-				currentCSVPos += 2;
-			}
-		}
-		else
-		{
-			currentCSVPos = 0;
-		}
-		
-		ShortMessage sm = new ShortMessage( );
-        sm.setMessage(ShortMessage.PROGRAM_CHANGE, instrument, 0);  //put in instrument in this track
-	    track.add(new MidiEvent(sm, 0));
-	    
-		int oldPos = currentCSVPos;	
-		// tempo
-		str = csvFile.data.elementAt(currentCSVPos).toString();
-		if(str.compareToIgnoreCase("Tempo") == 0)
-		{
-			currentCSVPos += 2;
-			int tempo = Integer.parseInt(csvFile.data.elementAt(currentCSVPos).toString().trim());
-			int MPQN = 60000000 / tempo;
-			// Microseconds per quarter-note = Microseconds per minute / Beats Per Minute
-			MetaMessage mm = new MetaMessage();
-			// MetaEvent: Type = 81, Length = 3
-			mm.setMessage(81, getIntBytes(MPQN), 3);
-			track.add(new MidiEvent(mm, 0));
-			currentCSVPos += 2;
-		}
-		else
-		{
-			currentCSVPos = oldPos;
-		}
-		
+		int channel=0,
+			note=0,
+			tick=0,
+			duration=5,
+			velocity=90, // this is the volume of the sound
+			column=0;
 
-			
 		//go through each of the following lines and add notes
 		for(;currentCSVPos<csvFile.data.size();){							//loop through rest of CSV file
 			try{																																			  //check that the current CSV position is an integer
@@ -144,22 +122,50 @@ public class CSV2MIDI{
 				currentCSVPos+=2;
 				duration=Integer.parseInt(csvFile.data.elementAt(currentCSVPos).toString());  //second number is duration
 				currentCSVPos+=2;
-				note=Integer.parseInt(csvFile.data.elementAt(currentCSVPos).toString());  //next number is note pitch
+				note=Integer.parseInt(csvFile.data.elementAt(currentCSVPos).toString());  //next number is note
 				currentCSVPos+=2;
-				track.add(createNoteOnEvent(note,tick,channel,velocity));				//add note to the track
-				track.add(createNoteOffEvent(note,tick+duration,channel));				//add a noteOffEvent to terminate this note
+				velocity=Integer.parseInt(csvFile.data.elementAt(currentCSVPos).toString());  //next number is velocity
+				currentCSVPos++;
+				channel=column/3;
+				column+=2;
+
+				//----mna--------
+
+				if(note < 0){ // a rest is received -- any negative note is rest
+
+					note = 0;
+					track[channel].add(createNoteOffEvent(note,tick,channel));				//add note to this track
+			
+				}else{ 
+					track[channel].add(createNoteOnEvent(note,tick,channel,velocity));				//add note to this track
+				}
+				
+				track[channel].add(createNoteOffEvent(note,tick+duration,channel));				//terminate this note after the specified duration
+			//-----end-------
+
 			}catch(NumberFormatException e){																						//current CSV position not an integer
+				if(csvFile.data.elementAt(currentCSVPos).toString().compareTo("\n")==0){  //if it's a new line
+					column=0;																																//go back to 1st column
+				}else if(csvFile.data.elementAt(currentCSVPos).toString().compareTo(",")==0){ //if it's just a comma
+					column++;
+				}
 				currentCSVPos++;
 			}
 		}
 
 
 		// Print track information
-		System.out.println( "\nTrack: ");
-     	for ( int j = 0; j < track.size(); j++ ) {
-			MidiEvent event = track.get( j );
- 			System.out.println(" tick "+event.getTick()+", "+MessageInfo.toString(event.getMessage()));
- 		} // for
+		System.out.println();
+		if ( track != null ) {
+			for ( int i = 0; i < track.length; i++ ) {
+				System.out.println( "Track " + i + ":" );
+		
+     		for ( int j = 0; j < track[i].size(); j++ ) {
+					MidiEvent event = track[i].get( j );
+ 					System.out.println(" tick "+event.getTick()+", "+MessageInfo.toString(event.getMessage()));
+ 				} 
+ 			} 
+		} 
 
 
 
@@ -179,9 +185,8 @@ public class CSV2MIDI{
 
 
 
-
-	// note representation: tick, duration, pitch
-  //turns note on
+  	//note representation: tick, duration, pitch, volume/loudness/velocity
+   	//turns note on
 	private static MidiEvent createNoteOnEvent(int nKey, long lTick,int channel,int velocity){
 		return createNoteEvent(ShortMessage.NOTE_ON,nKey,velocity,lTick,channel);
 	}

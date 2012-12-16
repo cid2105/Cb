@@ -1,11 +1,10 @@
 
 <- testing compose method->
 
-chord c1 = ([(C, 0,quarter), (C, 0,  quarter)], quarter);
+chord c1 = ([(C, 0, 4), (C, 0,  16)], 67);
 
-<-
 stanza p = [c1];
 
 score m = [p];
-->
-compose(c1);
+m.instrument = 100;
+compose(m);
