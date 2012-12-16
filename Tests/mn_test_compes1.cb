@@ -18,3 +18,4 @@ stanza p = [c1, c1, c2];
 score m = [p];
 
 compose(m);
+
