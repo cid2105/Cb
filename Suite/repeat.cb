@@ -1,0 +1,41 @@
+note n = (F,0,half);
+
+scale s1 = repeat(n, 3);
+
+foreach(note n1 in s1)
+    print(n1);
+end
+
+scale s2;
+
+n.pitch += 2;
+
+s2 = repeat(n, 7);
+
+foreach(note n1 in s2)
+    print(n1);
+end
+
+chord c = ([n],quarter);
+
+stanza st;
+
+st = repeat(c, 5);
+
+foreach(chord c1 in st)
+    print(c1.chord_duration);
+end
+
+score sc;
+
+sc = repeat(st, 2);
+
+foreach(stanza st1 in sc)
+    print(0);
+end
+
+sc = repeat(sc, 2);
+
+foreach(stanza st1 in sc)
+    print(1);
+end

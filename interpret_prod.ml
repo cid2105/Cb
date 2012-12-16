@@ -427,6 +427,38 @@ let rec eval env = function
                             Score ({stanzalist=tmp_stanzalist; instrument=(getScore arg1).instrument}), env)
                     else raise (Failure ("concat works only on stanzas and scores")))
                 else raise (Failure ("Both arguments to concat must be of the same type"))
+    | MethodCall("repeat", [e; n]) -> (*Takes the argument and returns its container type with arg repeated n times*)
+        let arg1, env = eval env e in
+            let arg2, env = eval env n in
+                if getType arg2 = "int" then
+                    (if ((getInt arg2) > 0) then
+                        (if getType arg1 = "note" then
+                            (let rec repeater alist times =
+                                (if times = 0 then
+                                    (alist)
+                                else (repeater (Scale ({scale_notelist=((getNote arg1)::((getScale alist).scale_notelist))})) (times-1)))
+                            in (repeater (Scale ({scale_notelist=[]})) (getInt arg2)), env)
+                        else if getType arg1 = "chord" then
+                            (let rec repeater alist times =
+                                (if times = 0 then
+                                    (alist)
+                                else (repeater (Stanza ({chordlist=((getChord arg1)::((getStanza alist).chordlist))})) (times-1)))
+                            in (repeater (Stanza ({chordlist=[]})) (getInt arg2)), env)
+                        else if getType arg1 = "stanza" then
+                            (let rec repeater alist times =
+                                (if times = 0 then
+                                    (alist)
+                                else (repeater (Score ({stanzalist=((getStanza arg1)::((getScore alist).stanzalist)); instrument=0})) (times-1)))
+                            in (repeater (Score ({stanzalist=[]; instrument=0})) (getInt arg2)), env)
+                        else if getType arg1 = "score" then
+                            (let rec repeater alist times =
+                                (if times = 0 then
+                                    (alist)
+                                else (repeater (Score ({stanzalist=(((getScore arg1).stanzalist) @ ((getScore alist).stanzalist)); instrument=(getScore arg1).instrument})) (times-1)))
+                            in (repeater (Score ({stanzalist=[]; instrument=(getScore arg1).instrument})) (getInt arg2)), env)
+                        else raise (Failure ("The first argument must be a note, chord, stanza, or score")))
+                    else raise (Failure ("The number of times to repeat must be 1 or greater, you asked for " ^ (string_of_int (getInt arg2)))))
+                else raise (Failure ("The second argument to repeat must be an integer number of times to repeat"))
     | MethodCall("compose", [e]) ->  (* Writes the specified part to a java file to be written into midi *)
             ignore (match e with
                         Id(i) -> i
