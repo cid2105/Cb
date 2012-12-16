@@ -1,0 +1,2 @@
+note n = (B,0,half);
+chord c = ([n*3], whole);

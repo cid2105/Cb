@@ -1,0 +1,16 @@
+meth int gcd(int d, int e)
+    while (d isnt e)
+        if(d > e)
+            d = d-e;
+        else
+            e = e-d;
+        end
+    end
+    return d;
+end
+
+if(gcd(20,15) is 5)
+    print(0);
+else
+    print(4112);
+end

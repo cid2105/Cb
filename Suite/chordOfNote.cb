@@ -1,0 +1,25 @@
+chord rest = rest(1);
+
+if(rest.chord_duration is 1)
+    print(0);
+else
+    print(12345);
+end
+
+note n = (C,0,half);
+
+chord n_chord = chordOfNote(n);
+
+if(n_chord.chord_duration is 32)
+    print(0);
+else
+    print(12346);
+end
+
+chord n_chord2 = chordOfNote((C,0,quarter));
+
+if(n_chord2.chord_duration is 16)
+    print(0);
+else
+    print(12347);
+end

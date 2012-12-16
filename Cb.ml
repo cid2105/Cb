@@ -21,4 +21,4 @@ let _ =
   (*| Bytecode -> let listing =
       Bytecode.string_of_prog (Compile.translate program)
     in print_endline listing*)
-        | Interpret -> ignore (Interpret.helper (List.rev program))
+        | Interpret -> ignore (Interpret_prod.helper (List.rev program))

@@ -1,7 +1,3 @@
 int a = -5;
 
-print(a);
-
-note b = (A, -1, whole);
-
-print(b.octave);
+a = a-4;

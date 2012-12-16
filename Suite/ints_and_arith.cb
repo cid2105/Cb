@@ -1,0 +1,60 @@
+<-Testing Integers and Arithmetic->
+
+int a;
+a=5;
+if(a is 5)
+    print(0);
+else
+    print(2111);
+end
+
+int b = 10;
+if(b is 10)
+    print(0);
+else
+    print(2112);
+end
+
+int c = a + b;
+if(c is 15)
+    print(0);
+else
+    print(2113);
+end
+
+int d = 1;
+d += 1;
+
+if(d is 2)
+    print(0);
+else
+    print(2114);
+end
+
+int e = 20;
+e -= 1;
+
+if(e is 19)
+    print(0);
+else
+    print(2115);
+end
+
+
+int f = 50;
+f++;
+
+if(f is 51)
+    print(0);
+else
+    print(2116);
+end
+
+int g = 40;
+g--;
+
+if(g is 39)
+    print(0);
+else
+    print(2117);
+end
