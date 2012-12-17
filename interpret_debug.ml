@@ -158,14 +158,14 @@ let assign r x = r.content <- x; x *)
 
 
 (*this will need to be passed around*)
-let csv = ""
+let composeJava = ref ""
 let csv_head = "Timing Resolution (pulses per quarter note)\n4\n\n"  (* always 4 for now*)
 
 (* A ref is the simplest mutable data structure. *)
-let tick : int ref = ref 0
-let f : int ref = ref 0
+(* let tick : int ref = ref 0
+let f : int ref = ref 0 *)
 
-let stan_len : int ref = ref 0
+(* let stan_len : int ref = ref 0 *)
 
 (* let getNoteList cbtypelist = List.map ( fun a -> Note( getNote a ) ) cbtypelist
 
@@ -410,7 +410,7 @@ let rec eval env = function
 
                                     ) (List.rev actuals); 
                 );
-                let composeJava = 
+                composeJava := 
                 "\tArrayList<score> data = new ArrayList<score>();\n"^
                  
                  String.concat "\n" (List.map (fun scor -> 
@@ -420,8 +420,6 @@ let rec eval env = function
                                         ) (List.rev score_names);) 
 
                 ^ "\n\tthis.compose(data);\n";
-                in
-                print_string composeJava;
                (*  begin
                 List.map notel (List.rev el.stanzalist); *)
 (*              let ee1, env = eval env (List.hd e) in
@@ -812,7 +810,7 @@ and run prog env =
     let locals, globals, fdecls = env in
         if NameMap.is_empty globals then print_string ("In run, globals is empty\n") else print_string ("In run, globals is non-empty\n");
         match prog with
-            [] -> print_string ("##Program Completed##\n");
+            [] -> print_string ( "\n##Program Completed##\n"^ !composeJava ^ "\n##Done printing output##\n");
                 Bool true, (locals, globals, fdecls)
             | head::tail ->
                 match head with

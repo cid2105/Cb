@@ -168,12 +168,7 @@ let majorChord v dur =
     let noteMap = NameMap.add "Cb" 11 noteMap
 
 (*this will need to be passed around*)
-let csv = ""
-let csv_head = "Timing Resolution (pulses per quarter note)\n4\n\n"  (* always 4 for now*)
-
-(* A ref is the simplest mutable data structure. *)
-let tick : int ref = ref 0
-let f : int ref = ref 0
+let composeJava = ref ""
 
 let rec eval env = function
     Id(name) ->
@@ -482,7 +477,7 @@ let rec eval env = function
 
                         ) (List.rev actuals); 
         );
-        let composeJava = 
+        composeJava :=  
             "\tArrayList<score> data = new ArrayList<score>();\n"^
                  
             String.concat "\n" (List.map (fun scor -> 
@@ -492,8 +487,6 @@ let rec eval env = function
                                         ) (List.rev score_names);) 
 
                 ^ "\n\tthis.compose(data);\n";
-        in
-        print_string composeJava;
         Bool true, env
 
     | MethodCall(name, el) ->
@@ -803,7 +796,7 @@ and call fdecl_body locals globals fdecls fdecl_name =
 and run prog env =
     let locals, globals, fdecls = env in
         match prog with
-            [] ->
+            [] -> (* everything went well, write the java file and quit *)
                 Bool true, (locals, globals, fdecls)
             | head::tail ->
                 match head with
