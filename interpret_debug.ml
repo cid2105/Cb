@@ -377,124 +377,50 @@ let rec eval env = function
                 Int(Random.int (getInt v)), env
             else raise (Failure ("argument of randint must be an integer"))
 
-(* <<<<<<< HEAD
-
-
-                (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
-    | MethodCall("compose", [e]) ->  (* Writes the specified part to a java file to be written into midi *)
-            ignore (match e with
-                        Id(i) -> i
-                        | _ ->  raise (Failure ("compose takes an identifier as input")));
-                let ee1, env = eval env e in
-                (if getType ee1 = "chord" then
-                    let pp = getChord(ee1) in
-                    (let headers = csv_head in
-                        let csvf = open_out "musicfi.csv" in
-                            (fprintf csvf "%s" headers;
-                                print_string "give me my music\n";
-                            (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
-                            let print_note nt =
-                                fprintf csvf "%s\n"  ( (string_of_int !tick) ^ "," ^
-                                                                (string_of_int (nt.duration / 4)) ^ "," ^
-                                                                (string_of_int ((5 + nt.octave) * 12 + nt.pitch)));
-
-                                (tick := !tick + nt.duration )
-                            in
-                            let print_chord cd =
-                                (* print_string "give me my chord\n"; *)
-                                (* List.iter (fun nt -> *) print_string "give me my chord\n\n";
-                                            (fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
-                                                            (string_of_int cd.chord_duration) ^ "," ^
-                                                            (string_of_int nt.pitch))); (5 + octive )*12 +pitch
-                                        (
-
-                                           List.map (fun nt -> print_note nt; (* fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
-                                                                (string_of_int (cd.chord_duration / 4)) ^ "," ^
-                                                                (string_of_int ((5 + nt.octave) * 12 + nt.pitch)) ^ "\n");
-
-                                            (tick := !tick + (cd.chord_duration / 4)); *)
-                                       ) cd.notelist
-
-                                        );
-
-                                        print_string "\n--chord\n\n";
-                                            (* ); *)
-                                (tick := !tick + cd.chord_duration);
-                                       (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
-                                        begin   print_note ((List.hd  a));
-                                    end *)
-
-                            in
-                             print_chord pp;
-
-                    );
-
-                    close_out csvf);
-                    ee1
-                    , env
-                else raise (Failure ("compose takes a score only")));
-======= *)
     (* assume you get notes only/ no error checking yet ex: [3, 4, 5] is not checked *)
 
     | MethodCall("compose", e) -> print_string ("Calling Method: compose\n"); (* Writes the specified part to a java file to be written into midi *)
 
-            ignore (List.map ( fun e1 ->  match e1 with
+            ignore(
+                  if ( (List.length e) > 16) then
+                     raise (Failure ("only up to 16 scores can be composed at once"));   
+            );
+
+            let score_names = (List.map ( fun e1 ->  match e1 with
                         Id(i) -> print_string (i^ "\n\n"); i;
-                        | _ ->  raise (Failure ("compose takes an identifier as input"))) e;
+                        | _ ->  raise (Failure ("compose takes an identifier as input"))) (List.rev e);
                     );
-                
+                in
                 let actuals, env = List.fold_left  (* make sure all ids are known *)
                     (fun (al, env) actual ->
                         let v, env = ((eval env) actual) in (v :: al), env
                     ) ([], env) e;
                 in
-                let el = List.map (fun act -> match (getType act) with (* ids need to be scores *)
-                                                "score" -> print_string ("score"^ "\n\n");
+                ignore (List.map (fun act -> match (getType act) with (* ids need to be scores *)
+                                                "score" -> act; (* print_string ("score"^ "\n\n"); *)
                                                 
-                                                    if ( !stan_len < (List.length (getScore act).stanzalist)) then
+                                         (*            if ( !stan_len < (List.length (getScore act).stanzalist)) then
                                                         stan_len := (List.length (getScore act).stanzalist);
                                                     print_string ("score out if"^ "\n\n--");
                                                     print_int !stan_len;
                                                     print_int (List.length (getScore act).stanzalist);
                                                      print_string ("--score "^ "\n");
-                                                     act;
+                                                     act; *)
                                                 | _ -> raise (Failure ("compose takes a score only"));
 
                                     ) (List.rev actuals); 
-                in
+                );
                 let composeJava = 
+                "\tArrayList<score> data = new ArrayList<score>();\n"^
+                 
+                 String.concat "\n" (List.map (fun scor -> 
 
-                "private void compose(Vector<Score> data){
+                                            "\tdata.add("^ scor ^");"
 
-                    int nChannels = data.size(),
-                        tick = 0;
-                    data=new Vector<Object>();
+                                        ) (List.rev score_names);) 
 
-                    // Timing Resolution set to 4 PPQ, for convinience
-                    int timingRes = " ^(string_of_int 4 )^ " , instrument[]=new int[nChannels];
-
-
-                "
-(*                 let nl = [];
-                in *)
+                ^ "\n\tthis.compose(data);\n";
                 in
-                let rec notel = function
-                    [] -> []
-                    | hd::tl -> let notmapi = List.flatten
-                                (List.map( fun cd -> 
-                                    (tick := !tick + (cd.chord_duration * ( 5 / 16 )) );
-                                                List.map ( fun nt ->
-
-                                                    (!tick, nt)
-
-                                                )(List.rev cd.notelist);
-                                           (*  in
-                                                (tick := !tick + (cd.chord_duration * ( 5 / 16 )) )); *)
-                                )(List.rev hd.chordlist));
-                                in
-                                (List.append notmapi (notel tl));
-                in 
-                let composeJava = composeJava ^ "\n}\n"; in
                 print_string composeJava;
                (*  begin
                 List.map notel (List.rev el.stanzalist); *)
@@ -588,9 +514,6 @@ let rec eval env = function
 
 (*                      let csvf = open_out ("musiccb"^ (string_of_int !f) ^".csv"); in
                  close_out csvf); *)
-
-                    (f := !f + 1);
-                    (tick := 0);
                     Bool true,
                     env
                 (* end *)

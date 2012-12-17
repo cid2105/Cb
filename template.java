@@ -93,8 +93,10 @@ class Cb {
      * but we still have to check that when you access them they exist
      * because java won't do that for us
      */
+    
     /**
      * ********************compose helper functions****************************
+     * source: http://www.penguinpeepshow.com/CSV2MIDI.php
      * helper function for mapping values of pitch and octave to range 0 - 127
      */
     static long map(long x, long in_min, long in_max, long out_min, long out_max) {
@@ -143,7 +145,7 @@ class Cb {
 
         int nChannels = data.size();
         Sequence sequence = null;
-
+        
 //		for(int i=0;i<data.size();i++)
 //			System.out.println(data.get(i));
 
