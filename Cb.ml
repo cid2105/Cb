@@ -2,11 +2,6 @@ type action = Ast | Interpret
 
 (** find out how to call java from inside ml? *)
 
-module NameMap = Map.Make(struct
-    type t = string
-    let compare x y = Pervasives.compare x y
-end)
-
 let _ =
   let action =
   if Array.length Sys.argv > 1 then

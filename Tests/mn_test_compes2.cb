@@ -11,12 +11,12 @@ chord c3 = ([a,b,c], half);
 stanza p = [c2, c3,c2,c3,c3,c2,c3];
 
 score m = [p];
+score m1 = [p,p,p];
+compose(m1,m);
 
-compose(m);
+<-
 m.instrument = 127;
 compose(m);
 m.instrument = 53;
-compose(m);
-
-
-
+compose([m,m,]);
+->

@@ -51,9 +51,9 @@ public class CSV2MIDI{
 		}
 
 
-/*		for(int i=0;i<csvFile.data.size();i++)
+		for(int i=0;i<csvFile.data.size();i++)
 			System.out.println(csvFile.data.elementAt(i));
-*/
+
 
 
 		//***** Read in timing resolution and instruments *****
