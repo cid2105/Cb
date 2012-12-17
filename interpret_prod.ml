@@ -1,5 +1,4 @@
 open Ast
-open Printf
 
 module NameMap = Map.Make(struct
     type t = string
@@ -169,12 +168,7 @@ let majorChord v dur =
     let noteMap = NameMap.add "Cb" 11 noteMap
 
 (*this will need to be passed around*)
-let csv = ""
-let csv_head = "Timing Resolution (pulses per quarter note)\n4\n\n"  (* always 4 for now*)
-
-(* A ref is the simplest mutable data structure. *)
-let tick : int ref = ref 0
-let f : int ref = ref 0
+let composeJava = ref ""
 
 let rec eval env = function
     Id(name) ->
@@ -459,46 +453,42 @@ let rec eval env = function
                         else raise (Failure ("The first argument must be a note, chord, stanza, or score")))
                     else raise (Failure ("The number of times to repeat must be 1 or greater, you asked for " ^ (string_of_int (getInt arg2)))))
                 else raise (Failure ("The second argument to repeat must be an integer number of times to repeat"))
-    | MethodCall("compose", [e]) ->  (* Writes the specified part to a java file to be written into midi *)
-            ignore (match e with
-                        Id(i) -> i
-                        | _ ->  raise (Failure ("compose takes an identifier as input")));
-             let ee1, env = eval env e in
-                (if getType ee1 = "score" then
-                    let pp = getScore(ee1) in
-                    (let headers = csv_head ^ "Instrument," ^ (string_of_int pp.instrument) ^ "\n\n"; in (* has to be less than 127 *)
-                        (* accepts multiple instruments(up to 16) *)
-                        let csvf = open_out ("musiccb" ^ (string_of_int !f) ^ ".csv"); in
-                            (fprintf csvf "%s" headers;
-                            (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
-                            let note nt =
-                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
-                                                    (string_of_int (nt.duration / 4 )) ^ "," ^
-                                                    (string_of_int ((5 + nt.octave) * 12 + nt.pitch))^ "," ^
-                                                            (string_of_int 127));
-                                (tick := !tick + ( nt.duration / 4 ) );
-                            in
-                            let print_chord cd =
-                                List.map (fun nt ->
-                                        if (nt.pitch <> -1) then
-                                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
-                                                            (string_of_int (cd.chord_duration / 4)) ^ "," ^
-                                                            (string_of_int ((5 + nt.octave) * 12 + nt.pitch))^ "," ^
-                                                            (string_of_int 127));
-                                ) cd.notelist;
-                                (tick := !tick + (cd.chord_duration / 4) );
-                            in
-                            let print_stanza stan =
-                                        List.map  print_chord (List.rev stan.chordlist);
-                            in
-                        List.map print_stanza (List.rev pp.stanzalist)
-                    );
-                    close_out csvf);
-                    (f := !f + 1);
-                    (tick := 0);
-                    ee1
-                    , env
-                else raise (Failure ("compose takes a score only")));
+    | MethodCall("compose", e) ->  (* Writes the specified part to a java file to be written into midi *)
+        ignore(
+            if ( (List.length e) > 16) then
+                raise (Failure ("only up to 16 scores can be composed at once"));   
+        );
+
+        let score_names = (List.map ( fun e1 ->  match e1 with
+                                        Id(i) -> i;
+                                        | _ ->  raise (Failure ("compose takes an identifier as input"))) (List.rev e);
+                            );
+        in
+        let actuals, env = (* make sure all ids are known *)
+            List.fold_left (fun (al, env) actual ->
+                                let v, env = ((eval env) actual) in (v :: al), env
+                            ) ([], env) e;
+        in
+        ignore (
+            List.map (fun act ->  (* ids need to be scores *)
+                        match (getType act) with
+                            "score" -> act; (* print_string ("score"^ "\n\n"); *)    
+                            | _ -> raise (Failure ("compose takes a score only"));
+
+                        ) (List.rev actuals); 
+        );
+        composeJava :=  
+            "\tArrayList<score> data = new ArrayList<score>();\n"^
+                 
+            String.concat "\n" (List.map (fun scor -> 
+
+                                            "\tdata.add("^ scor ^");"
+
+                                        ) (List.rev score_names);) 
+
+                ^ "\n\tthis.compose(data);\n";
+        Bool true, env
+
     | MethodCall(name, el) ->
         let locals, globals, fdecls = env in
             let fdecl = try (NameMap.find name fdecls)
@@ -684,7 +674,6 @@ let rec eval env = function
                                 raise (Failure ("cannot assign: " ^ lftRetType ^ " = " ^ rhtType))
                             else raise (Failure ("fatal error"))
     | NoExpr -> Bool true, env
-    | _ -> Bool true, env
 and exec env fname = function
         Expr(e) -> let _, env = (eval env e) in
             env
@@ -694,7 +683,7 @@ and exec env fname = function
                     if (getType v) = (string_of_cbtype fdecl.rettype) then
                         raise (ReturnException(v, globals))
                     else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype)))
-            env
+            
         | Block(s1) ->
             let (locals, globals, fdecls) = env in
                 let l, g = call s1 locals globals fdecls fname
@@ -807,7 +796,7 @@ and call fdecl_body locals globals fdecls fdecl_name =
 and run prog env =
     let locals, globals, fdecls = env in
         match prog with
-            [] ->
+            [] -> (* everything went well, write the java file and quit *)
                 Bool true, (locals, globals, fdecls)
             | head::tail ->
                 match head with
