@@ -756,7 +756,7 @@ let rec eval env = function
                 (NameMap.find name globals), env, name
             else raise (Failure ("undeclared identifier: " ^ name))
     | MemberAccess(vname, memname) ->
-        let v, env = eval env (Id vname) in
+        let v, env, memberasJava = eval env (Id vname) in
             let vType = getType v in
             (match vType with
               | "note" ->
@@ -812,15 +812,17 @@ let rec eval env = function
     | NoteExpr(s,e,e1) ->
         let oct, env, octAsJava = eval env e in
             let octType = getType oct in
-                if octType = "int" then (let dur, env, durAsJava = eval env e1 in
-                                    let durType = getType dur in
-                                        if durType = "int" then
-                                        begin
-                                            (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}),
-                                            env,
-                                            (" new note(" ^ (string_of_int (NameMap.find s noteMap)) ^ "," ^ octAsJava "," ^ durAsJava ^ ")"));
-                                        end
-                                        else raise (Failure ("Duration does not evaluate to an integer")))
+                if octType = "int" then 
+                    let dur, env, durAsJava = eval env e1 in
+                            let durType = getType dur in
+                                                if durType = "int" then
+                                            
+                                                    Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}),
+                                                    env,
+                                                    " new note(" ^ (string_of_int (NameMap.find s noteMap)) ^ "," ^ octAsJava ^ "," ^ durAsJava ^ ")"
+                                        
+                                                else raise (Failure ("Duration does not evaluate to an integer"))
+                                        
                 else  raise (Failure ("Octave does not evaluate to an integer"))
     | BinOp(e1,o,e2) ->
         let v1, env, v1AsJava = eval env e1 in
@@ -1067,7 +1069,8 @@ let rec eval env = function
         );
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
                                             "\tadd("^ scor ^");"
-                                        ) (List.rev score_names);)
+                                        ) (List.rev score_names))
+        in scoreListAsJava;
 (*         composeJava :=
             "\tArrayList<score> data = new ArrayList<score>();\n"^
 
@@ -1412,6 +1415,7 @@ and translate prog env =
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
+                                    begin
                                         (globalJava := globalJava.contents ^ "\n" ^ head.vartype ^ " " ^ head.varname ^ " = " ^ asJava ^ ";\n");
                                         match vType with
                                             "int" -> translate tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals), fdecls)
@@ -1422,6 +1426,7 @@ and translate prog env =
                                             | "stanza" -> translate tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals), fdecls)
                                             | "score" -> translate tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals), fdecls)
                                             | _ -> raise (Failure ("Unknown type: " ^ vType))
+                                    end
                                 else
                                     raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType))
                     | MDecl(head) ->
