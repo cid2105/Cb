@@ -1,8 +1,9 @@
-<-The Recursive GCD Algorithm->
-
 meth int gcd(int a, int b)
-    if(b is 0) return a;
-    else return gcd(b,a%b); end
+    if(b is 0)
+        return a;
+    else
+        return gcd(b,a%b);
+    end
 end
 if(gcd(20,15) is 5)
     print(0);
