@@ -804,62 +804,56 @@ let rec eval env = function
             (match o with (* Only accept ints for now *)
                 Add ->
                     if v1Type = "int" then
-                        Int (getInt v1 + getInt v2)
+                         (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type))
                 | Sub ->
                     if v1Type = "int" then
-                    Int (getInt v1 - getInt v2)
+                     (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " - " ^ v2Type))
                 | Mult ->
                     if v1Type = "int" then
-                    Int (getInt v1 * getInt v2)
+                        (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " * " ^ v2Type))
                 | Div ->
                     if v1Type = "int" then
-                    Int (getInt v1 / getInt v2)
+                        (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type))
                 | Mod -> (print_string ("Doing a mod binop\n"));
                     if v1Type = "int" then
-                    Int (getInt v1 mod getInt v2)
+                        (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " % " ^ v2Type))
                 | And ->
                     if v1Type = "bool" then
-                    Bool (getBool v1 && getBool v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " and " ^ v2Type))
                 | Or ->
                     if v1Type = "bool" then
-                    if (getBool v1 || getBool v2)
-                    then Bool true
-                    else Bool false
+                        (initIdentifier "bool")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " or " ^ v2Type))
                 | Eq ->
                     if v1Type = "int" then
-                        if getInt v1 = getInt v2
-                        then Bool true
-                        else Bool false
+                        (initIdentifier "bool")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " is " ^ v2Type))
                 | NEq ->
                     if v1Type = "int" then
-                        if (getInt v1 <> getInt v2)
-                        then Bool true
-                        else Bool false
+                        (initIdentifier "bool")
                     else
                         raise (Failure ("incorrect type: " ^ v1Type ^ " isnt " ^ v2Type))
                 | Less ->
                     if v1Type = "int" then
-                        Bool (getInt v1 < getInt v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " < " ^ v2Type))
                 | LEq ->
                     if v1Type = "int" then
-                        Bool (getInt v1 <= getInt v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " <= " ^ v2Type))
                 | Greater ->
                     if v1Type = "int" then
-                        Bool (getInt v1 > getInt v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " > " ^ v2Type))
                 | GEq ->
                     if v1Type = "int" then
-                        Bool (getInt v1 >= getInt v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " >= " ^ v2Type))
                 | _ -> raise (Failure ("Unknown binary operation"))
             ), env, (v1AsJava ^ (string_of_op o) ^ v2AsJava)
@@ -990,11 +984,8 @@ let rec eval env = function
         );
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
                                             "\n\tadd("^ scor ^");"
-
                                         ) (List.rev score_names);)
         in Bool true, env, ("\n  compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "\n}})")
-
-
     | MethodCall(name, el) -> (* Check that method exists and passing correct args, do not actually call *)
         (print_string ("User defined method call: " ^ name ^ "\n"));
         let locals, globals, fdecls = env in
@@ -1010,7 +1001,7 @@ let rec eval env = function
                     let l1 =
                         try List.fold_left2 (fun locals formal actual ->
                                                 if (getType actual) = (string_of_cbtype formal.paramtype) then
-                                                    (NameMap.add formal.paramname actual locals)
+                                                    (NameMap.add formal.paramname (initIdentifier (getType actual)) locals)
                                                 else
                                                     raise (Failure ("Wrong parameter type in method call to " ^ fdecl.fname))
                                             ) NameMap.empty fdecl.formals (List.rev actuals)
