@@ -1,0 +1,20 @@
+meth note randNote()
+    note n;
+    n.pitch = randint(11);
+    n.octave = randint(3);
+    n.duration = randint(64);
+    return n;
+end
+
+int count = 0;
+
+stanza st;
+
+while(count < 20)
+    st = append(chordOfNote(randNote()), st);
+    count++;
+end
+
+score s = [st];
+
+compose(s);

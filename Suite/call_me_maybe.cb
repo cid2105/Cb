@@ -1,0 +1,64 @@
+int eighth = quarter / 2;
+
+note g_8 = (G,0,quarter/2);
+note g_16 = (G,0,quarter);
+note d = (D,0,quarter);
+note d_8 = (D,0,eighth);
+note high_D = (D,1,quarter);
+note e = (E,0,quarter);
+note e_8 = (E,0,eighth);
+note c = (C,-1,quarter);
+note b = (B,0,quarter);
+note a = (A,0,quarter);
+
+chord db = ([d,b],eighth);
+chord da = ([d,a],eighth);
+chord dg = ([d,g_16],eighth);
+
+meth stanza startRest()
+    stanza tmp = [rest(eighth)];
+    return tmp;
+end
+
+score piano_bass;
+score piano_treble;
+
+stanza s1 = repeat(chordOfNote(g_8),8);
+stanza bass1 = repeat(chordOfNote(g_16),8);
+stanza bass2 = repeat(chordOfNote(d),4);
+stanza bass3 = repeat(chordOfNote(e),4);
+stanza bass4 = repeat(chordOfNote(c),4);
+stanza bass5 = repeat(chordOfNote(g_8),8);
+stanza bass6 = repeat(chordOfNote(d_8),8);
+stanza bass7 = repeat(chordOfNote(e_8),8);
+
+<-I threw a wish in the well->
+<-Don't ask me, I'll never tell->
+stanza verse1 = startRest();
+verse1 = concat(verse1, repeat(db, 5));
+verse1 = append(da, verse1);
+verse1 = append(db, verse1);
+
+<-I looked to you as it fell->
+stanza verse2 = startRest();
+verse2 = concat(verse2, repeat(db, 5));
+verse2 = concat(verse2, repeat(da, 2));
+
+<-and now you're in my way->
+stanza verse3 = startRest();
+verse3 = concat(verse3, repeat(dg,3));
+stanza triplet = [([d,g_16],3),([high_D,d],2),([d,b],3)];
+
+<-I trade my soul for a wish->
+<-same as verse1->
+
+<-pennies and dimes for a kiss->
+<-same as verse1->
+
+<-I wasn't looking for this->
+<-same as verse 2->
+
+piano_bass = [bass1,bass2,bass3,bass4,bass5,bass6,bass7];
+piano_treble = [s1,verse1,verse1,verse2,verse3,triplet,verse1,verse1,verse2];
+
+compose(piano_bass, piano_treble);

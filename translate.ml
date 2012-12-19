@@ -327,7 +327,7 @@ public class Cb {
      * source: http://www.penguinpeepshow.com/CSV2MIDI.php
      * helper function for mapping values of pitch and octave to range 0 - 127
      */
-    static long map(long x, long in_min, long in_max, long out_min, long out_max) {
+    long map(long x, long in_min, long in_max, long out_min, long out_max) {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
     /*
@@ -335,21 +335,21 @@ public class Cb {
      * turns note on
      */
 
-    private static MidiEvent createNoteOnEvent(int nKey, long lTick, int channel, int velocity) {
+    private MidiEvent createNoteOnEvent(int nKey, long lTick, int channel, int velocity) {
         return createNoteEvent(ShortMessage.NOTE_ON, nKey, velocity, lTick, channel);
     }
 
     /*
      * turns note off
      */
-    private static MidiEvent createNoteOffEvent(int nKey, long lTick, int channel) {
+    private MidiEvent createNoteOffEvent(int nKey, long lTick, int channel) {
         return createNoteEvent(ShortMessage.NOTE_OFF, nKey, 0, lTick, channel);  //set note to 0 velocity
     }
 
     /*
      * turns note on or off
      */
-    private static MidiEvent createNoteEvent(int nCommand, int nKey, int nVelocity, long lTick, int channel) {
+    private MidiEvent createNoteEvent(int nCommand, int nKey, int nVelocity, long lTick, int channel) {
         ShortMessage message = new ShortMessage();
         try {
             message.setMessage(nCommand, channel, nKey, nVelocity);
@@ -367,7 +367,7 @@ public class Cb {
      * java take care of that, I am not fully certain)
      * Note: this score list has to hold at most 16 stanzas
      */
-    public static void compose(ArrayList<score> data) throws InvalidMidiDataException {
+    public void compose(ArrayList<score> data) throws InvalidMidiDataException {
         int nChannels = data.size();
         Sequence sequence = null;
 
@@ -491,7 +491,7 @@ public class Cb {
     }
 
     // assumes it is passed a minor scale
-    public static chord major(scale s) throws Exception {
+    public chord major(scale s) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
             notes.add(s.scale_notelist.get(0));
@@ -506,7 +506,7 @@ public class Cb {
         return new chord(notes, duration);
     }
 
-    public static chord major(scale s, int duration) throws Exception {
+    public chord major(scale s, int duration) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
             notes.add(s.scale_notelist.get(0));
@@ -518,7 +518,7 @@ public class Cb {
         return new chord(notes, duration);
     }
 
-    public static chord minor(scale s) throws Exception {
+    public chord minor(scale s) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
             notes.add(s.scale_notelist.get(0));
@@ -531,7 +531,7 @@ public class Cb {
         return new chord(notes, duration);
     }
 
-    public static chord minor(scale s, int duration) throws Exception {
+    public chord minor(scale s, int duration) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
             notes.add(s.scale_notelist.get(0));
@@ -544,7 +544,7 @@ public class Cb {
     }
 
 
-    public static note sharp(note n) throws Exception {
+    public note sharp(note n) throws Exception {
         note sharped = new note();
         if(n.pitch == 11)
             sharped = new note(0, n.octave+1, n.duration);
@@ -556,7 +556,7 @@ public class Cb {
             throw new Exception(\"To convert a scale into a minor chord, you must pass a scale of at least five notes\");
     }
 
-    public static note flat(note n) {
+    public note flat(note n) {
         return new note();
     }
 
@@ -565,69 +565,69 @@ public class Cb {
      * @param i The maximum value for the integer
      * @return A random integer between 0 and i
      */
-    public static int randint(int i) {
+    public int randint(int i) {
         return (int)(Math.random()*i);
     }
 
-    public static chord chordOfNote(note n) {
+    public chord chordOfNote(note n) {
         return n.toChord();
     }
 
-    public static chord rest(int d) {
+    public chord rest(int d) {
         ArrayList<note> temp = new ArrayList<note>(1);
         temp.add(new note(-1, 0, d));
         return new chord(temp, d);
     }
 
-    public static chord prepend(note n, chord c) {
+    public chord prepend(note n, chord c) {
         chord tmp = c.deepCopy();
         tmp.notelist.add(0, n.deepCopy());
         return tmp;
     }
 
-    public static scale prepend(note n, scale s) {
+    public scale prepend(note n, scale s) {
         scale tmp = s.deepCopy();
         tmp.scale_notelist.add(0, n.deepCopy());
         return tmp;
     }
 
-    public static stanza prepend(chord c, stanza s) {
+    public stanza prepend(chord c, stanza s) {
         stanza tmp = s.deepCopy();
         tmp.chordlist.add(0, c.deepCopy());
         return tmp;
     }
 
-    public static score prepend(stanza st, score sc) {
+    public score prepend(stanza st, score sc) {
         score tmp = sc.deepCopy();
         tmp.stanzalist.add(0, st.deepCopy());
         return tmp;
     }
 
-    public static chord append(note n, chord c) {
+    public chord append(note n, chord c) {
         chord tmp = c.deepCopy();
         tmp.notelist.add(n.deepCopy());
         return tmp;
     }
 
-    public static scale append(note n, scale s) {
+    public scale append(note n, scale s) {
         scale tmp = s.deepCopy();
         tmp.scale_notelist.add(n.deepCopy());
         return tmp;
     }
 
-    public static stanza append(chord c, stanza s) {
+    public stanza append(chord c, stanza s) {
         stanza tmp = s.deepCopy();
         tmp.chordlist.add(c.deepCopy());
         return tmp;
     }
 
-    public static score append(stanza st, score sc) {
+    public score append(stanza st, score sc) {
         score tmp = sc.deepCopy();
         tmp.stanzalist.add(st.deepCopy());
         return tmp;
     }
 
-    public static scale concat(scale s1, scale s2) {
+    public scale concat(scale s1, scale s2) {
         scale tmp = s1.deepCopy();
         for(note n : s2.scale_notelist) {
             tmp.scale_notelist.add(n.deepCopy());
@@ -635,7 +635,7 @@ public class Cb {
         return tmp;
     }
 
-    public static stanza concat(stanza s1, stanza s2) {
+    public stanza concat(stanza s1, stanza s2) {
         stanza tmp = s1.deepCopy();
         for(chord c : s2.chordlist) {
             tmp.chordlist.add(c.deepCopy());
@@ -643,7 +643,7 @@ public class Cb {
         return tmp;
     }
 
-    public static score concat(score s1, score s2) {
+    public score concat(score s1, score s2) {
         score tmp = s1.deepCopy();
         for(stanza s : s2.stanzalist) {
             tmp.stanzalist.add(s.deepCopy());
@@ -651,7 +651,7 @@ public class Cb {
         return tmp;
     }
 
-    public static scale repeat(note n, int i) throws Exception {
+    public scale repeat(note n, int i) throws Exception {
         scale tmp = new scale();
         if (i < 1) {
             throw new Exception(\"repeat function takes an integer that must be 1 or greater\");
@@ -659,10 +659,10 @@ public class Cb {
         for(int j = 0; j < i; j++) {
             tmp.scale_notelist.add(n.deepCopy());
         }
-        return new scale();
+        return tmp;
     }
 
-    public static stanza repeat(chord c, int i) throws Exception {
+    public stanza repeat(chord c, int i) throws Exception {
         stanza tmp = new stanza();
         if (i < 1) {
             throw new Exception(\"repeat function takes an integer that must be 1 or greater\");
@@ -670,10 +670,10 @@ public class Cb {
         for(int j = 0; j < i; j++) {
             tmp.chordlist.add(c.deepCopy());
         }
-        return new stanza();
+        return tmp;
     }
 
-    public static score repeat(stanza s, int i) throws Exception{
+    public score repeat(stanza s, int i) throws Exception{
         score tmp = new score();
         if (i < 1) {
             throw new Exception(\"repeat function takes an integer that must be 1 or greater\");
@@ -685,7 +685,7 @@ public class Cb {
         return tmp;
     }
 
-    public static score repeat(score s, int i) throws Exception{
+    public score repeat(score s, int i) throws Exception{
         score tmp = new score();
         if (i < 1) {
             throw new Exception(\"repeat function takes an integer that must be 1 or greater\");

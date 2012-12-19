@@ -1,20 +1,10 @@
-<- 
-int triplet = quarter / 3; 
-
-
-
-chord chord_1 = ([(Ab, -1, quarter), (B, -1, quarter), (E, 1, quarter), (E, 1, quarter), (A, 1, quarter), (B, 1, quarter), (E, 2, quarter)], quarter);
-chord rest_1 = rest(eighth);	
-chord chord_2 = ([(F#, -1, quarter/4), (C#, 0, quarter), (F#, 1, quarter)], quarter/4);
-
-stanza p1 = [chord_1, rest_1, chord_2, chord_2, chord2]; 
-->
+<-Plays the nyan-cat song->
 
 int eighth = quarter / 2;
 int sixteenth = quarter / 4;
 
-note n1 = (Eb, 1, sixteenth);
-note n2 = (E, 1, sixteenth);
+note eb_16 = (Eb, 1, sixteenth);
+note e_16 = (E, 1, sixteenth);
 note n3 = (F#, 1, eighth);
 note n4 = (B, 1, eighth);
 note n5 = (D#, 1, sixteenth);
@@ -27,7 +17,7 @@ note n11 = (C#, 2, sixteenth);
 note n12 = (A#, 1, sixteenth);
 note n13 = (B, 1, eighth);
 
-stanza seq1 = [chordOfNote(n1), chordOfNote(n2), chordOfNote(n3), chordOfNote(n4), chordOfNote(n5), chordOfNote(n6), chordOfNote(n7), chordOfNote(n8), chordOfNote(n9), chordOfNote(n10), chordOfNote(n11), chordOfNote(n12), chordOfNote(n13)];
+stanza seq1 = [chordOfNote(eb_16), chordOfNote(e_16), chordOfNote(n3), chordOfNote(n4), chordOfNote(n5), chordOfNote(n6), chordOfNote(n7), chordOfNote(n8), chordOfNote(n9), chordOfNote(n10), chordOfNote(n11), chordOfNote(n12), chordOfNote(n13)];
 
 note n14 = (B, 1, eighth);
 note n15 = (F#, 1, sixteenth);
@@ -89,24 +79,34 @@ note n61 = (B, 1, eighth);
 
 stanza seq5 = [chordOfNote(n51), chordOfNote(n52), chordOfNote(n53), chordOfNote(n54), chordOfNote(n55), chordOfNote(n56), chordOfNote(n57), chordOfNote(n58), chordOfNote(n59), chordOfNote(n60), chordOfNote(n61)];
 
-note n62 = (D, 2, eighth);
-note n63 = (D, 2, sixteenth);
-note n64 = (C#, 2, sixteenth);
-note n65 = (B, 1, eighth);
-note n66 = (D#, 2, sixteenth);
-note n67 = (F#, 2, sixteenth);
-note n68 = (Ab, 2, sixteenth);
-note n69 = (D, 2, sixteenth);
-note n70 = (F#, 2, sixteenth);
-note n71 = (B, 1, sixteenth);
-note n72 = (C#, 2, sixteenth);
-note n73 = (D, 2, sixteenth);
-note n74 = (C#, 2, sixteenth);
-note n75 = (B, 1, sixteenth);
 
-stanza seq6 = [chordOfNote(n62), chordOfNote(n63), chordOfNote(n64), chordOfNote(n65), chordOfNote(n66), chordOfNote(n67), chordOfNote(n68), chordOfNote(n69), chordOfNote(n70), chordOfNote(n71), chordOfNote(n72), chordOfNote(n73), chordOfNote(n74), chordOfNote(n75)];
-
-
-score m = [seq1, seq2, seq3, seq4, seq5, seq6];
+score m = [seq1, seq2, seq3, seq4, seq5, seq4];
 m.instrument = 0;
-compose(m);
+
+note b1 = (E, -2, eighth);
+note b2 = (E, -1, eighth);
+note b3 = (F#, -2, eighth);
+note b4 = (F#, -1, eighth);
+note b5 = (Eb, -2, eighth);
+note b6 = (Eb, -1, eighth);
+note b7 = (G#, -2, eighth);
+note b8 = (G#, -1, eighth);
+
+stanza seq7 = [chordOfNote(b1), chordOfNote(b2), chordOfNote(b3), chordOfNote(b4), chordOfNote(b5), chordOfNote(b6), chordOfNote(b7), chordOfNote(b8)];
+
+note b9 = (C#, -2, eighth);
+note b10 = (C#, -1, eighth);
+note b11 = (F#, -2, eighth);
+note b12 = (F#, -1, eighth);
+note b13 = (B, -2, eighth);
+note b14 = (B, -1, eighth);
+note b15 = (B, -2, eighth);
+note b16  = (B, -1, eighth);
+
+stanza seq8 = [chordOfNote(b9), chordOfNote(b10), chordOfNote(b11), chordOfNote(b12), chordOfNote(b13), chordOfNote(b14), chordOfNote(b15), chordOfNote(b16)];
+
+stanza whole_rest = repeat(rest(64), 2);
+
+score n = [whole_rest, seq7, seq8, seq7, seq8];
+n.instrument = 0;
+compose(m, n);

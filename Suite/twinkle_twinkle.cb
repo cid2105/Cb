@@ -1,9 +1,11 @@
-chord c1 = chordOfNote((C,0,quarter/2));
-chord c2 = chordOfNote((G,0,8));
-chord c3 = chordOfNote((A,0,8));
-chord c4 = chordOfNote((F,0,8));
-chord c5 = chordOfNote((E,0,8));
-chord c6 = chordOfNote((D,0,8));
+int eighth = quarter/2;
+
+chord c1 = chordOfNote((C,0,eighth));
+chord c2 = chordOfNote((G,0,eighth));
+chord c3 = chordOfNote((A,0,eighth));
+chord c4 = chordOfNote((F,0,eighth));
+chord c5 = chordOfNote((E,0,eighth));
+chord c6 = chordOfNote((D,0,eighth));
 chord c7 = chordOfNote((G,0,quarter));
 chord c8 = chordOfNote((C,0,quarter));
 chord c9 = chordOfNote((D,0,quarter));
