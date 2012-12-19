@@ -1438,8 +1438,9 @@ and translate prog env =
     let locals, globals, fdecls = env in
         match prog with
             [] -> (* everything went well, write the java file and quit *)
+                (* print_string( import_decl ^ " " ^ globalJava.contents); *)
                 let javaOut = open_out ("Cb.java") in
-                Printf.fprintf javaOut "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s" import_decl, class_start, globalJava.contents, methJava.contents, run_start, mainJava.contents, run_end, class_end;
+                Printf.fprintf javaOut "%s" (import_decl ^ class_start ^ globalJava.contents ^ methJava.contents ^ run_start ^ mainJava.contents ^ run_end ^ class_end);
                 (close_out javaOut);
                 Bool true, (locals, globals, fdecls)
             | head::tail ->
