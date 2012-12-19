@@ -1147,7 +1147,7 @@ let rec eval env = function
                                     if ( vType = "note") then ("add(" ^ asJava ^ ");")
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
-                        let notesAsJava = String.concat "\n" (List.rev javaStrList) in
+                        let notesAsJava = String.concat "\n" javaStrList in
                                 (Scale ({scale_notelist = note_list}), env, ("new scale(new ArrayList<note>() {{\n" ^ notesAsJava ^ "}})"));
                     | "chord" -> (* if it is a chord create a stanza *)
                         let chord_list = List.map (fun (list_elem) ->
@@ -1164,7 +1164,7 @@ let rec eval env = function
                                     if ( vType = "chord") then ("add(" ^ asJava ^ ");")
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
-                        let chordsAsJava = String.concat "\n" (List.rev javaStrList) in
+                        let chordsAsJava = String.concat "\n" javaStrList in
                                 (Stanza ({chordlist = chord_list}), env, ("new stanza(new ArrayList<chord>() {{\n" ^ chordsAsJava ^ "}})"));
                     | "stanza" -> (* if it is a stanza create a score *)
                         let stanza_list = List.map (fun (list_elem) ->
@@ -1180,7 +1180,7 @@ let rec eval env = function
                                     if ( vType = "stanza") then ("add(" ^ asJava ^ ");")
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
-                        let stanzasAsJava = String.concat "\n" (List.rev javaStrList) in
+                        let stanzasAsJava = String.concat "\n" javaStrList in
                                 (Score ({stanzalist = stanza_list; instrument = 0}), env, ("new score(new ArrayList<stanza>() {{\n" ^ stanzasAsJava ^ "}})"));
                     | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
             end
