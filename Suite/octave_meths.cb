@@ -1,0 +1,11 @@
+meth note raiseOctave (note n)
+	note temp = n;
+	temp.octave += 1;
+	return temp;
+end
+
+meth note lowerOctave (note n)
+	note temp = n;
+	temp.octave -= 1;
+	return temp;
+end

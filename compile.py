@@ -38,19 +38,19 @@ def compile(fName):
     else:
       break
   if verbose: print "\n=====Ocaml COMPILER COMPLETE=====\n"
-  if verbose: print "\n=====Finding & Compiling Output\n"
-  toJava = "Cb.java"
-  for f in toJava:
-    java = subprocess.Popen(['javac', 'Cb.java'],stdout=subprocess.PIPE)
-    while True:
-      line = java.stdout.readline()
-      if line != '':
-        if verbose: print line.rstrip()
-      else:
-        break
-    if verbose: print "\n"
-  if verbose: print "\n=====Java File Compiled=====\n"
-  if verbose: print "\n=====Compilation Complete=====\n"
+  # if verbose: print "\n=====Finding & Compiling Output\n"
+  # toJava = "Cb.java"
+  # for f in toJava:
+  #   java = subprocess.Popen(['javac', 'Cb.java'],stdout=subprocess.PIPE)
+  #   while True:
+  #     line = java.stdout.readline()
+  #     if line != '':
+  #       if verbose: print line.rstrip()
+  #     else:
+  #       break
+  #   if verbose: print "\n"
+  # if verbose: print "\n=====Java File Compiled=====\n"
+  # if verbose: print "\n=====Compilation Complete=====\n"
 
 def ast(fName):
   print "=====Running The PreProcessor=====\n"

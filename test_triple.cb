@@ -1,0 +1,11 @@
+note d = (D,0,quarter);
+note g_16 = (G,0,quarter);
+note high_D = (D,1,quarter);
+note b = (B,0,quarter);
+stanza test = [([d,g_16],3),([high_D,d],2),([d,b],3)];
+
+stanza restStanza = [rest(quarter)];
+
+score testsc = [test, restStanza];
+
+compose(testsc);

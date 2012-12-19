@@ -1,0 +1,49 @@
+int eighth = quarter / 2;
+
+note c = (C,0,whole);
+note e_flat = (Eb, 0, whole);
+note g = (G, 0, whole);
+note b_flat = (Bb, 0, whole);
+note d = (D,0,whole);
+note f = (F,0,whole);
+note b = (B,0,whole);
+note a = (A,0,whole);
+note e = (E,0,whole);
+chord cm7_chrd = ([c, e_flat, g, b_flat], eighth);
+chord cm7_chrd_long =([c, e_flat, g, b_flat], 24);
+chord cm_chrd = ([c, e_flat, g], eighth);
+chord cm_chrd_long = ([c, e_flat, g], 24);
+chord bb_chrd = ([b_flat, d, f], eighth);
+chord g_chrd = ([g, b, d], eighth);
+chord ab_chrd = ([a, b, c, e_flat], 128);
+chord c_chord = ([c, e, g], whole);
+
+<-The intro sequence to eye of the tiger->
+meth stanza intro()
+    stanza eott_intro = [rest(24), cm7_chrd, rest(4), bb_chrd, rest(4), cm7_chrd_long,rest(16), cm7_chrd, rest(4), bb_chrd, rest(4), cm7_chrd_long, rest(16), cm_chrd, rest(4), g_chrd, rest(4), c_chord];
+    eott_intro = prepend(cm_chrd, eott_intro);
+    return eott_intro;
+end
+
+meth stanza baseline()
+    c.duration = eighth;
+    c.octave = -1;
+    int i = 0;
+    stanza bl;
+    while(i < 4)
+        bl = append(chordOfNote(c), bl);
+        bl = append(rest(eighth), bl);
+        i++;
+    end
+    return bl;
+end
+
+
+stanza score1rests = repeat(rest(64), 8);
+score active = [score1rests];
+
+score base = repeat(baseline(), 14);
+
+active = append(intro(), active);
+
+compose(active, base);
