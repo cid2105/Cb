@@ -765,6 +765,10 @@ let rec eval env = function
                 (match memname with
                    "instrument" -> Int (getScore v).instrument
                   | _ -> raise (Failure ("invalid property of score: " ^ memname)))
+              | "scale" ->
+                (match memname with
+                  "scale_notelist" -> (initIdentifier "scale")
+                  | _ -> raise (Failure ("invalid property of score: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env, (asJava ^ "." ^ memname ^ " ")
     | IntLiteral(i) -> (print_string ("Evaluating an intlit: " ^ (string_of_int i) ^ "\n"));
         Int i, env, (string_of_int i)
@@ -1239,7 +1243,7 @@ let rec eval env = function
                                                     else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between -5-5."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
-                                                if snd lftName = "duration" then 
+                                                if snd lftName = "chord_duration" then 
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
@@ -1268,13 +1272,15 @@ let rec eval env = function
                                         (* MEMBER METHODS *)
                                         else if lftIdType = "member" then
                                             (* NOTE MEMBER METHODS *)
-                                            if fst lftType = "chord" then
-                                                if snd lftName = "notelist" then
-                                                    if snd lftType = "locals" then
-                                                        rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
-                                                    else if snd lftType = "globals" then
-                                                        rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
-                                                    else raise (Failure ("undeclared identifier: " ^ fst lftName))
+                                            if fst lftType = "scale" then
+                                                let str_len = (String.length rht_expr_jString) in 
+
+                                                if snd lftName = "scale_notelist" then
+                                                        if snd lftType = "locals" then
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 (String.length rht_expr_jString)) ) 
+                                                        else if snd lftType = "globals" then
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len ) ) 
+                                                        else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
