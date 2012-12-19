@@ -746,11 +746,22 @@ public class Cb {
         tmp.instrument = s.instrument;
         return tmp;
     }
+
 "
 
 let main_start =
 "
     public static void main(String[] args){
+"
+
+let meth_start =
+"
+    public static "
+
+let block_start = " {
+"
+
+let block_end = " }
 "
 
 let main_end =
