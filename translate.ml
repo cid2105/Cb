@@ -417,11 +417,11 @@ public class Cb {
                     ArrayList<note> tnote = chl.get(cl).notelist;
                     for (int nti = 0; nti < tnote.size(); nti++) { //note list
 
-                        duration = (int) (chl.get(cl).chord_duration / 4);  //second number is duration
+                        duration = (int) ((chl.get(cl).chord_duration / 4) );  //second number is duration
                         System.out.println(\"dur:-\" + duration + \"> \\n \" );
                         // octave (-5 to 5); pitch (0 to 11)
-                        nt = (int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127); //this is the pitch representation; middle c = c_4 = 60
-                        velocity = 127;  //velocity can not be changed for now
+                        nt = (4 + tnote.get(nti).octave) * 12 + tnote.get(nti).pitch;//(int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127); //this is the pitch representation; middle c = c_4 = 60
+                        velocity = 120;  //velocity can not be changed for now
 
                         if (tnote.get(nti).pitch < 0) { // a rest is received -- any negative note is rest
 
@@ -1202,71 +1202,33 @@ and exec env fname = function
                         "chord" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                               (*  let llist = (List.rev (getChord list1).notelist) in *)
-
-
-                                  (*    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
-                                        let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
-                                                        (l, g, fdecls)
-                                                ) (locals, globals, fdecls) llist  *)
-
-
-
-                                        let (l, g), jStr = (call (List.rev sl) locals globals fdecls fname "")
-                                        in
-                                            (env, "for (chord " ^ par_decl.paramname ^ " : " ^ list_name ^ " { " ^ jStr ^ " } ")
-
-
-
-                                            (* int = chord *)
-                                        (* x = paramname *)
-                                        (* list = list_name *)
-                                        (* block = jStr *)
-
-                                        (* for int x : list { block } *)
-
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
+                                    (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".notelist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with chord list"))
                         | "scale" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                            (*
-                                let llist = (List.rev (getScale list1).scale_notelist) in
-                                    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
-                                        let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
-                                                        (l, g, fdecls)
-                                        ) (locals, globals, fdecls) llist *)
-
-
-                                        let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "")
-                                        in
-                                            (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".scale_notelist " ^ ") { " ^ jStr ^ " } ")
-
-
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
+                                    (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".scale_notelist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with scale list"))
-                       (* | "stanza" ->
+
+                       | "stanza" ->
                             (*chords*)
                             if (string_of_cbtype par_decl.paramtype) = "chord" then
-                                let llist = (List.rev (getStanza list1).chordlist) in
-                                    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
-                                        let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Chord x) l1) g1 f1 fname "") in
-                                                        (l, g, fdecls)
-                                        ) (locals, globals, fdecls) llist
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "chord") locals) globals fdecls fname "") in                                    
+                                    (env, "for (chord " ^ par_decl.paramname ^ " : " ^ list_name ^ ".chordlist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with stanza list"))
                         | "score" ->
-                            (*stanzas*)
-                            if (string_of_cbtype par_decl.paramtype) = "stanza" then
-                                let llist = (List.rev (getScore list1).stanzalist) in
-                                    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
-                                        let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Stanza x) l1) g1 f1 fname "") in
-                                                        (l, g, fdecls)
-                                        ) (locals, globals, fdecls) llist
+                             if (string_of_cbtype par_decl.paramtype) = "stanza" then
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "stanza") locals) globals fdecls fname "") in                                    
+                                    (env, "for (stanza " ^ par_decl.paramname ^ " : " ^ list_name ^ ".stanzalist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with score list"))
                         | _ ->
-                            raise (Failure ("undesired list type for for_each loop")) *)
+                            raise (Failure ("undesired list type for for_each loop"))
                 end
         | While(e, sl) ->
             let boolarg, env, javaString = eval env e in
