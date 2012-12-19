@@ -68,6 +68,16 @@ class chord {
         chord_duration = cd;
     }
 
+    public void inc_oct() {
+        for(note chord_note: notelist)
+            chord_note.octave ++;
+    }
+    
+    public void dec_oct() {
+        for(note chord_note: notelist)
+            chord_note.octave --;
+    }
+    
     public String toString() {
         String s = "([";
         for(note n : notelist) {
