@@ -1324,7 +1324,7 @@ and exec env fname = function
                 let v, env, evalJavaString = eval env e in
                     if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev s) locals globals fdecls fname "")) ^ "}\n"))
                     else raise (Failure ("If statement must be given boolean expression"))
-        | Foreach(par_decl, list_name, sl) ->
+        (* | Foreach(par_decl, list_name, sl) ->
             let locals, globals, fdecls = env in (* env *)
                 let list1 = (*check for var existence in locals *)
                     if NameMap.mem list_name locals then (*check if list_name is in locals *)
@@ -1379,9 +1379,16 @@ and exec env fname = function
                                 raise (Failure ("failure of type matching with score list"))
                         | _ ->
                             raise (Failure ("undesired list type for for_each loop"))
-                end
+                end *)
         | While(e, sl) ->
-            let rec loop env =
+            let boolarg, env, javaString = eval env e in
+                if (getType boolarg) = "bool" then (
+                    let locals, globals, fdecls = env in
+                        let (locals, globals), jStr = call sl locals globals fdecls fname "" in
+                            (locals, globals, fdecls), ("while(" ^ javaString ^ ") {\n" ^ jStr ^ "}\n")
+                )
+                else raise (Failure ("while loop argument must decompose to a boolean value"))
+(*             let rec loop env =
                 let v, env = eval env e in
                 if getBool v = true then
                     let (locals, globals, fdecls) = env in
@@ -1389,7 +1396,7 @@ and exec env fname = function
                             loop (l, g, fdecls)
                 else
                     env
-            in loop env
+            in loop env *)
         | _ -> raise (Failure ("Unable to match the statment "))
 (* Execute the body of a method and return an updated global map *)
 and call fdecl_body locals globals fdecls fdecl_name jStr=
