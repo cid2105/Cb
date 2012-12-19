@@ -170,6 +170,19 @@ let majorChord v dur =
 (*this will need to be passed around*)
 let composeJava = ref ""
 
+let import_decl =
+"
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Sequence;
+import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Track;
+"
+
 let main_start =
 "
     public static void main(String[] args){
