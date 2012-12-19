@@ -35,6 +35,10 @@ class note {
         tmp_list.add(new note(pitch, octave, duration));
         return new chord(tmp_list, duration);
     }
+
+    public note deepCopy() {
+        return new note(this.pitch, this.octave, this.duration);
+    }
 }
 
 class chord {
@@ -59,6 +63,18 @@ class chord {
         }
         return s + "], " + chord_duration + ")";
     }
+
+    private ArrayList<note> nlCopy() {
+        ArrayList<note> tmp = new ArrayList<note>(notelist.size());
+        for(note n : notelist) {
+            tmp.add(n.deepCopy());
+        }
+        return tmp;
+    }
+
+    public chord deepCopy() {
+        return new chord(nlCopy(), this.chord_duration);
+    }
 }
 
 class scale {
@@ -80,6 +96,14 @@ class scale {
         }
         return s + "]";
     }
+
+    public scale deepCopy() {
+        ArrayList<note> tmp = new ArrayList<note>(scale_notelist.size());
+        for(note n : scale_notelist) {
+            tmp.add(n.deepCopy());
+        }
+        return new scale(tmp);
+    }
 }
 
 class stanza {
@@ -100,6 +124,14 @@ class stanza {
             s += c.toString();
         }
         return s + "]";
+    }
+
+    public stanza deepCopy() {
+        ArrayList<chord> tmp = new ArrayList<chord>(chordlist.size());
+        for(chord c : chordlist) {
+            tmp.add(c.deepCopy());
+        }
+        return new stanza(tmp);
     }
 }
 
@@ -124,6 +156,14 @@ class score {
             s += st.toString();
         }
         return s + "], instrument=" + instrument + ")";
+    }
+
+    public score deepCopy() {
+        ArrayList<stanza> tmp = new ArrayList<stanza>(stanzalist.size());
+        for(stanza s : stanzalist) {
+            tmp.add(s.deepCopy());
+        }
+        return new score(tmp, this.instrument);
     }
 }
 
@@ -353,63 +393,123 @@ public class Cb {
     }
 
     public static chord prepend(note n, chord c) {
-        return new chord();
+        chord tmp = c.deepCopy();
+        tmp.notelist.add(0, n.deepCopy());
+        return tmp;
     }
 
     public static scale prepend(note n, scale s) {
-        return new scale();
+        scale tmp = s.deepCopy();
+        tmp.scale_notelist.add(0, n.deepCopy());
+        return tmp;
     }
 
     public static stanza prepend(chord c, stanza s) {
-        return new stanza();
+        stanza tmp = s.deepCopy();
+        tmp.chordlist.add(0, c.deepCopy());
+        return tmp;
     }
 
     public static score prepend(stanza st, score sc) {
-        return new score();
+        score tmp = sc.deepCopy();
+        tmp.stanzalist.add(0, st.deepCopy());
+        return tmp;
     }
 
     public static chord append(note n, chord c) {
-        return new chord();
+        chord tmp = c.deepCopy();
+        tmp.notelist.add(n.deepCopy());
+        return tmp;
     }
 
     public static scale append(note n, scale s) {
-        return new scale();
+        scale tmp = s.deepCopy();
+        tmp.scale_notelist.add(n.deepCopy());
+        return tmp;
     }
 
     public static stanza append(chord c, stanza s) {
-        return new stanza();
+        stanza tmp = s.deepCopy();
+        tmp.chordlist.add(c.deepCopy());
+        return tmp;
     }
 
     public static score append(stanza st, score sc) {
-        return new score();
+        score tmp = sc.deepCopy();
+        tmp.stanzalist.add(st.deepCopy());
+        return tmp;
     }
 
     public static scale concat(scale s1, scale s2) {
-        return new scale();
+        scale tmp = s1.deepCopy();
+        for(note n : s2.scale_notelist) {
+            tmp.scale_notelist.add(n.deepCopy());
+        }
+        return tmp;
     }
 
     public static stanza concat(stanza s1, stanza s2) {
-        return new stanza();
+        stanza tmp = s1.deepCopy();
+        for(chord c : s2.chordlist) {
+            tmp.chordlist.add(c.deepCopy());
+        }
+        return tmp;
     }
 
     public static score concat(score s1, score s2) {
-        return new score();
+        score tmp = s1.deepCopy();
+        for(stanza s : s2.stanzalist) {
+            tmp.stanzalist.add(s.deepCopy());
+        }
+        return tmp;
     }
 
     public static scale repeat(note n, int i) {
+        scale tmp = new scale();
+        if (i < 1) {
+            throw new Exception("repeat function takes an integer that must be 1 or greater");
+        }
+        for(int j = 0; j < i; j++) {
+            tmp.scale_notelist.add(n.deepCopy());
+        }
         return new scale();
     }
 
     public static stanza repeat(chord c, int i) {
+        stanza tmp = new stanza();
+        if (i < 1) {
+            throw new Exception("repeat function takes an integer that must be 1 or greater");
+        }
+        for(int j = 0; j < i; j++) {
+            tmp.chordlist.add(c.deepCopy());
+        }
         return new stanza();
     }
 
-    public static score repeat(stanza s, int i) {
-        return new score();
+    public static score repeat(stanza s, int i) throws Exception{
+        score tmp = new score();
+        if (i < 1) {
+            throw new Exception("repeat function takes an integer that must be 1 or greater");
+        }
+        tmp.instrument = 0;
+        for(int j = 0; j < i; j++) {
+            tmp.stanzalist.add(s.deepCopy());
+        }
+        return tmp;
     }
 
-    public static score repeat(score s, int i) {
-        return new score();
+    public static score repeat(score s, int i) throws Exception{
+        score tmp = new score();
+        if (i < 1) {
+            throw new Exception("repeat function takes an integer that must be 1 or greater");
+        }
+        for(int j = 0; j < i; j++) {
+            for(stanza st : s.stanzalist) {
+                tmp.stanzalist.add(st.deepCopy());
+            }
+        }
+        tmp.instrument = s.instrument;
+        return tmp;
     }
     /*
      * End of built in methods
@@ -420,7 +520,7 @@ public class Cb {
      * will end up in javas main method unless it is a global variable declaration
      * or a method declaration
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         //This is what we fill in as we translate the program
         //all of your statements go here
         //Method declarations should be put outside of this following the
