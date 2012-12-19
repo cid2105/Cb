@@ -1160,7 +1160,7 @@ let rec eval env = function
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "chord") then ("add(" ^ asJava ^ ");")
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let chordsAsJava = String.concat "\n" javaStrList in
@@ -1176,7 +1176,7 @@ let rec eval env = function
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "chord") then ("add(" ^ asJava ^ ");")
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let stanzasAsJava = String.concat "\n" javaStrList in
