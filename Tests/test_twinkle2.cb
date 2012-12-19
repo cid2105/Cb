@@ -1,11 +1,2 @@
-chord t1 = ([(C, 0, quarter)], quarter);
-chord t2 = ([(G, 0, quarter)], quarter);
-chord t3 = ([(A, 0, quarter)], quarter);
-chord t4 = ([(F, 0, quarter)], quarter);
-chord t5 = ([(E, 0, quarter)], quarter);
-chord t6 = ([(D, 0, quarter)], quarter);
-chord t10 = ([(G, 0, half)], half);
-chord t11 = ([(C, 0, half)], half);
-chord t12 = ([(D, 0, half)], half);
-
-stanza p1 = [t1, t1, t2, t2, t3, t3, t10];
+int a = 5;
+a = 6;
