@@ -169,6 +169,7 @@ let majorChord v dur =
 
 (*this will need to be passed around*)
 let composeJava = ref ""
+let methJava = ref ""
 
 let methJava = ref ""
 let globalJava = ref ""
@@ -1396,6 +1397,8 @@ and translate prog env =
     let locals, globals, fdecls = env in
         match prog with
             [] -> (* everything went well, write the java file and quit *)
+                NameMap.iter (fun key bind ->  print_string ("<"^key ^ ">\n"); ) globals;
+                print_string !composeJava ;
                 Bool true, (locals, globals, fdecls)
             | head::tail ->
                 match head with

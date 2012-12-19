@@ -1,4 +1,5 @@
-OBJS = scanner.cmo parser.cmo ast.cmo translate.cmo Cb.cmo #interpret_prod.cmo Cb.cmo
+OBJS = scanner.cmo parser.cmo ast.cmo translate.cmo Cb.cmo 
+#interpret_prod.cmo Cb.cmo
 
 cb : $(OBJS)
 	ocamlc -o Cb $(OBJS)

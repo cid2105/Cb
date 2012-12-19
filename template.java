@@ -25,6 +25,14 @@ class note {
         octave = o;
         duration = d;
     }
+    
+    public void inc_oct(){
+        this.octave = this.octave + 1;
+    }
+    
+    public void dec_oct(){
+         this.octave = this.octave - 1;
+    }
 
     public boolean isValid() {
         return -1 <= pitch && 11 >= pitch && -5 <= octave && 5 <= octave;
