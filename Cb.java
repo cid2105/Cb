@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,7 +7,6 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
-
 class note {
 
     public int pitch;
@@ -173,12 +171,6 @@ class score {
 }
 
 public class Cb {
-    /*
-     * All global variables should be put here once declared
-     * but we still have to check that when you access them they exist
-     * because java won't do that for us
-     */
-
     /**
      * ********************compose helper functions****************************
      * source: http://www.penguinpeepshow.com/CSV2MIDI.php
@@ -540,7 +532,15 @@ public class Cb {
     }
 
 
-int a;
+int a = 5;
+
+note n =  new note(9,-1,16);
+
+chord c = new chord(new ArrayList<note>() {{
+add(n);}}, 32);
+
+scale s = new scale(new ArrayList<note>() {{
+add(n);}});
 public void run() {
     }
 

@@ -177,8 +177,7 @@ let globalJava = ref ""
 let mainJava = ref ""
 
 let import_decl =
-"
-import java.io.File;
+"import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.sound.midi.InvalidMidiDataException;
@@ -186,8 +185,7 @@ import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
-"
+import javax.sound.midi.Track;"
 
 let class_start =
 "
@@ -355,12 +353,6 @@ class score {
 }
 
 public class Cb {
-    /*
-     * All global variables should be put here once declared
-     * but we still have to check that when you access them they exist
-     * because java won't do that for us
-     */
-
     /**
      * ********************compose helper functions****************************
      * source: http://www.penguinpeepshow.com/CSV2MIDI.php
@@ -1448,7 +1440,7 @@ and translate prog env =
                 (print_string run_end);
                 (print_string class_end);
                 let javaOut = open_out ("Cb.java") in
-                Printf.fprintf javaOut "%s" (import_decl ^ class_start ^ globalJava.contents ^ methJava.contents ^ run_start ^ mainJava.contents ^ run_end ^ class_end);
+                Printf.fprintf javaOut "%s" (import_decl ^ class_start ^ globalJava.contents ^ methJava.contents ^ main_start ^ run_start ^ mainJava.contents ^ run_end ^ class_end);
                 (close_out javaOut);
                 Bool true, (locals, globals, fdecls)
             | head::tail ->

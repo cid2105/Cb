@@ -1,1 +1,4 @@
-int a;
+int a = 5;
+note n = (A,-1,quarter);
+chord c = ([n],half);
+scale s = [n];
