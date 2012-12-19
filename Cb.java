@@ -534,6 +534,8 @@ public class Cb {
 
 int a = 5;
 
+int b = 6;
+
 note n =  new note(9,-1,16);
 
 chord c = new chord(new ArrayList<note>() {{
@@ -554,7 +556,10 @@ add(st2);
 add(st2);}});
 
     public static void main(String[] args) throws Exception { Cb runner = new Cb(); runner.run(); }
-public void run() throws Exception {
+public void run() throws Exception {while(a==5&&b!=6) {
+append(st,sc);
+}
+
     }
 
 }

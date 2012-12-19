@@ -1,7 +1,13 @@
 int a = 5;
+int b = 6;
 note n = (A,-1,quarter);
 chord c = ([n],half);
 scale s = [n];
 stanza st = [c];
 stanza st2 = [c];
 score sc = [st, st2, st2];
+
+while(a is 5 and b isnt 6)
+    int a = 4;
+    append(st, sc);
+end
