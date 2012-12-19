@@ -1148,13 +1148,13 @@ let rec eval env = function
                                         else if lftIdType = "member" then
                                             (* NOTE MEMBER METHODS *)
                                             if fst lftType = "scale" then
-                                                let str_len = (length rht_expr_jString - 10) in 
+                                                let str_len = (length rht_expr_jString - 10) in
 
                                                 if snd lftName = "scale_notelist" then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) ) 
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) ) 
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
@@ -1334,8 +1334,6 @@ and translate prog env =
                 (print_string methJava.contents);
                 (print_string run_start);
                 (print_string mainJava.contents);
-                (print_string run_end);
-                (print_string class_end);
                 let javaOut = open_out ("Cb.java") in
                 Printf.fprintf javaOut "%s" (import_decl ^ class_start ^ globalJava.contents ^ methJava.contents ^ main_start ^ run_start ^ mainJava.contents ^ run_end ^ class_end);
                 (close_out javaOut);
