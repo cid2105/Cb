@@ -416,11 +416,11 @@ public class Cb {
                     ArrayList<note> tnote = chl.get(cl).notelist;
                     for (int nti = 0; nti < tnote.size(); nti++) { //note list
 
-                        duration = (int) (chl.get(cl).chord_duration / 4);  //second number is duration
+                        duration = (int) ((chl.get(cl).chord_duration / 4) );  //second number is duration
                         System.out.println(\"dur:-\" + duration + \"> \\n \" );
                         // octave (-5 to 5); pitch (0 to 11)
-                        nt = (int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127); //this is the pitch representation; middle c = c_4 = 60
-                        velocity = 127;  //velocity can not be changed for now
+                        nt = (4 + tnote.get(nti).octave) * 12 + tnote.get(nti).pitch;//(int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127); //this is the pitch representation; middle c = c_4 = 60
+                        velocity = 120;  //velocity can not be changed for now
 
                         if (tnote.get(nti).pitch < 0) { // a rest is received -- any negative note is rest
 
