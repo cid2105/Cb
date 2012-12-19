@@ -1,6 +1,18 @@
 meth void test1(bool b)
     bool c = true;
     if(c)
-        print(b);
+        print(0);
     end
 end
+
+meth bool test2(bool b)
+    bool c = true;
+    if(c)
+        print(0);
+    end
+    return false;
+end
+
+test1(true);
+
+test2(false);

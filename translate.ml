@@ -171,7 +171,7 @@ class note {
         this.octave--;
     }
 
-    
+
     public boolean isValid() {
         return -1 <= pitch && 11 >= pitch && -5 <= octave && 5 <= octave;
     }
@@ -425,7 +425,7 @@ public class Cb {
                 for (int cl = 0; cl < chl.size(); cl++) { //chord list
 
                     ArrayList<note> tnote = chl.get(cl).notelist;
-                    
+
                     for(note noted: tnote)
                         System.out.println(noted);
 
@@ -1335,7 +1335,7 @@ and translate prog env =
                             let (_, _), javaBody = call head.body newlocals globals (NameMap.add head.fname head fdecls) head.fname "" in
                                 let rtype = if (string_of_cbtype head.rettype) = "bool" then "boolean" else (string_of_cbtype head.rettype) in
                                     (methJava := methJava.contents ^ "\npublic " ^ rtype ^ " " ^ head.fname ^ "(" ^
-                                    (String.concat "," (List.map(fun arg -> (string_of_cbtype arg.paramtype) ^ " " ^ arg.paramname)(List.rev head.formals))) ^
+                                    (String.concat "," (List.map(fun arg -> (if (string_of_cbtype arg.paramtype) = "bool" then "boolean" else (string_of_cbtype arg.paramtype)) ^ " " ^ arg.paramname)head.formals)) ^
                                     ") {" ^ javaBody ^ "\n}\n");
                             translate tail (locals, globals, (NameMap.add head.fname head fdecls))
                         )
