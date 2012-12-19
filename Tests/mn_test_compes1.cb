@@ -17,10 +17,21 @@ note mm = (C, -3, half*3);
 chord c2 = ([a,b,c], half);
 
 stanza p = [c1, c1, c2];
-
-score m = [p];
 ->
+
+score m;
+
+
 int a;
+
+compose(m);
+while(true)
+ int d;
+ int d2 = 5;
+ int d3 = 6;
+ d2 + d3;
+ note n = (D, 0, half*2);
+end
 <- meth do(int w);->
 <-
 compose(m);

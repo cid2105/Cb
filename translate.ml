@@ -154,6 +154,13 @@ class note {
         duration = d;
     }
 
+    public void inc_oct(){
+        this.octave++;
+    }
+    public void dec_oct(){
+        this.octave--;
+    }
+
     public boolean isValid() {
         return -1 <= pitch && 11 >= pitch && -5 <= octave && 5 <= octave;
     }
@@ -276,6 +283,10 @@ class score {
         stanzalist = new ArrayList<stanza>();
         instrument = 0;
     }
+    public score(ArrayList<stanza> sl) {
+        stanzalist = sl;
+        instrument = 0;
+    }
 
     public score(ArrayList<stanza> sl, int i) {
         stanzalist = sl;
@@ -349,8 +360,10 @@ public class Cb {
         int nChannels = data.size();
         Sequence sequence = null;
 
-//      for(int i=0;i<data.size();i++)
-//          System.out.println(data.get(i));
+
+        for (int i = 0; i < data.size(); i++) {
+            System.out.println(data.get(i));
+        }
 
 
         //***** Read in timing resolution and instruments *****
@@ -390,7 +403,7 @@ public class Cb {
         int nt = 0,
                 tick = 0,
                 duration = 5,
-                velocity = 90; // this is the volume of the sound
+                velocity = 100; // this is the volume of the sound
 
         for (int channel = 0; channel < data.size(); channel++) {
             //populating the ith track
@@ -403,7 +416,8 @@ public class Cb {
                     ArrayList<note> tnote = chl.get(cl).notelist;
                     for (int nti = 0; nti < tnote.size(); nti++) { //note list
 
-                        duration = (int) (chl.get(cl).chord_duration * (5 / 16));  //second number is duration
+                        duration = (int) (chl.get(cl).chord_duration / 4);  //second number is duration
+                        System.out.println(\"dur:-\" + duration + \"> \\n \" );
                         // octave (-5 to 5); pitch (0 to 11)
                         nt = (int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127); //this is the pitch representation; middle c = c_4 = 60
                         velocity = 127;  //velocity can not be changed for now
@@ -420,6 +434,7 @@ public class Cb {
                         track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
                     }
                     tick = tick + duration;
+                     System.out.println(\"tick:-\" + tick + \"> \\n \" + duration);
                 }
             }
             tick = 0;
@@ -427,17 +442,30 @@ public class Cb {
 
 
         // Print track information
-//      System.out.println();
-//      if ( track != null ) {
-//          for ( int i = 0; i < track.length; i++ ) {
-//              System.out.println(\"Track \" + i + \":\" );
-//
-//          for ( int j = 0; j < track[i].size(); j++ ) {
-//                  MidiEvent event = track[i].get( j );
-//                  System.out.println(\" tick \"+event.getTick()+\", \"+MessageInfo.toString(event.getMessage()));
-//              }
-//          }
-//      }
+        // Print track information
+
+        System.out.println();
+
+        if (track != null) {
+
+            for (int i = 0; i < track.length; i++) {
+
+                System.out.println(\"Track \" + i + \":\");
+
+
+
+                for (int j = 0; j < track[i].size(); j++) {
+
+                    MidiEvent event = track[i].get(j);
+
+                    System.out.println(\" tick \" + event.getTick() + \", \" + MessageInfo.toString(event.getMessage()));
+
+                }
+
+            }
+
+        }
+
 
         /* Now we just save the Sequence to the file we specified.
          The '0' (second parameter) means saving as SMF type 0.
@@ -712,6 +740,10 @@ let rec eval env = function
                 (match memname with
                    "instrument" -> (initIdentifier "int")
                   | _ -> raise (Failure ("invalid property of score: " ^ memname)))
+              | "scale" ->
+                (match memname with
+                  "scale_notelist" -> (initIdentifier "scale")
+                  | _ -> raise (Failure ("invalid property of score: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env, (asJava ^ "." ^ memname ^ " ")
     | IntLiteral(i) -> (print_string ("Evaluating an intlit: " ^ (string_of_int i) ^ "\n"));
         (initIdentifier "int"), env, (string_of_int i)
@@ -957,20 +989,12 @@ let rec eval env = function
                         ) (List.rev actuals);
         );
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
-                                            "\tadd("^ scor ^");"
+                                            "\n\tadd("^ scor ^");"
 
                                         ) (List.rev score_names);)
-        in Bool true, env, ("compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "}})")
-(*         composeJava :=
-            "\tArrayList<score> data = new ArrayList<score>();\n"^
+        in Bool true, env, ("\n  compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "\n}})")
 
-            String.concat "\n" (List.map (fun scor ->
 
-                                            "\tadd("^ scor ^");"
-
-                                        ) (List.rev score_names);)
-
-                ^ "\n\tthis.compose(data);\n"; *)
     | MethodCall(name, el) -> (* Check that method exists and passing correct args, do not actually call *)
         (print_string ("User defined method call: " ^ name ^ "\n"));
         let locals, globals, fdecls = env in
@@ -1124,7 +1148,7 @@ let rec eval env = function
                                                     else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between -5-5."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
-                                                if snd lftName = "duration" then
+                                                if snd lftName = "chord_duration" then 
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
@@ -1153,13 +1177,15 @@ let rec eval env = function
                                         (* MEMBER METHODS *)
                                         else if lftIdType = "member" then
                                             (* NOTE MEMBER METHODS *)
-                                            if fst lftType = "chord" then
-                                                if snd lftName = "notelist" then
-                                                    if snd lftType = "locals" then
-                                                        rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
-                                                    else if snd lftType = "globals" then
-                                                        rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
-                                                    else raise (Failure ("undeclared identifier: " ^ fst lftName))
+                                            if fst lftType = "scale" then
+                                                let str_len = (String.length rht_expr_jString) in 
+
+                                                if snd lftName = "scale_notelist" then
+                                                        if snd lftType = "locals" then
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 (String.length rht_expr_jString)) ) 
+                                                        else if snd lftType = "globals" then
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len ) ) 
+                                                        else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
@@ -1325,6 +1351,7 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                                 (call tail locals (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals) fdecls fdecl_name (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " " ^ head.varname ^ ";\n"))))
                         else
                             ((if NameMap.mem head.varname locals then raise (Failure ("Variable " ^ head.varname ^ " declared twice")));
+                                print_string ("\n\n<" ^ head.varname ^ ">");
                                 call tail (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) locals) globals fdecls fdecl_name
                                 (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " "  ^ head.varname ^ ";\n")))
                     | FullDecl2(head) -> (print_string ("Working on a full decl in call\n"));
@@ -1334,8 +1361,9 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
+
                                         match vType with
-                                            "int" -> call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            "int" -> print_string ("\n\n<" ^ head.fvname ^ ">"); call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "note" -> call tail (NameMap.add head.fvname (Note (getNote v)) locals) globals fdecls fdecl_name (jStr ^ ("note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "chord" -> call tail (NameMap.add head.fvname (Chord (getChord v)) locals) globals fdecls fdecl_name (jStr ^ ("chord " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "bool" -> call tail (NameMap.add head.fvname (Bool (getBool v)) locals) globals fdecls fdecl_name (jStr ^ ("bool " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))

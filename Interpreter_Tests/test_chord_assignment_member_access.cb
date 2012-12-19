@@ -4,8 +4,8 @@ n = (C#,0,whole);
 chord c;
 c = ([n], half);
 
-print(c.duration);
+print(c.chord_duration);
 
-c.duration = whole;
+c.chord_duration = whole;
 
-print (c.duration);
+print (c.chord_duration);

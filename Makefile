@@ -22,7 +22,7 @@ cb.tar.gz: $(TARFILES)
 .PHONY: clean
 clean:
 	rm -f *~ cb parser.ml parser.mli scanner.ml testall.log \
-	*.cmo *.cmi *.out *.diff *.csv *.mid
+	*.cmo *.cmi *.out *.diff *.csv *.mid *class Cb.java
 
 .PHONY: all
 all: clean cb
