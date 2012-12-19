@@ -532,32 +532,21 @@ public class Cb {
     }
 
 
-int a = 5;
+public int gcd(int b,int a) {if(b==0) {
+return a;
+}
+ else {
+return gcd(b,a%b);
+}
 
-int b = 6;
-
-note n =  new note(9,-1,16);
-
-chord c = new chord(new ArrayList<note>() {{
-add(n);}}, 32);
-
-scale s = new scale(new ArrayList<note>() {{
-add(n);}});
-
-stanza st = new stanza(new ArrayList<chord>() {{
-add(c);}});
-
-stanza st2 = new stanza(new ArrayList<chord>() {{
-add(c);}});
-
-score sc = new score(new ArrayList<stanza>() {{
-add(st);
-add(st2);
-add(st2);}});
+}
 
     public static void main(String[] args) throws Exception { Cb runner = new Cb(); runner.run(); }
-public void run() throws Exception {while(a==5&&b!=6) {
-append(st,sc);
+public void run() throws Exception {if(gcd(20,15)==5) {
+System.out.println(0);
+}
+ else {
+System.out.println(4111);
 }
 
     }

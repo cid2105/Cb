@@ -839,7 +839,7 @@ let rec eval env = function
                     if v1Type = "int" then
                     Int (getInt v1 / getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type))
-                | Mod ->
+                | Mod -> (print_string ("Doing a mod binop\n"));
                     if v1Type = "int" then
                     Int (getInt v1 mod getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " % " ^ v2Type))
@@ -1094,7 +1094,7 @@ let rec eval env = function
                                                     raise (Failure ("Wrong parameter type in method call to " ^ fdecl.fname))
                                             ) NameMap.empty fdecl.formals (List.rev actuals)
                         with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
-                    in Bool false, (l1, globals, fdecls), (name ^ "(" ^ actualsAsJava ^ ")")
+                    in (initIdentifier (string_of_cbtype fdecl.rettype)), (l1, globals, fdecls), (name ^ "(" ^ actualsAsJava ^ ")")
 (*                     begin *)
 (*                         try *)
 (*                             let l, g = (call fdecl.body l1 globals fdecls name) in *)
@@ -1294,14 +1294,16 @@ let rec eval env = function
     | NoExpr -> Bool true, env, ""
 and exec env fname = function
         Expr(e) -> let _, env, asJava = (eval env e) in
+            (print_string ("Exec an expr\n"));
             env, (asJava ^ ";\n")
         | Return(e) -> (print_string ("Return stmt in exec\n"));
             let v, (locals, globals, fdecls), asJava = (eval env e) in
                 let fdecl = NameMap.find fname fdecls in
-                    if (getType v) = (string_of_cbtype fdecl.rettype) then
+(*                     if (getType v) = (string_of_cbtype fdecl.rettype) then ( *)
                         (* raise (ReturnException(v, globals)) *)
+                        (print_string ("function returns matched\n"));
                         (locals, globals, fdecls), ("return " ^ asJava ^ ";\n")
-                    else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype)))
+                    (* else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype))) *)
         | Block(s1) -> (print_string ("Block stmt in exec\n"));
             let (locals, globals, fdecls) = env in
                 let (l, g), jStr = call s1 locals globals fdecls fname ""
@@ -1480,11 +1482,11 @@ and translate prog env =
                         (if (NameMap.mem head.fname fdecls) then raise (Failure ("Method with same name already defined"))
                         else
                             let newlocals = List.fold_left(fun acc arg -> (NameMap.add arg.paramname (initIdentifier (string_of_cbtype arg.paramtype)) acc)) locals head.formals in
-                            let (locals, globals), javaBody = call head.body newlocals globals (NameMap.add head.fname head fdecls) head.fname "" in
+                            let (_, _), javaBody = call head.body newlocals globals (NameMap.add head.fname head fdecls) head.fname "" in
                                 (methJava := methJava.contents ^ "\npublic " ^ (string_of_cbtype head.rettype) ^ " " ^ head.fname ^ "(" ^
                                 (String.concat "," (List.map(fun arg -> (string_of_cbtype arg.paramtype) ^ " " ^ arg.paramname)(List.rev head.formals))) ^
                                 ") {" ^ javaBody ^ "\n}\n");
-                                translate tail (locals, globals, (NameMap.add head.fname head fdecls))
+                            translate tail (locals, globals, (NameMap.add head.fname head fdecls))
                         )
                     | Stmt(head) -> (print_string ("Translate sees a stmt\n"));
                         let env, jString = exec (locals, globals, fdecls) "" head in
