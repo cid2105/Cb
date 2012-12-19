@@ -808,7 +808,7 @@ let rec eval env = function
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type))
                 | Sub ->
                     if v1Type = "int" then
-                     (initIdentifier "int")
+                        (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " - " ^ v2Type))
                 | Mult ->
                     if v1Type = "int" then
@@ -1027,7 +1027,7 @@ let rec eval env = function
                     else
                         raise (Failure ("cannot raise: " ^ vType)))
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
-    | ListExpr(el) -> (*  el is elment list *)
+    | ListExpr(el) -> (* el is elment list *)
         (print_string ("Evaluating a listExpr\n"));
         let master, _, _ = (eval env (List.hd el)) in (* pull of the first element in el and evalute *)
             let master_type = (getType master) in (* the type of the first element, everything gets compared to this *)
@@ -1179,27 +1179,18 @@ and exec env fname = function
         | Return(e) -> (print_string ("Return stmt in exec\n"));
             let v, (locals, globals, fdecls), asJava = (eval env e) in
                 let fdecl = NameMap.find fname fdecls in
-(*                     if (getType v) = (string_of_cbtype fdecl.rettype) then ( *)
-                        (* raise (ReturnException(v, globals)) *)
-                        (print_string ("function returns matched\n"));
+                    if (getType v) = (string_of_cbtype fdecl.rettype) then
                         (locals, globals, fdecls), ("return " ^ asJava ^ ";\n")
-                    (* else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype))) *)
+                    else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype)))
         | Block(s1) -> (print_string ("Block stmt in exec\n"));
             let (locals, globals, fdecls) = env in
-                let (l, g), jStr = call s1 locals globals fdecls fname ""
+                let (l, g), jStr = call s1 locals globals fdecls fname "" (* Check to make sure we don't need a rev *)
                 in (l, g, fdecls), jStr
         | If(e, ibl, s) -> (print_string ("If stmt with else in exec\n"));
             let (locals, globals, fdecls) = env in
                 let v, env, evalJavaString = eval env e in
                     if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev ibl) locals globals fdecls fname "")) ^ "}\n else {\n" ^ (snd ((exec env fname) s)) ^ "}\n"))
                     else raise (Failure ("If statement must be given boolean expression"))
-                    (* if getBool v = true
-                    then
-                        let l, g = call (List.rev ibl) locals globals fdecls fname ""
-                            in (l, g, fdecls)
-                    else
-                        let env_return = exec env fname s
-                            in env_return *)
         | If(e, s, Block([])) -> (print_string ("If stmt without else in exec\n"));
             let (locals, globals, fdecls) = env in
                 let v, env, evalJavaString = eval env e in
@@ -1287,8 +1278,6 @@ and exec env fname = function
                         | _ ->
                             raise (Failure ("undesired list type for for_each loop")) *)
                 end
-
-
         | While(e, sl) ->
             let boolarg, env, javaString = eval env e in
                 if (getType boolarg) = "bool" then (
@@ -1297,16 +1286,7 @@ and exec env fname = function
                             (locals, globals, fdecls), ("while(" ^ javaString ^ ") {\n" ^ jStr ^ "}\n")
                 )
                 else raise (Failure ("while loop argument must decompose to a boolean value"))
-(*             let rec loop env =
-                let v, env = eval env e in
-                if getBool v = true then
-                    let (locals, globals, fdecls) = env in
-                        let l, g = call sl locals globals fdecls fname "" in
-                            loop (l, g, fdecls)
-                else
-                    env
-            in loop env *)
-        | _ -> raise (Failure ("Unable to match the statment "))
+        | _ -> raise (Failure ("Unable to match the statment"))
 (* Execute the body of a method and return an updated global map *)
 and call fdecl_body locals globals fdecls fdecl_name jStr=
         match fdecl_body with
@@ -1330,7 +1310,6 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
-
                                         match vType with
                                             "int" -> print_string ("\n\n<" ^ head.fvname ^ ">"); call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "note" -> call tail (NameMap.add head.fvname (Note (getNote v)) locals) globals fdecls fdecl_name (jStr ^ ("note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
@@ -1350,8 +1329,6 @@ and translate prog env =
         match prog with
             [] -> (* everything went well, write the java file and quit *)
                 (print_string ("Finished the program\n"));
-                (* (print_string import_decl); *)
-                (* (print_string class_start); *)
                 (print_string globalJava.contents);
                 (print_string methJava.contents);
                 (print_string run_start);
@@ -1383,9 +1360,7 @@ and translate prog env =
                                             | "scale" -> translate tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals), fdecls)
                                             | "stanza" -> translate tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals), fdecls)
                                             | "score" -> translate tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals), fdecls)
-
                                             | _ -> raise (Failure ("Unknown type: " ^ vType)))
-
                                 else
                                     (raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType)))
                     | MDecl(head) -> (print_string ("Translate sees a methdecl\n"));
