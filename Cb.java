@@ -532,6 +532,7 @@ public class Cb {
     }
 
 
+<<<<<<< HEAD
 note one =  new note(9,0,32);
 
 note two =  new note(11,0,16);
@@ -561,6 +562,30 @@ add(eight);}});
     public static void main(String[] args) throws Exception { Cb runner = new Cb(); runner.run(); }
 public void run() throws Exception {
 	test.scale_notelist  = (new ArrayList<note>;
+=======
+scale s = new scale(new ArrayList<note>() {{
+add( new note(9,0,1));
+add( new note(11,0,2));
+add( new note(0,0,3));
+add( new note(2,0,4));
+add( new note(4,0,5));}});
+
+int check = 0;
+
+    public static void main(String[] args) throws Exception { Cb runner = new Cb(); runner.run(); }
+public void run() throws Exception {for (note n : s.scale_notelist ) { if(n.duration ==check) {
+System.out.println(0);
+}
+ else {
+System.out.println(3111);
+}
+ } if(check==5) {
+System.out.println(0);
+}
+ else {
+System.out.println(3112);
+}
+>>>>>>> 808aa70928f81ae1d721c06993be81b43412fb21
 
     }
 

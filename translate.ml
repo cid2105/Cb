@@ -91,59 +91,6 @@ let initIdentifier t =
     | "score" -> Score({stanzalist=[]; instrument=0})
     | _ -> Bool(false)
 
-let setOctave v a = ((getNote v).octave <- a); v
-let setPitch v a = ((getNote v).pitch <- a); v
-let setDuration v a = ((getNote v).duration <- a); v
-let setPitch v a = ((getNote v).pitch <- a); v
-
-let incrementNote v =
-    let note_pitch = (getNote v).pitch in
-    let note_octave = (getNote v).octave in
-    let note_duration = (getNote v).duration in
-        if note_pitch < 11 then
-            Note({pitch=note_pitch+1; octave=note_octave; duration=note_duration})
-        else
-            if note_octave < 5 then
-                Note({pitch=0; octave=note_octave+1; duration=note_duration})
-            else
-                raise (Failure ("Cannot increment note: already at highest pitch" ))
-
-let decrementNote v =
-    let note_pitch = (getNote v).pitch in
-    let note_octave = (getNote v).octave in
-    let note_duration = (getNote v).duration in
-        if note_pitch > 0 then
-            Note({pitch=note_pitch - 1; octave=note_octave; duration=note_duration})
-        else
-            if note_octave > -5 then
-                Note({pitch=11; octave=note_octave-1; duration=note_duration})
-            else
-                raise (Failure ("Cannot decrement note: already at highest pitch" ))
-
-let minorChord v dur =
-    let scale_notes = (getScale v).scale_notelist in
-        if List.length scale_notes = 8 then
-            let first_note = Note (List.nth scale_notes 0) in
-            let third_note = Note (List.nth scale_notes 2) in
-            let fifth_note = Note (List.nth scale_notes 4) in
-            let eight_note = Note (List.nth scale_notes 7) in
-                let chord_notes =(List.map (fun e -> getNote e) [first_note;  (decrementNote (third_note)); fifth_note; eight_note]) in
-                    Chord ({notelist=chord_notes; chord_duration = (getInt dur) })
-        else
-            raise (Failure ("Can only apply the minor function to scales of 8 notes" ))
-
-let majorChord v dur =
-    let scale_notes = (getScale v).scale_notelist in
-        if List.length scale_notes = 8 then
-            let first_note = Note (List.nth scale_notes 0) in
-            let third_note = Note (List.nth scale_notes 2) in
-            let fifth_note = Note (List.nth scale_notes 4) in
-            let eight_note = Note (List.nth scale_notes 7) in
-                let chord_notes =(List.map (fun e -> getNote e) [first_note;  (incrementNote (third_note)); fifth_note; eight_note]) in
-                    Chord ({notelist=chord_notes; chord_duration= (getInt dur) })
-        else
-            raise (Failure ("Can only apply the minor function to scales of 8 notes" ))
-
  let noteMap =
      NameMap.add "R" (-1) NameMap.empty
     let noteMap = NameMap.add "C" 0 noteMap
@@ -752,18 +699,18 @@ let rec eval env = function
             (match vType with
               | "note" ->
                 (match memname with
-                  "pitch" -> Int (getNote v).pitch
-                  | "octave" -> Int (getNote v).octave
-                  | "duration" -> Int (getNote v).duration
+                  "pitch" -> (initIdentifier "int")
+                  | "octave" -> (initIdentifier "int")
+                  | "duration" -> (initIdentifier "int")
                   | _ -> raise (Failure ("invalid property of note: " ^ memname)))
               | "chord" ->
                 (match memname with
-                    "chord_duration" -> Int (getChord v).chord_duration
-                    | "notelist" -> Scale ({scale_notelist = (getChord v).notelist })
+                    "chord_duration" -> (initIdentifier "int")
+                    | "notelist" -> (initIdentifier "scale")
                   | _ -> raise (Failure ("invalid property of chord: " ^ memname)))
               | "score" ->
                 (match memname with
-                   "instrument" -> Int (getScore v).instrument
+                   "instrument" -> (initIdentifier "int")
                   | _ -> raise (Failure ("invalid property of score: " ^ memname)))
               | "scale" ->
                 (match memname with
@@ -771,11 +718,11 @@ let rec eval env = function
                   | _ -> raise (Failure ("invalid property of score: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env, (asJava ^ "." ^ memname ^ " ")
     | IntLiteral(i) -> (print_string ("Evaluating an intlit: " ^ (string_of_int i) ^ "\n"));
-        Int i, env, (string_of_int i)
+        (initIdentifier "int"), env, (string_of_int i)
     | NoteConst(s) -> (print_string ("Evaluating a noteConst: " ^ s ^ "\n"));
-        Int (NameMap.find s noteMap), env, (string_of_int (NameMap.find s noteMap))
+        (initIdentifier "int"), env, (string_of_int (NameMap.find s noteMap))
     | BoolLiteral(b) -> (print_string ("Evaluating a bool literal: " ^ (string_of_bool b) ^ "\n"));
-        Bool b, env, (string_of_bool b)
+        (initIdentifier "bool"), env, (string_of_bool b)
     | ChordExpr(el, e) -> (print_string ("Evaluating a chordexpr\n"));
         let note_list = List.map (fun (note_elem) ->
             (let chord_elem, env, asJava = eval env note_elem in
@@ -843,7 +790,7 @@ let rec eval env = function
                     if v1Type = "int" then
                     Int (getInt v1 / getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type))
-                | Mod ->
+                | Mod -> (print_string ("Doing a mod binop\n"));
                     if v1Type = "int" then
                     Int (getInt v1 mod getInt v2)
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " % " ^ v2Type))
@@ -891,80 +838,60 @@ let rec eval env = function
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
     | MethodCall("print", [e]) ->
         let arg, env, eAsJava = eval env e in
-(*             (if getType arg = "int" then
-                print_endline (string_of_int (getInt arg))
-            else if getType arg = "bool" then
-                print_endline (string_of_bool (getBool arg))
-            else if getType arg = "note" then
-                print_endline ("(" ^ (string_of_int (getNote arg).pitch) ^ "," ^ (string_of_int (getNote arg).octave) ^ "," ^ (string_of_int (getNote arg).duration) ^ ")")
-            else
-                print_endline(getType arg)); *)
-            (Bool false), env, ("System.out.println(" ^ eAsJava ^ ")")
+            (Bool true), env, ("System.out.println(" ^ eAsJava ^ ")")
     | MethodCall("major", [e; dur]) ->
         let arg, env, eAsJava = eval env e in
         let arg2, env, durAsJava = eval env dur in
             if getType arg = "scale" && getType arg2 = "int" then
-                (majorChord arg  arg2), env, ("major(" ^ eAsJava ^ "," ^ durAsJava ^ ")")
+                (initIdentifier "chord"), env, ("major(" ^ eAsJava ^ "," ^ durAsJava ^ ")")
             else raise (Failure ("argument of major must be a scale"))
     | MethodCall("minor", [e; dur]) ->
         let arg, env, eAsJava = eval env e in
         let arg2, env, durAsJava = eval env dur in
             if (getType arg = "scale") && (getType arg2 = "int") then
-                (minorChord arg  arg2), env, ("minor(" ^ eAsJava ^ "," ^ durAsJava ^ ")")
+                (initIdentifier "chord"), env, ("minor(" ^ eAsJava ^ "," ^ durAsJava ^ ")")
             else raise (Failure ("argument of minor must be a scale"))
     | MethodCall("sharp", [e]) ->
         let arg, env, eAsJava = eval env e in
             if getType arg = "note" then
-                incrementNote arg, env, ("sharp(" ^ eAsJava ^ ")")
+                (initIdentifier "note"), env, ("sharp(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of flat must be a note"))
     | MethodCall("flat", [e]) ->
         let arg, env, eAsJava = eval env e in
             if getType arg = "note" then
-                decrementNote arg, env, ("flat(" ^ eAsJava ^ ")")
+                (initIdentifier "note"), env, ("flat(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of flat must be a note"))
     | MethodCall("randint", [e]) ->
         let v, env, eAsJava = eval env e in
             if getType v = "int" then
-                Int(Random.int (getInt v)), env, ("randint(" ^ eAsJava ^ ")")
+                (initIdentifier "int"), env, ("randint(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of randint must be an integer"))
     | MethodCall("chordOfNote",[e]) ->
         let v, env, eAsJava = eval env e in
             if getType v = "note" then
-                let dur = (getNote v).duration in
-                    let tmp_list = (getNote v)::[] in
-                        Chord ({notelist=tmp_list; chord_duration=dur}), env, ("chordOfNote(" ^ eAsJava ^ ")")
+                (initIdentifier "chord"), env, ("chordOfNote(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of chordOfNote must be a note"))
     | MethodCall("rest", [e]) ->
         let v, env, eAsJava = eval env e in
             if getType v = "int" then
-                let tmp_note = (Note ({pitch=(-1); octave=0; duration=(getInt v)})) in
-                    let tmp_list = (getNote tmp_note)::[] in
-                        Chord ({notelist=tmp_list; chord_duration=(getInt v)}), env, ("rest(" ^ eAsJava ^ ")")
+                (initIdentifier "chord"), env, ("rest(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of rest must be an integer"))
     | MethodCall("prepend", [item; alist]) ->
         let arg1, env, itemAsJava = eval env item in
             let arg2, env, listAsJava = eval env alist in
                 if getType arg1 = "note" then
                     (if getType arg2 = "scale" then
-                        (let tmp_note = arg1 in
-                            let tmp_list = (List.rev ((getNote tmp_note)::(List.rev ((getScale arg2).scale_notelist)))) in
-                                Scale ({scale_notelist=tmp_list}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "scale"), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else if getType arg2 = "chord" then (* Returns a new chord with the note appended *)
-                        (let tmp_note = arg1 in
-                            let tmp_list = (List.rev ((getNote tmp_note)::(List.rev ((getChord arg2).notelist)))) in
-                                Chord ({notelist=(tmp_list); chord_duration=(getChord arg2).chord_duration}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "chord"), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("A note can only be prepended to a chord or scale")))
                 else if getType arg1 = "chord" then
                     (if getType arg2 = "stanza" then
-                        (let tmp_chord = arg1 in
-                            let tmp_list = (List.rev ((getChord tmp_chord)::(List.rev ((getStanza arg2).chordlist)))) in
-                                Stanza ({chordlist=tmp_list}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "stanza"), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("A chord can only be prepended to a stanza")))
                 else if getType arg1 = "stanza" then
                     (if getType arg2 = "score" then
-                        (let tmp_stanza = arg1 in
-                            let tmp_list = (List.rev ((getStanza tmp_stanza)::(List.rev ((getScore arg2).stanzalist)))) in
-                                Score ({stanzalist=tmp_list; instrument=(getScore arg2).instrument}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "score"), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("a stanza can only be prepended to a score")))
                 else raise (Failure ("First argument for prepend must be of type note, chord, or stanza"))
     | MethodCall("append", [item; alist]) ->
@@ -972,25 +899,17 @@ let rec eval env = function
             let arg2, env, listAsJava = eval env alist in
                 if getType arg1 = "note" then
                     (if getType arg2 = "scale" then
-                        (let tmp_note = arg1 in
-                            let tmp_list = (getNote tmp_note)::((getScale arg2).scale_notelist) in
-                                Scale ({scale_notelist=tmp_list}), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "scale"), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else if getType arg2 = "chord" then (* Returns a new chord with the note appended *)
-                        (let tmp_note = arg1 in
-                            let tmp_list = (getNote tmp_note)::((getChord arg2).notelist) in
-                                Chord ({notelist=(tmp_list); chord_duration=(getChord arg2).chord_duration}), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "chord"), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("A note can only be appended to a chord or scale")))
                 else if getType arg1 = "chord" then
                     (if getType arg2 = "stanza" then
-                        (let tmp_chord = arg1 in
-                            let tmp_list = (getChord tmp_chord)::((getStanza arg2).chordlist) in
-                                Stanza ({chordlist=tmp_list}), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "stanza"), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("A chord can only be appended to a stanza")))
                 else if getType arg1 = "stanza" then
                     (if getType arg2 = "score" then
-                        (let tmp_stanza = arg1 in
-                            let tmp_list = (getStanza tmp_stanza)::((getScore arg2).stanzalist) in
-                                Score ({stanzalist=tmp_list; instrument=(getScore arg2).instrument}), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "score"), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("a stanza can only be appended to a score")))
                 else raise (Failure ("First argument for append must be of type note, chord, or stanza"))
     | MethodCall("concat", [list1; list2]) ->
@@ -998,47 +917,26 @@ let rec eval env = function
             let arg2, env, arg2AsJava = eval env list2 in
                 if getType arg1 = getType arg2 then
                     (if getType arg1 = "stanza" then
-                        (let tmp_chordlist = ((getStanza arg2).chordlist) @ ((getStanza arg1).chordlist) in
-                            Stanza ({chordlist=tmp_chordlist}), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")"))
+                        (initIdentifier "stanza"), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")")
                     else if getType arg1 = "scale" then
-                        (let tmp_notelist = ((getScale arg2).scale_notelist) @ ((getScale arg1).scale_notelist) in
-                            Scale ({scale_notelist=tmp_notelist}), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")"))
+                        (initIdentifier "scale"), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")")
                     else if getType arg1 = "score" then
-                        (let tmp_stanzalist = ((getScore arg2).stanzalist) @ ((getScore arg1).stanzalist) in
-                            Score ({stanzalist=tmp_stanzalist; instrument=(getScore arg1).instrument}), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")"))
-                    else raise (Failure ("concat works only on stanzas and scores")))
+                        (initIdentifier "score"), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")")
+                    else raise (Failure ("concat works only on stanzas, scales, and scores")))
                 else raise (Failure ("Both arguments to concat must be of the same type"))
     | MethodCall("repeat", [e; n]) -> (*Takes the argument and returns its container type with arg repeated n times*)
         let arg1, env, eAsJava = eval env e in
             let arg2, env, nAsJava = eval env n in
                 if getType arg2 = "int" then
-                    (if ((getInt arg2) > 0) then
-                        (if getType arg1 = "note" then
-                            (let rec repeater alist times =
-                                (if times = 0 then
-                                    (alist)
-                                else (repeater (Scale ({scale_notelist=((getNote arg1)::((getScale alist).scale_notelist))})) (times-1)))
-                            in (repeater (Scale ({scale_notelist=[]})) (getInt arg2)), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")"))
-                        else if getType arg1 = "chord" then
-                            (let rec repeater alist times =
-                                (if times = 0 then
-                                    (alist)
-                                else (repeater (Stanza ({chordlist=((getChord arg1)::((getStanza alist).chordlist))})) (times-1)))
-                            in (repeater (Stanza ({chordlist=[]})) (getInt arg2)), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")"))
-                        else if getType arg1 = "stanza" then
-                            (let rec repeater alist times =
-                                (if times = 0 then
-                                    (alist)
-                                else (repeater (Score ({stanzalist=((getStanza arg1)::((getScore alist).stanzalist)); instrument=0})) (times-1)))
-                            in (repeater (Score ({stanzalist=[]; instrument=0})) (getInt arg2)), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")"))
-                        else if getType arg1 = "score" then
-                            (let rec repeater alist times =
-                                (if times = 0 then
-                                    (alist)
-                                else (repeater (Score ({stanzalist=(((getScore arg1).stanzalist) @ ((getScore alist).stanzalist)); instrument=(getScore arg1).instrument})) (times-1)))
-                            in (repeater (Score ({stanzalist=[]; instrument=(getScore arg1).instrument})) (getInt arg2)), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")"))
-                        else raise (Failure ("The first argument must be a note, chord, stanza, or score")))
-                    else raise (Failure ("The number of times to repeat must be 1 or greater, you asked for " ^ (string_of_int (getInt arg2)))))
+                    (if getType arg1 = "note" then
+                        (initIdentifier "scale"), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")")
+                    else if getType arg1 = "chord" then
+                        (initIdentifier "stanza"), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")")
+                    else if getType arg1 = "stanza" then
+                        (initIdentifier "score"), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")")
+                    else if getType arg1 = "score" then
+                        (initIdentifier "score"), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")")
+                    else raise (Failure ("The first argument must be a note, chord, stanza, or score")))
                 else raise (Failure ("The second argument to repeat must be an integer number of times to repeat"))
     | MethodCall("compose", e) ->  (* Writes the specified part to a java file to be written into midi *)
         ignore(
@@ -1077,7 +975,6 @@ let rec eval env = function
                                         ) (List.rev score_names);)
 
                 ^ "\n\tthis.compose(data);\n"; *)
-
     | MethodCall(name, el) -> (* Check that method exists and passing correct args, do not actually call *)
         (print_string ("User defined method call: " ^ name ^ "\n"));
         let locals, globals, fdecls = env in
@@ -1098,7 +995,7 @@ let rec eval env = function
                                                     raise (Failure ("Wrong parameter type in method call to " ^ fdecl.fname))
                                             ) NameMap.empty fdecl.formals (List.rev actuals)
                         with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
-                    in Bool false, (l1, globals, fdecls), (name ^ "(" ^ actualsAsJava ^ ")")
+                    in (initIdentifier (string_of_cbtype fdecl.rettype)), (l1, globals, fdecls), (name ^ "(" ^ actualsAsJava ^ ")")
 (*                     begin *)
 (*                         try *)
 (*                             let l, g = (call fdecl.body l1 globals fdecls name) in *)
@@ -1260,7 +1157,7 @@ let rec eval env = function
                                                     else raise (Failure ("fatal error"))
                                                 else raise (Failure ("invalid score instrument: " ^ string_of_int (getInt rht_expr) ^ ". instrument must be between 0-127."))
                                             else raise (Failure ("fatal error"))
-                                            else raise (Failure ("cannot assign to: " ^ fst lftType)) 
+                                            else raise (Failure ("cannot assign to: " ^ fst lftType))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                                     | "scale" ->
                                         if lftIdType = "id" then
@@ -1300,14 +1197,16 @@ let rec eval env = function
     | NoExpr -> Bool true, env, ""
 and exec env fname = function
         Expr(e) -> let _, env, asJava = (eval env e) in
+            (print_string ("Exec an expr\n"));
             env, (asJava ^ ";\n")
         | Return(e) -> (print_string ("Return stmt in exec\n"));
             let v, (locals, globals, fdecls), asJava = (eval env e) in
                 let fdecl = NameMap.find fname fdecls in
-                    if (getType v) = (string_of_cbtype fdecl.rettype) then
+(*                     if (getType v) = (string_of_cbtype fdecl.rettype) then ( *)
                         (* raise (ReturnException(v, globals)) *)
+                        (print_string ("function returns matched\n"));
                         (locals, globals, fdecls), ("return " ^ asJava ^ ";\n")
-                    else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype)))
+                    (* else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype))) *)
         | Block(s1) -> (print_string ("Block stmt in exec\n"));
             let (locals, globals, fdecls) = env in
                 let (l, g), jStr = call s1 locals globals fdecls fname ""
@@ -1329,7 +1228,7 @@ and exec env fname = function
                 let v, env, evalJavaString = eval env e in
                     if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev s) locals globals fdecls fname "")) ^ "}\n"))
                     else raise (Failure ("If statement must be given boolean expression"))
-       (*  | Foreach(par_decl, list_name, sl) ->
+       | Foreach(par_decl, list_name, sl) ->
             let locals, globals, fdecls = env in (* env *)
                 let list1 = (*check for var existence in locals *)
                     if NameMap.mem list_name locals then (*check if list_name is in locals *)
@@ -1344,26 +1243,51 @@ and exec env fname = function
                     match vType with
                         "chord" ->
                             (*notes*)
-
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                                let llist = (List.rev (getChord list1).notelist) in
-                                    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
-                                        let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
+                               (*  let llist = (List.rev (getChord list1).notelist) in *)
+
+
+                                  (*    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
+                                        let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
                                                         (l, g, fdecls)
-                                                ) (locals, globals, fdecls) llist
+                                                ) (locals, globals, fdecls) llist  *)
+                                        
+
+                                       
+                                        let (l, g), jStr = (call (List.rev sl) locals globals fdecls fname "")
+                                        in                                    
+                                            (env, "for (chord " ^ par_decl.paramname ^ " : " ^ list_name ^ " { " ^ jStr ^ " } ")
+
+
+
+                                            (* int = chord *)
+                                        (* x = paramname *)
+                                        (* list = list_name *)
+                                        (* block = jStr *)
+
+                                        (* for int x : list { block } *)
+
                             else
                                 raise (Failure ("failure of type matching with chord list"))
                         | "scale" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
+                            (* 
                                 let llist = (List.rev (getScale list1).scale_notelist) in
                                     List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
                                         let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
                                                         (l, g, fdecls)
-                                        ) (locals, globals, fdecls) llist
+                                        ) (locals, globals, fdecls) llist *)
+                                        
+
+                                        let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "")
+                                        in                                    
+                                            (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".scale_notelist " ^ ") { " ^ jStr ^ " } ")
+
+
                             else
                                 raise (Failure ("failure of type matching with scale list"))
-                        | "stanza" ->
+                       (* | "stanza" ->
                             (*chords*)
                             if (string_of_cbtype par_decl.paramtype) = "chord" then
                                 let llist = (List.rev (getStanza list1).chordlist) in
@@ -1384,8 +1308,10 @@ and exec env fname = function
                             else
                                 raise (Failure ("failure of type matching with score list"))
                         | _ ->
-                            raise (Failure ("undesired list type for for_each loop"))
-                end *)
+                            raise (Failure ("undesired list type for for_each loop")) *)
+                end
+
+
         | While(e, sl) ->
             let boolarg, env, javaString = eval env e in
                 if (getType boolarg) = "bool" then (
@@ -1487,11 +1413,11 @@ and translate prog env =
                         (if (NameMap.mem head.fname fdecls) then raise (Failure ("Method with same name already defined"))
                         else
                             let newlocals = List.fold_left(fun acc arg -> (NameMap.add arg.paramname (initIdentifier (string_of_cbtype arg.paramtype)) acc)) locals head.formals in
-                            let (locals, globals), javaBody = call head.body newlocals globals (NameMap.add head.fname head fdecls) head.fname "" in
+                            let (_, _), javaBody = call head.body newlocals globals (NameMap.add head.fname head fdecls) head.fname "" in
                                 (methJava := methJava.contents ^ "\npublic " ^ (string_of_cbtype head.rettype) ^ " " ^ head.fname ^ "(" ^
                                 (String.concat "," (List.map(fun arg -> (string_of_cbtype arg.paramtype) ^ " " ^ arg.paramname)(List.rev head.formals))) ^
                                 ") {" ^ javaBody ^ "\n}\n");
-                                translate tail (locals, globals, (NameMap.add head.fname head fdecls))
+                            translate tail (locals, globals, (NameMap.add head.fname head fdecls))
                         )
                     | Stmt(head) -> (print_string ("Translate sees a stmt\n"));
                         let env, jString = exec (locals, globals, fdecls) "" head in
