@@ -1222,7 +1222,7 @@ and exec env fname = function
                 let v, env, evalJavaString = eval env e in
                     if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev s) locals globals fdecls fname "")) ^ "}\n"))
                     else raise (Failure ("If statement must be given boolean expression"))
-       (*  | Foreach(par_decl, list_name, sl) ->
+       | Foreach(par_decl, list_name, sl) ->
             let locals, globals, fdecls = env in (* env *)
                 let list1 = (*check for var existence in locals *)
                     if NameMap.mem list_name locals then (*check if list_name is in locals *)
@@ -1237,26 +1237,51 @@ and exec env fname = function
                     match vType with
                         "chord" ->
                             (*notes*)
-
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                                let llist = (List.rev (getChord list1).notelist) in
-                                    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
-                                        let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
+                               (*  let llist = (List.rev (getChord list1).notelist) in *)
+
+
+                                  (*    List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
+                                        let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
                                                         (l, g, fdecls)
-                                                ) (locals, globals, fdecls) llist
+                                                ) (locals, globals, fdecls) llist  *)
+                                        
+
+                                       
+                                        let (l, g), jStr = (call (List.rev sl) locals globals fdecls fname "")
+                                        in                                    
+                                            (env, "for (chord " ^ par_decl.paramname ^ " : " ^ list_name ^ " { " ^ jStr ^ " } ")
+
+
+
+                                            (* int = chord *)
+                                        (* x = paramname *)
+                                        (* list = list_name *)
+                                        (* block = jStr *)
+
+                                        (* for int x : list { block } *)
+
                             else
                                 raise (Failure ("failure of type matching with chord list"))
                         | "scale" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
+                            (* 
                                 let llist = (List.rev (getScale list1).scale_notelist) in
                                     List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
                                         let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
                                                         (l, g, fdecls)
-                                        ) (locals, globals, fdecls) llist
+                                        ) (locals, globals, fdecls) llist *)
+                                        
+
+                                        let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "")
+                                        in                                    
+                                            (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".scale_notelist " ^ ") { " ^ jStr ^ " } ")
+
+
                             else
                                 raise (Failure ("failure of type matching with scale list"))
-                        | "stanza" ->
+                       (* | "stanza" ->
                             (*chords*)
                             if (string_of_cbtype par_decl.paramtype) = "chord" then
                                 let llist = (List.rev (getStanza list1).chordlist) in
@@ -1277,8 +1302,10 @@ and exec env fname = function
                             else
                                 raise (Failure ("failure of type matching with score list"))
                         | _ ->
-                            raise (Failure ("undesired list type for for_each loop"))
-                end *)
+                            raise (Failure ("undesired list type for for_each loop")) *)
+                end
+
+
         | While(e, sl) ->
             let boolarg, env, javaString = eval env e in
                 if (getType boolarg) = "bool" then (
