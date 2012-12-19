@@ -1,4 +1,5 @@
 open Ast
+open Printf
 
 module NameMap = Map.Make(struct
     type t = string
@@ -1053,7 +1054,7 @@ let rec eval env = function
         in
         let actuals, env = (* make sure all ids are known *)
             List.fold_left (fun (al, env) actual ->
-                                let v, env = ((eval env) actual) in (v :: al), env
+                                let v, env, _ = ((eval env) actual) in (v :: al), env
                             ) ([], env) e;
         in
         ignore (
@@ -1066,7 +1067,7 @@ let rec eval env = function
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
                                             "\tadd("^ scor ^");"
                                         ) (List.rev score_names);)
-        in scoreListAsJava
+        in Bool true, env, ("compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "}})")
 (*         composeJava :=
             "\tArrayList<score> data = new ArrayList<score>();\n"^
 
@@ -1077,7 +1078,7 @@ let rec eval env = function
                                         ) (List.rev score_names);)
 
                 ^ "\n\tthis.compose(data);\n"; *)
-        Bool true, env, ("compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "}})")
+
     | MethodCall(name, el) ->
         let locals, globals, fdecls = env in
             let fdecl = try (NameMap.find name fdecls)
@@ -1097,11 +1098,11 @@ let rec eval env = function
                                                     raise (Failure ("Wrong parameter type in method call to " ^ fdecl.fname))
                                             ) NameMap.empty fdecl.formals (List.rev actuals)
                         with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
-                    in
+                    in Bool false, (l1, globals, fdecls), (name ^ "(" ^ actualsAsJava ^ ")")
 (*                     begin *)
 (*                         try *)
 (*                             let l, g = (call fdecl.body l1 globals fdecls name) in *)
-                                Bool false, (l, g, fdecls), (name ^ "(" ^ actualsAsJava ^ ")") (* This gets hit if you never see a return statement *)
+                                 (* This gets hit if you never see a return statement *)
 (*                        with ReturnException(v, g, jStr) -> v, (l1, globals, fdecls), ()  *)(* This gets hit if you hit a return statement *)
 (*                    end *)
     | UnaryOp(uo,e) ->
@@ -1114,7 +1115,7 @@ let rec eval env = function
                         if (getNote v).octave > 4 then raise (Failure ("Octave maximum of 5 already reached, can't raise"))
                         else Bool false, env, (eAsJava ^ ".inc_oct()")
                     else if vType = "chord" then
-                        if (List.fold_left(fun acc elem -> acc && ((getNote elem).octave < 5)) true (getChord v).notelist) then
+                        if (List.fold_left(fun acc elem -> acc && (elem.octave < 5)) true (getChord v).notelist) then
                             Bool false, env, (eAsJava ^ ".inc_oct()")
                         else raise (Failure ("Octave maximum of 5 already reached on a note in chord, can't raise"))
                     else
@@ -1124,7 +1125,7 @@ let rec eval env = function
                         if (getNote v).octave < -4 then raise (Failure ("Octave minimum of -5 already reached, can't lower"))
                         else Bool false, env, (eAsJava ^ ".dec_oct()")
                     else if vType = "chord" then
-                        if (List.fold_left(fun acc elem -> acc && ((getNote elem).octave > -4)) true (getChord v).notelist) then
+                        if (List.fold_left(fun acc elem -> acc && (elem.octave > -4)) true (getChord v).notelist) then
                             Bool false, env, (eAsJava ^ ".dec_oct()")
                         else raise (Failure ("Octave minimum of -5 already reached on a note in chord, can't lower"))
                     else
@@ -1153,7 +1154,7 @@ let rec eval env = function
                                 (Scale ({scale_notelist = note_list}), env, ("new scale(new ArrayList<note>() {{\n" ^ notesAsJava ^ "}})"));
                     | "chord" -> (* if it is a chord create a stanza *)
                         let chord_list = List.map (fun (list_elem) ->
-                            (let evaled, env = eval env list_elem in
+                            (let evaled, env, _ = eval env list_elem in
                                 let vType = (getType evaled) in
                                     if (vType = "chord") then
                                         (* (Chord (getChord(evaled))) *)
@@ -1170,7 +1171,7 @@ let rec eval env = function
                                 (Stanza ({chordlist = chord_list}), env, ("new stanza(new ArrayList<chord>() {{\n" ^ chordsAsJava ^ "}})"));
                     | "stanza" -> (* if it is a stanza create a score *)
                         let stanza_list = List.map (fun (list_elem) ->
-                            (let evaled, env = eval env list_elem in
+                            (let evaled, env, _ = eval env list_elem in
                                 let vType = (getType evaled) in
                                     if (vType = "stanza") then
                                         getStanza evaled
@@ -1302,7 +1303,7 @@ and exec env fname = function
                 let fdecl = NameMap.find fname fdecls in
                     if (getType v) = (string_of_cbtype fdecl.rettype) then
                         (* raise (ReturnException(v, globals)) *)
-                        (locals, globals, fdecls), ("return " asJava ^ ";\n")
+                        (locals, globals, fdecls), ("return " ^ asJava ^ ";\n")
                     else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype)))
         | Block(s1) ->
             let (locals, globals, fdecls) = env in
@@ -1409,7 +1410,7 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                     VDecl2(head) ->
                         if(fdecl_name = "") then
                             ((if NameMap.mem head.varname globals then raise (Failure ("Variable " ^ head.varname ^ " declared twice")));
-                                call tail locals (NameMap.add head.varname (initIdentifier)) fdecls fdecl_name (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " " ^ head.varname ^ ";\n")))
+                                (call tail locals (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals) fdecls fdecl_name (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " " ^ head.varname ^ ";\n"))))
                         else
                             ((if NameMap.mem head.varname locals then raise (Failure ("Variable " ^ head.varname ^ " declared twice")));
                                 call tail (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) locals) globals fdecls fdecl_name
@@ -1437,23 +1438,23 @@ and translate prog env =
     let locals, globals, fdecls = env in
         match prog with
             [] -> (* everything went well, write the java file and quit *)
-                (let javaOut = open_out ("Cb.java") in
-                (fprintf javaOut "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s" import_decl class_start globalJava methJava run_start mainJava run_end class_end)
-                (close_out javaOut));
+                let javaOut = open_out ("Cb.java") in
+                Printf.fprintf javaOut "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s" import_decl, class_start, globalJava.contents, methJava.contents, run_start, mainJava.contents, run_end, class_end;
+                (close_out javaOut);
                 Bool true, (locals, globals, fdecls)
             | head::tail ->
                 match head with
                     VDecl(head) ->
                         (if NameMap.mem head.varname globals then raise (Failure ("Variable " ^ head.varname ^ " defined more than once"))
-                        else globalJava := globalJava.contents ^ "\n" ^ head.vartype ^ " " ^ head.varname ^ ";\n");
+                        else globalJava := globalJava.contents ^ "\n" ^ (string_of_cbtype head.vartype) ^ " " ^ head.varname ^ ";\n");
                         translate tail (locals, (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals), fdecls)
                     | FullDecl(head) ->
-                        (if NameMap.mem head.varnmane globals then raise (Failure ("Variable " ^ head.varname ^ " defined more than once")));
+                        (if NameMap.mem head.fvname globals then raise (Failure ("Variable " ^ head.fvname ^ " defined more than once")));
                         let v, env, asJava = eval (locals, globals, fdecls) head.fvexpr in
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
-                                        ((globalJava := globalJava.contents ^ "\n" ^ head.vartype ^ " " ^ head.varname ^ " = " ^ asJava ^ ";\n");
+                                        ((globalJava := globalJava.contents ^ "\n" ^ (string_of_cbtype head.fvtype) ^ " " ^ head.fvname ^ " = " ^ asJava ^ ";\n");
                                         match vType with
                                             "int" -> translate tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals), fdecls)
                                             | "note" -> translate tail (locals, (NameMap.add head.fvname (Note (getNote v)) globals), fdecls)
@@ -1466,10 +1467,10 @@ and translate prog env =
                                 else
                                     (raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType)))
                     | MDecl(head) ->
-                        (if NameMap.mem head.fname then raise (Failure ("Method with same name already defined"))
+                        (if (NameMap.mem head.fname fdecls) then raise (Failure ("Method with same name already defined"))
                         else
-                            let locals, globals, javaBody = call head.body locals globals (NameMap.add head.fname head fdecls) head.fname "" in
-                                (methJava := methJava.contents ^ "\npublic " ^ head.rettype ^ " " ^ head.fname ^ "(" ^
+                            let (locals, globals), javaBody = call head.body locals globals (NameMap.add head.fname head fdecls) head.fname "" in
+                                (methJava := methJava.contents ^ "\npublic " ^ (string_of_cbtype head.rettype) ^ " " ^ head.fname ^ "(" ^
                                 (String.concat "," (List.map(fun arg -> (string_of_cbtype arg.paramtype) ^ " " ^ arg.paramname)(List.rev head.formals))) ^
                                 ") {" ^ javaBody ^ "\n}\n");
                                 translate tail (locals, globals, (NameMap.add head.fname head fdecls))
