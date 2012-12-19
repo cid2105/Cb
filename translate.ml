@@ -968,25 +968,17 @@ let rec eval env = function
             let arg2, env, listAsJava = eval env alist in
                 if getType arg1 = "note" then
                     (if getType arg2 = "scale" then
-                        (let tmp_note = arg1 in
-                            let tmp_list = (getNote tmp_note)::((getScale arg2).scale_notelist) in
-                                Scale ({scale_notelist=tmp_list}), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "scale"), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else if getType arg2 = "chord" then (* Returns a new chord with the note appended *)
-                        (let tmp_note = arg1 in
-                            let tmp_list = (getNote tmp_note)::((getChord arg2).notelist) in
-                                Chord ({notelist=(tmp_list); chord_duration=(getChord arg2).chord_duration}), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "chord"), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("A note can only be appended to a chord or scale")))
                 else if getType arg1 = "chord" then
                     (if getType arg2 = "stanza" then
-                        (let tmp_chord = arg1 in
-                            let tmp_list = (getChord tmp_chord)::((getStanza arg2).chordlist) in
-                                Stanza ({chordlist=tmp_list}), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "stanza"), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("A chord can only be appended to a stanza")))
                 else if getType arg1 = "stanza" then
                     (if getType arg2 = "score" then
-                        (let tmp_stanza = arg1 in
-                            let tmp_list = (getStanza tmp_stanza)::((getScore arg2).stanzalist) in
-                                Score ({stanzalist=tmp_list; instrument=(getScore arg2).instrument}), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "score"), env, ("append(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("a stanza can only be appended to a score")))
                 else raise (Failure ("First argument for append must be of type note, chord, or stanza"))
     | MethodCall("concat", [list1; list2]) ->
