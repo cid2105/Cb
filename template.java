@@ -362,8 +362,8 @@ public class Cb {
     }
 
     // assumes it is passed a minor scale
-    public static chord major(scale s, int duration) {
-    	ArrayList<Note> notes = new ArrayList<Note>();
+    public static chord major(scale s, int duration) throws Exception {
+    	ArrayList<note> notes = new ArrayList<note>();
     	if(s.scale_notelist.size() >= 5){
     		notes.add(s.scale_notelist.get(0));
     		notes.add(flat(s.scale_notelist.get(2)));
@@ -371,7 +371,7 @@ public class Cb {
     	}
     	else
     		throw new Exception("To convert a scale into a major chord, you must pass a scale of at least five notes");
-    	if( duration == null)
+    	if(duration == null)
     		duration = s.scale_notelist.get(0).duration;
         return new chord(notes, duration);
     }
@@ -416,7 +416,7 @@ public class Cb {
     }
 
     public static chord chordOfNote(note n) {
-        return new n.toChord();
+        return n.toChord();
     }
 
     public static chord rest(int d) {
@@ -497,7 +497,7 @@ public class Cb {
         return tmp;
     }
 
-    public static scale repeat(note n, int i) {
+    public static scale repeat(note n, int i) throws Exception {
         scale tmp = new scale();
         if (i < 1) {
             throw new Exception("repeat function takes an integer that must be 1 or greater");
@@ -508,7 +508,7 @@ public class Cb {
         return new scale();
     }
 
-    public static stanza repeat(chord c, int i) {
+    public static stanza repeat(chord c, int i) throws Exception {
         stanza tmp = new stanza();
         if (i < 1) {
             throw new Exception("repeat function takes an integer that must be 1 or greater");
