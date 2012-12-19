@@ -417,11 +417,11 @@ public class Cb {
                     ArrayList<note> tnote = chl.get(cl).notelist;
                     for (int nti = 0; nti < tnote.size(); nti++) { //note list
 
-                        duration = (int) (chl.get(cl).chord_duration / 4);  //second number is duration
+                        duration = (int) ((chl.get(cl).chord_duration / 4) );  //second number is duration
                         System.out.println(\"dur:-\" + duration + \"> \\n \" );
                         // octave (-5 to 5); pitch (0 to 11)
-                        nt = (int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127); //this is the pitch representation; middle c = c_4 = 60
-                        velocity = 127;  //velocity can not be changed for now
+                        nt = (4 + tnote.get(nti).octave) * 12 + tnote.get(nti).pitch;//(int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127); //this is the pitch representation; middle c = c_4 = 60
+                        velocity = 120;  //velocity can not be changed for now
 
                         if (tnote.get(nti).pitch < 0) { // a rest is received -- any negative note is rest
 
@@ -769,31 +769,21 @@ let rec eval env = function
                     let dur, env, durAsJava = eval env e in
                         let durType = getType dur in
                             if durType = "int" then
-                                (Chord ({notelist=note_list; chord_duration=
-                                    (getInt dur)}),
-                                    env,
-                                    ("new chord(new ArrayList<note>() {{\n" ^ chordAsJava ^ "}}, " ^ durAsJava ^ ")")
-                                )
+                                (initIdentifier "chord"),env,("new chord(new ArrayList<note>() {{\n" ^ chordAsJava ^ "}}, " ^ durAsJava ^ ")")
                             else raise (Failure ("Duration does not evaluate to an integer"))
     | DurConst(s) -> (print_string ("Evaluating a durConst: " ^ s ^ "\n"));
-        if s = "whole" then Int 64, env, "64"
-            else if s = "half" then Int 32, env, "32"
-            else if s = "quarter" then Int 16, env, "16"
+        if s = "whole" then (initIdentifier "int"), env, "64"
+            else if s = "half" then (initIdentifier "int"), env, "32"
+            else if s = "quarter" then (initIdentifier "int"), env, "16"
             else raise (Failure ("Duration constant unknown"))
     | NoteExpr(s,e,e1) -> (print_string ("Evaluating a NoteExpr\n"));
         let oct, env, octAsJava = eval env e in
             let octType = getType oct in
-
                 if octType = "int" then (let dur, env, durAsJava = eval env e1 in
                                     let durType = getType dur in
                                         if durType = "int" then
-                                        begin
-                                            (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}),
-                                            env,
-                                            (" new note(" ^ (string_of_int (NameMap.find s noteMap)) ^ "," ^ octAsJava ^ "," ^ durAsJava ^ ")"));
-                                        end
+                                            (initIdentifier "note"),env,(" new note(" ^ (string_of_int (NameMap.find s noteMap)) ^ "," ^ octAsJava ^ "," ^ durAsJava ^ ")")
                                         else raise (Failure ("Duration does not evaluate to an integer")))
-
                 else  raise (Failure ("Octave does not evaluate to an integer"))
     | BinOp(e1,o,e2) -> (print_string ("Evaluating a binop\n"));
         let v1, env, v1AsJava = eval env e1 in
@@ -1086,54 +1076,48 @@ let rec eval env = function
                                     "int" ->
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
-                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else if snd lftType = "globals" then
-                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else raise (Failure ("fatal error")))
                                         (* MEMBER METHODS *)
                                         else if lftIdType = "member" then
                                             (* NOTE MEMBER METHODS *)
                                             if fst lftType = "note" then
                                                 if snd lftName = "pitch" then
-                                                    if getInt rht_expr >= 0 && getInt rht_expr <= 127 then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) locals)).pitch <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).pitch <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else raise (Failure ("fatal error"))
-                                                    else raise (Failure ("invalid note pitch: " ^ string_of_int (getInt rht_expr) ^ ". pitch must be between 0-127."))
                                                 else if snd lftName = "duration" then (* min max checking *)
                                                     if snd lftType = "locals" then
-                                                        rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                        (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else if snd lftType = "globals" then
-                                                        rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                        (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else if snd lftName = "octave" then (* min max checking *)
-                                                    if getInt rht_expr >= -5 && getInt rht_expr <= 5 then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) locals)).octave <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).octave <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
-                                                    else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between -5-5."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
                                                 if snd lftName = "chord_duration" then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "score" then
                                                 if snd lftName = "instrument" then
-                                                    if getInt rht_expr >= 0 && getInt rht_expr <= 127 then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getScore (NameMap.find (fst lftName) locals)).instrument <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else if snd lftType = "globals" then
-                                                        rht_expr, (((getScore (NameMap.find (fst lftName) globals)).instrument <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                        (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else raise (Failure ("fatal error"))
-                                                else raise (Failure ("invalid score instrument: " ^ string_of_int (getInt rht_expr) ^ ". instrument must be between 0-127."))
                                             else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
@@ -1149,12 +1133,11 @@ let rec eval env = function
                                             (* NOTE MEMBER METHODS *)
                                             if fst lftType = "scale" then
                                                 let str_len = (length rht_expr_jString - 10) in
-
                                                 if snd lftName = "scale_notelist" then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
+                                                            (initIdentifier (getType rht_expr)), (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
+                                                            (initIdentifier (getType rht_expr)), (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
@@ -1162,9 +1145,9 @@ let rec eval env = function
                                     | _ -> (* bool, note, chord, staff, part *)
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
-                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (NameMap.add (fst lftName) (initIdentifier (getType rht_expr)) locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else if snd lftType = "globals" then
-                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, NameMap.add (fst lftName) (initIdentifier (getType rht_expr)) globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else raise (Failure ("fatal error")))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                             else if lftIdType = "id" then
@@ -1213,14 +1196,14 @@ and exec env fname = function
                         "chord" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                                let (locals, globals), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in
                                     (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".notelist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with chord list"))
                         | "scale" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                                let (locals, globals), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in
                                     (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".scale_notelist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with scale list"))
@@ -1228,13 +1211,13 @@ and exec env fname = function
                        | "stanza" ->
                             (*chords*)
                             if (string_of_cbtype par_decl.paramtype) = "chord" then
-                                let (locals, globals), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "chord") locals) globals fdecls fname "") in                                    
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "chord") locals) globals fdecls fname "") in
                                     (env, "for (chord " ^ par_decl.paramname ^ " : " ^ list_name ^ ".chordlist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with stanza list"))
                         | "score" ->
                              if (string_of_cbtype par_decl.paramtype) = "stanza" then
-                                let (locals, globals), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "stanza") locals) globals fdecls fname "") in                                    
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "stanza") locals) globals fdecls fname "") in
                                     (env, "for (stanza " ^ par_decl.paramname ^ " : " ^ list_name ^ ".stanzalist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with score list"))
@@ -1274,13 +1257,13 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
                                         match vType with
-                                            "int" -> print_string ("\n\n<" ^ head.fvname ^ ">"); call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "note" -> call tail (NameMap.add head.fvname (Note (getNote v)) locals) globals fdecls fdecl_name (jStr ^ ("note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "chord" -> call tail (NameMap.add head.fvname (Chord (getChord v)) locals) globals fdecls fdecl_name (jStr ^ ("chord " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "bool" -> call tail (NameMap.add head.fvname (Bool (getBool v)) locals) globals fdecls fdecl_name (jStr ^ ("bool " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "scale" -> call tail (NameMap.add head.fvname (Scale (getScale v)) locals) globals fdecls fdecl_name (jStr ^ ("scale " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "stanza" -> call tail (NameMap.add head.fvname (Stanza (getStanza v)) locals) globals fdecls fdecl_name (jStr ^ ("stanza " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "score" -> call tail (NameMap.add head.fvname (Score (getScore v)) locals) globals fdecls fdecl_name (jStr ^ ("score " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            "int" -> print_string ("\n\n<" ^ head.fvname ^ ">"); call tail (NameMap.add head.fvname (initIdentifier "int") locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "note" -> call tail (NameMap.add head.fvname (initIdentifier "note") locals) globals fdecls fdecl_name (jStr ^ ("note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "chord" -> call tail (NameMap.add head.fvname (initIdentifier "chord") locals) globals fdecls fdecl_name (jStr ^ ("chord " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "bool" -> call tail (NameMap.add head.fvname (initIdentifier "bool") locals) globals fdecls fdecl_name (jStr ^ ("bool " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "scale" -> call tail (NameMap.add head.fvname (initIdentifier "scale") locals) globals fdecls fdecl_name (jStr ^ ("scale " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "stanza" -> call tail (NameMap.add head.fvname (initIdentifier "stanza") locals) globals fdecls fdecl_name (jStr ^ ("stanza " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "score" -> call tail (NameMap.add head.fvname (initIdentifier "score") locals) globals fdecls fdecl_name (jStr ^ ("score " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | _ -> raise (Failure ("Unknown type: " ^ vType))
                                 else
                                     raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ " <> RHS = " ^ vType))
@@ -1314,13 +1297,13 @@ and translate prog env =
                                     then
                                         ((globalJava := globalJava.contents ^ "\n" ^ (string_of_cbtype head.fvtype) ^ " " ^ head.fvname ^ " = " ^ asJava ^ ";\n");
                                         match vType with
-                                            "int" -> translate tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals), fdecls)
-                                            | "note" -> translate tail (locals, (NameMap.add head.fvname (Note (getNote v)) globals), fdecls)
-                                            | "chord" -> translate tail (locals, (NameMap.add head.fvname (Chord (getChord v)) globals), fdecls)
-                                            | "bool" -> translate tail (locals, (NameMap.add head.fvname (Bool (getBool v)) globals), fdecls)
-                                            | "scale" -> translate tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals), fdecls)
-                                            | "stanza" -> translate tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals), fdecls)
-                                            | "score" -> translate tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals), fdecls)
+                                            "int" -> translate tail (locals, (NameMap.add head.fvname (initIdentifier "int") globals), fdecls)
+                                            | "note" -> translate tail (locals, (NameMap.add head.fvname (initIdentifier "note") globals), fdecls)
+                                            | "chord" -> translate tail (locals, (NameMap.add head.fvname (initIdentifier "chord") globals), fdecls)
+                                            | "bool" -> translate tail (locals, (NameMap.add head.fvname (initIdentifier "bool") globals), fdecls)
+                                            | "scale" -> translate tail (locals, (NameMap.add head.fvname (initIdentifier "scale") globals), fdecls)
+                                            | "stanza" -> translate tail (locals, (NameMap.add head.fvname (initIdentifier "stanza") globals), fdecls)
+                                            | "score" -> translate tail (locals, (NameMap.add head.fvname (initIdentifier "score") globals), fdecls)
                                             | _ -> raise (Failure ("Unknown type: " ^ vType)))
                                 else
                                     (raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType)))

@@ -1,7 +1,8 @@
 meth void harmony(note a)
 
 	a^+;
-
+	a^+;
+	a^+;
 
 end
 
