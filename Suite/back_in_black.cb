@@ -108,7 +108,7 @@ stanza seq6 = [chordOfNote(n62), chordOfNote(n63), chordOfNote(n64), chordOfNote
 
 score m = [seq1, seq2, seq3, seq4, seq5, seq6];
 m.instrument = 0;
-compose(m);
+
 
 note b1 = (E, -3, eighth);
 note b2 = (E, -2, eighth);
@@ -134,4 +134,4 @@ stanza seq8 = [chordOfNote(b9), chordOfNote(b10), chordOfNote(b11), chordOfNote(
 
 score n = [rest(64), rest(64), seq7, seq8, seq7, seq8];
 n.instrument = 0;
-compose(n);
+compose(m, n);
