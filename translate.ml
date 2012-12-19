@@ -992,12 +992,6 @@ let rec eval env = function
                                             ) NameMap.empty fdecl.formals (List.rev actuals)
                         with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
                     in (initIdentifier (string_of_cbtype fdecl.rettype)), (l1, globals, fdecls), (name ^ "(" ^ actualsAsJava ^ ")")
-(*                     begin *)
-(*                         try *)
-(*                             let l, g = (call fdecl.body l1 globals fdecls name) in *)
-                                 (* This gets hit if you never see a return statement *)
-(*                        with ReturnException(v, g, jStr) -> v, (l1, globals, fdecls), ()  *)(* This gets hit if you hit a return statement *)
-(*                    end *)
     | UnaryOp(uo,e) -> (print_string ("Evaluating a unary op\n"));
         let v, env, eAsJava = eval env e in
         let vType = getType v in
@@ -1005,22 +999,16 @@ let rec eval env = function
             (match uo with (* Only accept notes for now *)
                 Raise ->
                     if vType = "note" then
-                        if (getNote v).octave > 4 then raise (Failure ("Octave maximum of 5 already reached, can't raise"))
-                        else Bool false, env, (eAsJava ^ ".inc_oct()")
+                        (initIdentifier "note"), env, (eAsJava ^ ".inc_oct()")
                     else if vType = "chord" then
-                        if (List.fold_left(fun acc elem -> acc && (elem.octave < 5)) true (getChord v).notelist) then
-                            Bool false, env, (eAsJava ^ ".inc_oct()")
-                        else raise (Failure ("Octave maximum of 5 already reached on a note in chord, can't raise"))
+                            (initIdentifier "chord"), env, (eAsJava ^ ".inc_oct()")
                     else
                         raise (Failure ("cannot raise: " ^ vType))
                 | Lower ->
                     if vType = "note" then
-                        if (getNote v).octave < -4 then raise (Failure ("Octave minimum of -5 already reached, can't lower"))
-                        else Bool false, env, (eAsJava ^ ".dec_oct()")
+                        (initIdentifier "note"), env, (eAsJava ^ ".dec_oct()")
                     else if vType = "chord" then
-                        if (List.fold_left(fun acc elem -> acc && (elem.octave > -4)) true (getChord v).notelist) then
-                            Bool false, env, (eAsJava ^ ".dec_oct()")
-                        else raise (Failure ("Octave minimum of -5 already reached on a note in chord, can't lower"))
+                        (initIdentifier "chord"), env, (eAsJava ^ ".dec_oct()")
                     else
                         raise (Failure ("cannot raise: " ^ vType)))
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
@@ -1245,11 +1233,11 @@ and exec env fname = function
                                         let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
                                                         (l, g, fdecls)
                                                 ) (locals, globals, fdecls) llist  *)
-                                        
 
-                                       
+
+
                                         let (l, g), jStr = (call (List.rev sl) locals globals fdecls fname "")
-                                        in                                    
+                                        in
                                             (env, "for (chord " ^ par_decl.paramname ^ " : " ^ list_name ^ " { " ^ jStr ^ " } ")
 
 
@@ -1266,16 +1254,16 @@ and exec env fname = function
                         | "scale" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                            (* 
+                            (*
                                 let llist = (List.rev (getScale list1).scale_notelist) in
                                     List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
                                         let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
                                                         (l, g, fdecls)
                                         ) (locals, globals, fdecls) llist *)
-                                        
+
 
                                         let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "")
-                                        in                                    
+                                        in
                                             (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".scale_notelist " ^ ") { " ^ jStr ^ " } ")
 
 
