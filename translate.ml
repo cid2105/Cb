@@ -170,6 +170,10 @@ let majorChord v dur =
 (*this will need to be passed around*)
 let composeJava = ref ""
 
+let methJava = ref ""
+let globalJava = ref ""
+let mainJava = ref ""
+
 let import_decl =
 "
 import java.io.File;
@@ -778,9 +782,9 @@ let rec eval env = function
     Id(name) ->
         let locals, globals, fdecls = env in
             if NameMap.mem name locals then
-                (NameMap.find name locals), env
+                (NameMap.find name locals), env, name
             else if NameMap.mem name globals then
-                (NameMap.find name globals), env
+                (NameMap.find name globals), env, name
             else raise (Failure ("undeclared identifier: " ^ name))
     | MemberAccess(vname, memname) ->
         let v, env = eval env (Id vname) in
@@ -801,43 +805,57 @@ let rec eval env = function
                 (match memname with
                    "instrument" -> Int (getScore v).instrument
                   | _ -> raise (Failure ("invalid property of score: " ^ memname)))
-              | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env
+              | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env, (vname ^ "." ^ memname ^ " ")
     | IntLiteral(i) ->
-        (Int i, env);
+        Int i, env, (string_of_int i)
     | NoteConst(s) ->
-        Int (NameMap.find s noteMap), env
+        Int (NameMap.find s noteMap), env, (string_of_int (NameMap.find s noteMap))
     | BoolLiteral(b) ->
-        (Bool b, env)
+        Bool b, env, (string_of_bool b)
     | ChordExpr(el, e) ->
         let note_list = List.map (fun (note_elem) ->
-            (let chord_elem, env = eval env note_elem in
+            (let chord_elem, env, asJava = eval env note_elem in
                 let vType = (getType chord_elem) in
                     if ( vType = "note") then (getNote (chord_elem))
                     else raise (Failure ("Chord must be composed of notes "))
             )) el in
-                let dur, env = eval env e in
-                    let durType = getType dur in
-                        if durType = "int" then (Chord ({notelist=note_list; chord_duration=(getInt dur)}), env)
-                        else raise (Failure ("Duration does not evaluate to an integer"))
+                let javaStrList = List.map (fun (note_elem) ->
+                    (let chord_elem, env, asJava = eval env note_elem in
+                        let vType = (getType chord_elem) in
+                            if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                            else raise (Failure ("Chord must be composed of notes "))
+                    )) el in
+                let chordAsJava = String.concat "\n" javaStrList in
+                    let dur, env, durAsJava = eval env e in
+                        let durType = getType dur in
+                            if durType = "int" then
+                                (Chord ({notelist=note_list; chord_duration=
+                                    (getInt dur)}),
+                                    env,
+                                    ("new chord(new ArrayList<note>() {{\n" ^ chordAsJava ^ "}}, " ^ durAsJava ^ ")")
+                                )
+                            else raise (Failure ("Duration does not evaluate to an integer"))
     | DurConst(s) ->
-        if s = "whole" then Int 64, env
-            else if s = "half" then Int 32, env
-            else if s = "quarter" then Int 16, env
+        if s = "whole" then Int 64, env, "64"
+            else if s = "half" then Int 32, env, "32"
+            else if s = "quarter" then Int 16, env, "16"
             else raise (Failure ("Duration constant unknown"))
     | NoteExpr(s,e,e1) ->
-        let oct, env = eval env e in
+        let oct, env, octAsJava = eval env e in
             let octType = getType oct in
-                if octType = "int" then (let dur, env = eval env e1 in
+                if octType = "int" then (let dur, env, durAsJava = eval env e1 in
                                     let durType = getType dur in
                                         if durType = "int" then
                                         begin
-                                            (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}), env);
+                                            (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}),
+                                            env,
+                                            (" new note(" ^ (string_of_int (NameMap.find s noteMap)) ^ "," ^ octAsJava "," ^ durAsJava ^ ")"));
                                         end
                                         else raise (Failure ("Duration does not evaluate to an integer")))
                 else  raise (Failure ("Octave does not evaluate to an integer"))
     | BinOp(e1,o,e2) ->
-        let v1, env = eval env e1 in
-        let v2, env = eval env e2 in
+        let v1, env, v1AsJava = eval env e1 in
+        let v2, env, v2AsJava = eval env e2 in
         let v1Type = getType v1 in
         let v2Type = getType v2 in
         (* Two variables have to be of the same type for binop *)
@@ -904,7 +922,7 @@ let rec eval env = function
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " >= " ^ v2Type))
                 | _ -> raise (Failure ("Unknown binary operation"))
                 (* | IDTimes -> ), env *)
-            ), env
+            ), env, (v1AsJava ^ (string_of_op o) ^ v2AsJava)
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
     | MethodCall("print", [e]) ->
         let arg, env = eval env e in
@@ -1405,12 +1423,16 @@ and translate prog env =
             | head::tail ->
                 match head with
                     VDecl(head) ->
+                        (if NameMap.mem head.varname globals then raise (Failure ("Variable " ^ head.varname ^ " defined more than once"))
+                        else globalJava := globalJava.contents ^ "\n" ^ head.vartype ^ " " ^ head.varname ^ ";\n");
                         translate tail (locals, (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals), fdecls)
                     | FullDecl(head) ->
-                        let v, env = eval (locals, globals, fdecls) head.fvexpr in
+                        (if NameMap.mem head.varnmane globals then raise (Failure ("Variable " ^ head.varname ^ " defined more than once")));
+                        let v, env, asJava = eval (locals, globals, fdecls) head.fvexpr in
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
+                                        (globalJava := globalJava.contents ^ "\n" ^ head.vartype ^ " " ^ head.varname ^ " = " ^ asJava ^ ";\n");
                                         match vType with
                                             "int" -> translate tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals), fdecls)
                                             | "note" -> translate tail (locals, (NameMap.add head.fvname (Note (getNote v)) globals), fdecls)
