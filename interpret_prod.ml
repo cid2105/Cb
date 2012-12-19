@@ -456,7 +456,7 @@ let rec eval env = function
     | MethodCall("compose", e) ->  (* Writes the specified part to a java file to be written into midi *)
         ignore(
             if ( (List.length e) > 16) then
-                raise (Failure ("only up to 16 scores can be composed at once"));   
+                raise (Failure ("only up to 16 scores can be composed at once"));
         );
 
         let score_names = (List.map ( fun e1 ->  match e1 with
@@ -472,19 +472,19 @@ let rec eval env = function
         ignore (
             List.map (fun act ->  (* ids need to be scores *)
                         match (getType act) with
-                            "score" -> act; (* print_string ("score"^ "\n\n"); *)    
+                            "score" -> act; (* print_string ("score"^ "\n\n"); *)
                             | _ -> raise (Failure ("compose takes a score only"));
 
-                        ) (List.rev actuals); 
+                        ) (List.rev actuals);
         );
-        composeJava :=  
+        composeJava :=
             "\tArrayList<score> data = new ArrayList<score>();\n"^
-                 
-            String.concat "\n" (List.map (fun scor -> 
+
+            String.concat "\n" (List.map (fun scor ->
 
                                             "\tdata.add("^ scor ^");"
 
-                                        ) (List.rev score_names);) 
+                                        ) (List.rev score_names);)
 
                 ^ "\n\tthis.compose(data);\n";
         Bool true, env
@@ -683,7 +683,7 @@ and exec env fname = function
                     if (getType v) = (string_of_cbtype fdecl.rettype) then
                         raise (ReturnException(v, globals))
                     else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype)))
-            
+
         | Block(s1) ->
             let (locals, globals, fdecls) = env in
                 let l, g = call s1 locals globals fdecls fname
@@ -793,7 +793,7 @@ and call fdecl_body locals globals fdecls fdecl_name =
                     | Stmt2(head) ->
                         let locals, globals, fdecls = (exec (locals, globals, fdecls) fdecl_name head) in
                             call tail locals globals fdecls fdecl_name
-and run prog env =
+and translate prog env =
     let locals, globals, fdecls = env in
         match prog with
             [] -> (* everything went well, write the java file and quit *)
@@ -801,26 +801,26 @@ and run prog env =
             | head::tail ->
                 match head with
                     VDecl(head) ->
-                        run tail (locals, (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals), fdecls)
+                        translate tail (locals, (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals), fdecls)
                     | FullDecl(head) ->
                         let v, env = eval (locals, globals, fdecls) head.fvexpr in
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
                                         match vType with
-                                            "int" -> run tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals), fdecls)
-                                            | "note" -> run tail (locals, (NameMap.add head.fvname (Note (getNote v)) globals), fdecls)
-                                            | "chord" -> run tail (locals, (NameMap.add head.fvname (Chord (getChord v)) globals), fdecls)
-                                            | "bool" -> run tail (locals, (NameMap.add head.fvname (Bool (getBool v)) globals), fdecls)
-                                            | "scale" -> run tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals), fdecls)
-                                            | "stanza" -> run tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals), fdecls)
-                                            | "score" -> run tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals), fdecls)
+                                            "int" -> translate tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals), fdecls)
+                                            | "note" -> translate tail (locals, (NameMap.add head.fvname (Note (getNote v)) globals), fdecls)
+                                            | "chord" -> translate tail (locals, (NameMap.add head.fvname (Chord (getChord v)) globals), fdecls)
+                                            | "bool" -> translate tail (locals, (NameMap.add head.fvname (Bool (getBool v)) globals), fdecls)
+                                            | "scale" -> translate tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals), fdecls)
+                                            | "stanza" -> translate tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals), fdecls)
+                                            | "score" -> translate tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals), fdecls)
                                             | _ -> raise (Failure ("Unknown type: " ^ vType))
                                 else
                                     raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType))
                     | MDecl(head) ->
-                        run tail (locals, globals, (NameMap.add head.fname head fdecls))
+                        translate tail (locals, globals, (NameMap.add head.fname head fdecls))
                     | Stmt(head) ->
-                        run tail (exec (locals, globals, fdecls) "" head)
+                        translate tail (exec (locals, globals, fdecls) "" head)
 
-let helper prog = run prog (NameMap.empty, NameMap.empty, NameMap.empty)
+let helper prog = translate prog (NameMap.empty, NameMap.empty, NameMap.empty)

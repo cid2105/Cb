@@ -371,12 +371,12 @@ public class Cb {
         }
         else
             throw new Exception("To convert a scale into a major chord, you must pass a scale of at least five notes");
-        
+
         int duration = s.scale_notelist.get(0).duration;
-        
+
         return new chord(notes, duration);
     }
-    
+
     public static chord major(scale s, int duration) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
@@ -386,7 +386,6 @@ public class Cb {
         }
         else
             throw new Exception("To convert a scale into a major chord, you must pass a scale of at least five notes");
-        
         return new chord(notes, duration);
     }
 
@@ -402,7 +401,7 @@ public class Cb {
         int duration = s.scale_notelist.get(0).duration;
         return new chord(notes, duration);
     }
-    
+
     public static chord minor(scale s, int duration) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
@@ -414,7 +413,7 @@ public class Cb {
             throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
         return new chord(notes, duration);
     }
-    
+
 
     public static note sharp(note n) throws Exception {
         note sharped = new note();
