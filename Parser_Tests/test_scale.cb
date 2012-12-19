@@ -9,3 +9,4 @@ note eight = (A, 1, quarter);
 
 scale test = [one, two, three, four, five, six, seven, eight];
 
+test.scale_notelist = [one, two, three];
