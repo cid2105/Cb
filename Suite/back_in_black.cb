@@ -89,14 +89,6 @@ note n61 = (B, 0, sixteenth);
 
 stanza seq5 = [chordOfNote(n53), chordOfNote(n54), chordOfNote(n55), chordOfNote(n56), chordOfNote(n57), chordOfNote(n58), chordOfNote(n59), chordOfNote(n60), chordOfNote(n61)];
 
-<<<<<<< HEAD
-=======
-chord chord_1 = ([(Bb, -1, quarter), (Eb, -1, quarter), (Eb, 1, quarter)], quarter);
-chord rest_1 = rest(whole);
-chord chord_2 = ([(F#, -1, quarter/4), (C#, 0, quarter), (F#, 1, quarter)], quarter/4);
-chord chord_3 = chord_2;
->>>>>>> e2aef5dc3cef15c6f5259faf33170c7272c7d941
-
 note n62 = (D, 1, eighth);
 note n63 = (D, 1, sixteenth);
 note n64 = (C#, 1, sixteenth);
