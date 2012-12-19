@@ -12,6 +12,8 @@ note c = (F, 3, whole);
 inc--;
 chord c1 = ([(Db,4,quarter), (C#, 2, half)], half);
 c^-;
+note mm = (C, 3-1, half*2);
+
 chord c2 = ([a,b,c], half);
 
 stanza p = [c1, c1, c2];
