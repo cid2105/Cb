@@ -816,7 +816,7 @@ let rec eval env = function
                                         begin
                                             (Note ({pitch=(NameMap.find s noteMap); octave=(getInt oct); duration=(getInt dur)}),
                                             env,
-                                            (" new note(" ^ (string_of_int (NameMap.find s noteMap)) ^ "," ^ octAsJava "," ^ durAsJava ^ ")"));
+                                            (" new note(" ^ (string_of_int (NameMap.find s noteMap)) ^ "," ^ octAsJava ^ "," ^ durAsJava ^ ")"));
                                         end
                                         else raise (Failure ("Duration does not evaluate to an integer")))
                 else  raise (Failure ("Octave does not evaluate to an integer"))
@@ -949,23 +949,23 @@ let rec eval env = function
                     (if getType arg2 = "scale" then
                         (let tmp_note = arg1 in
                             let tmp_list = (List.rev ((getNote tmp_note)::(List.rev ((getScale arg2).scale_notelist)))) in
-                                Scale ({scale_notelist=tmp_list}), env, ("prepend(" ^ itemAsJava "," listAsJava ^ ")"))
+                                Scale ({scale_notelist=tmp_list}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
                     else if getType arg2 = "chord" then (* Returns a new chord with the note appended *)
                         (let tmp_note = arg1 in
                             let tmp_list = (List.rev ((getNote tmp_note)::(List.rev ((getChord arg2).notelist)))) in
-                                Chord ({notelist=(tmp_list); chord_duration=(getChord arg2).chord_duration}), env, ("prepend(" ^ itemAsJava "," listAsJava ^ ")"))
+                                Chord ({notelist=(tmp_list); chord_duration=(getChord arg2).chord_duration}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
                     else raise (Failure ("A note can only be prepended to a chord or scale")))
                 else if getType arg1 = "chord" then
                     (if getType arg2 = "stanza" then
                         (let tmp_chord = arg1 in
                             let tmp_list = (List.rev ((getChord tmp_chord)::(List.rev ((getStanza arg2).chordlist)))) in
-                                Stanza ({chordlist=tmp_list}), env, ("prepend(" ^ itemAsJava "," listAsJava ^ ")"))
+                                Stanza ({chordlist=tmp_list}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
                     else raise (Failure ("A chord can only be prepended to a stanza")))
                 else if getType arg1 = "stanza" then
                     (if getType arg2 = "score" then
                         (let tmp_stanza = arg1 in
                             let tmp_list = (List.rev ((getStanza tmp_stanza)::(List.rev ((getScore arg2).stanzalist)))) in
-                                Score ({stanzalist=tmp_list; instrument=(getScore arg2).instrument}), env, ("prepend(" ^ itemAsJava "," listAsJava ^ ")"))
+                                Score ({stanzalist=tmp_list; instrument=(getScore arg2).instrument}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
                     else raise (Failure ("a stanza can only be prepended to a score")))
                 else raise (Failure ("First argument for prepend must be of type note, chord, or stanza"))
     | MethodCall("append", [item; alist]) ->
@@ -1000,13 +1000,13 @@ let rec eval env = function
                 if getType arg1 = getType arg2 then
                     (if getType arg1 = "stanza" then
                         (let tmp_chordlist = ((getStanza arg2).chordlist) @ ((getStanza arg1).chordlist) in
-                            Stanza ({chordlist=tmp_chordlist}), env, ("concat(" ^ arg1AsJava "," ^ arg2AsJava ^ ")"))
+                            Stanza ({chordlist=tmp_chordlist}), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")"))
                     else if getType arg1 = "scale" then
                         (let tmp_notelist = ((getScale arg2).scale_notelist) @ ((getScale arg1).scale_notelist) in
-                            Scale ({scale_notelist=tmp_notelist}), env, ("concat(" ^ arg1AsJava "," ^ arg2AsJava ^ ")"))
+                            Scale ({scale_notelist=tmp_notelist}), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")"))
                     else if getType arg1 = "score" then
                         (let tmp_stanzalist = ((getScore arg2).stanzalist) @ ((getScore arg1).stanzalist) in
-                            Score ({stanzalist=tmp_stanzalist; instrument=(getScore arg1).instrument}), env, ("concat(" ^ arg1AsJava "," ^ arg2AsJava ^ ")"))
+                            Score ({stanzalist=tmp_stanzalist; instrument=(getScore arg1).instrument}), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")"))
                     else raise (Failure ("concat works only on stanzas and scores")))
                 else raise (Failure ("Both arguments to concat must be of the same type"))
     | MethodCall("repeat", [e; n]) -> (*Takes the argument and returns its container type with arg repeated n times*)
@@ -1066,6 +1066,7 @@ let rec eval env = function
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
                                             "\tadd("^ scor ^");"
                                         ) (List.rev score_names);)
+        in scoreListAsJava
 (*         composeJava :=
             "\tArrayList<score> data = new ArrayList<score>();\n"^
 
@@ -1436,9 +1437,9 @@ and translate prog env =
     let locals, globals, fdecls = env in
         match prog with
             [] -> (* everything went well, write the java file and quit *)
-                let javaOut = open_out ("Cb.java")
+                (let javaOut = open_out ("Cb.java") in
                 (fprintf javaOut "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s" import_decl class_start globalJava methJava run_start mainJava run_end class_end)
-                (close_out javaOut)
+                (close_out javaOut));
                 Bool true, (locals, globals, fdecls)
             | head::tail ->
                 match head with
@@ -1452,7 +1453,7 @@ and translate prog env =
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
-                                        (globalJava := globalJava.contents ^ "\n" ^ head.vartype ^ " " ^ head.varname ^ " = " ^ asJava ^ ";\n");
+                                        ((globalJava := globalJava.contents ^ "\n" ^ head.vartype ^ " " ^ head.varname ^ " = " ^ asJava ^ ";\n");
                                         match vType with
                                             "int" -> translate tail (locals, (NameMap.add head.fvname (Int (getInt v)) globals), fdecls)
                                             | "note" -> translate tail (locals, (NameMap.add head.fvname (Note (getNote v)) globals), fdecls)
@@ -1461,9 +1462,9 @@ and translate prog env =
                                             | "scale" -> translate tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals), fdecls)
                                             | "stanza" -> translate tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals), fdecls)
                                             | "score" -> translate tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals), fdecls)
-                                            | _ -> raise (Failure ("Unknown type: " ^ vType))
+                                            | _ -> raise (Failure ("Unknown type: " ^ vType)))
                                 else
-                                    raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType))
+                                    (raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType)))
                     | MDecl(head) ->
                         (if NameMap.mem head.fname then raise (Failure ("Method with same name already defined"))
                         else
