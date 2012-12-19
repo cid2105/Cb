@@ -756,7 +756,7 @@ let rec eval env = function
                 (NameMap.find name globals), env, name
             else raise (Failure ("undeclared identifier: " ^ name))
     | MemberAccess(vname, memname) ->
-        let v, env = eval env (Id vname) in
+        let v, env, asJava = eval env (Id vname) in
             let vType = getType v in
             (match vType with
               | "note" ->
@@ -774,7 +774,7 @@ let rec eval env = function
                 (match memname with
                    "instrument" -> Int (getScore v).instrument
                   | _ -> raise (Failure ("invalid property of score: " ^ memname)))
-              | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env, (vname ^ "." ^ memname ^ " ")
+              | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env, (asJava ^ "." ^ memname ^ " ")
     | IntLiteral(i) ->
         Int i, env, (string_of_int i)
     | NoteConst(s) ->
@@ -1099,12 +1099,12 @@ let rec eval env = function
                                             ) NameMap.empty fdecl.formals (List.rev actuals)
                         with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
                     in
-                    begin
+(*                     begin *)
 (*                         try *)
-                            let l, g = (call fdecl.body l1 globals fdecls name) in
+(*                             let l, g = (call fdecl.body l1 globals fdecls name) in *)
                                 Bool false, (l, g, fdecls), (name ^ "(" ^ actualsAsJava ^ ")") (* This gets hit if you never see a return statement *)
 (*                        with ReturnException(v, g, jStr) -> v, (l1, globals, fdecls), ()  *)(* This gets hit if you hit a return statement *)
-                   end
+(*                    end *)
     | UnaryOp(uo,e) ->
         let v, env, eAsJava = eval env e in
         let vType = getType v in
@@ -1296,15 +1296,15 @@ let rec eval env = function
                             else raise (Failure ("fatal error")) *)
     | NoExpr -> Bool true, env, ""
 and exec env fname = function
-        Expr(e) -> let _, env = (eval env e) in
-            env
+        Expr(e) -> let _, env, asJava = (eval env e) in
+            env, (asJava ^ ";\n")
         | Return(e) ->
-            let v, (locals, globals, fdecls) = (eval env e) in
+            let v, (locals, globals, fdecls), asJava = (eval env e) in
                 let fdecl = NameMap.find fname fdecls in
                     if (getType v) = (string_of_cbtype fdecl.rettype) then
-                        raise (ReturnException(v, globals))
+                        (* raise (ReturnException(v, globals)) *)
+                        (locals, globals, fdecls), ("return " asJava ^ ";\n")
                     else raise (Failure ("function " ^ fdecl.fname ^ " returns: " ^ (getType v) ^ " instead of " ^ (string_of_cbtype fdecl.rettype)))
-
         | Block(s1) ->
             let (locals, globals, fdecls) = env in
                 let l, g = call s1 locals globals fdecls fname
@@ -1446,6 +1446,8 @@ and translate prog env =
                                 else
                                     raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType))
                     | MDecl(head) ->
+                        (* Should check method not already defined *)
+
                         translate tail (locals, globals, (NameMap.add head.fname head fdecls))
                     | Stmt(head) ->
                         translate tail (exec (locals, globals, fdecls) "" head)
