@@ -53,7 +53,7 @@ note n31 = (B, 1, sixteenth);
 note n32 = (C#, 2, sixteenth);
 note n33 = (B, 1, sixteenth);
 note n34 = (B, 1, eighth);
-note n35 = (F, 1, eighth);
+note n35 = (F#, 1, eighth);
 note n36 = (B, 1, eighth);
 
 stanza seq3 = [chordOfNote(n27), chordOfNote(n28), chordOfNote(n29), chordOfNote(n30), chordOfNote(n31), chordOfNote(n32), chordOfNote(n33), chordOfNote(n34), chordOfNote(n35), chordOfNote(n36)];
@@ -77,7 +77,7 @@ stanza seq4 = [chordOfNote(n37), chordOfNote(n38), chordOfNote(n39), chordOfNote
 
 note n51 = (C, 2, sixteenth);
 note n52 = (F#, 2, sixteenth);
-note n53 = (G#, 2, eight);
+note n53 = (G#, 2, eighth);
 note n54 = (D, 2, eighth);
 note n55 = (C#, 2, sixteenth);
 note n56 = (B, 1, sixteenth);
