@@ -26,6 +26,10 @@ class note {
         duration = d;
     }
 
+    public boolean isValid() {
+    	return -1 <= pitch && 11 >= pitch && -5 <= octave && 5 <= octave;
+    }
+
     public String toString()  {
         return "(" + pitch + "," + octave + "," + duration + ")";
     }
@@ -357,16 +361,47 @@ public class Cb {
         System.out.println(s);
     }
 
-    public static chord major(scale s) {
-        return new chord();
+    // assumes it is passed a minor scale
+    public static chord major(scale s, int duration) {
+    	ArrayList<Note> notes = new ArrayList<Note>();
+    	if(s.scale_notelist.size() >= 5){
+    		notes.add(s.scale_notelist.get(0));
+    		notes.add(flat(s.scale_notelist.get(2)));
+    		notes.add(s.scale_notelist.get(4));
+    	}
+    	else
+    		throw new Exception("To convert a scale into a major chord, you must pass a scale of at least five notes");
+    	if( duration == null)
+    		duration = s.scale_notelist.get(0).duration;
+        return new chord(notes, duration);
     }
 
     public static chord minor(scale s) {
-        return new chord();
+    	ArrayList<Note> notes = new ArrayList<Note>();
+    	if(s.scale_notelist.size() >= 5){
+    		notes.add(s.scale_notelist.get(0));
+    		notes.add(flat(s.scale_notelist.get(2)));
+    		notes.add(s.scale_notelist.get(4));
+    	}
+    	else
+    		throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
+    	if( duration == null)
+    		duration = s.scale_notelist.get(0).duration;
+        return new chord(notes, duration);
     }
 
     public static note sharp(note n) {
-        return new note();
+    	Note sharped = new Note();
+
+    	if(n.pitch == 11)
+    		sharped = new Note(0, n.octave+1, n.duration);
+    	else
+    		sharped = new Note(n.pitch + 1, n.octave, n.duration);
+
+    	if(sharped.isValid())
+    		return sharped;
+    	else
+    		throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
     }
 
     public static note flat(note n) {
