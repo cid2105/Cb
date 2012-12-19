@@ -177,8 +177,7 @@ let globalJava = ref ""
 let mainJava = ref ""
 
 let import_decl =
-"
-import java.io.File;
+"import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.sound.midi.InvalidMidiDataException;
@@ -186,8 +185,7 @@ import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
-"
+import javax.sound.midi.Track;"
 
 let class_start =
 "
@@ -355,12 +353,6 @@ class score {
 }
 
 public class Cb {
-    /*
-     * All global variables should be put here once declared
-     * but we still have to check that when you access them they exist
-     * because java won't do that for us
-     */
-
     /**
      * ********************compose helper functions****************************
      * source: http://www.penguinpeepshow.com/CSV2MIDI.php
@@ -725,10 +717,10 @@ public class Cb {
 
 let main_start =
 "
-    public static void main(String[] args) { Cb runner = new Cb(); runner.run(); }
+    public static void main(String[] args) throws Exception { Cb runner = new Cb(); runner.run(); }
 "
 
-let run_start = "public void run() {"
+let run_start = "public void run() throws Exception {"
 
 let block_start = " {
 "
@@ -1068,20 +1060,10 @@ let rec eval env = function
                         ) (List.rev actuals);
         );
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
-                                            "\tadd("^ scor ^");"
+                                            "\n\tadd("^ scor ^");"
 
                                         ) (List.rev score_names);)
-        in Bool true, env, ("compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "}})")
-(*         composeJava :=
-            "\tArrayList<score> data = new ArrayList<score>();\n"^
-
-            String.concat "\n" (List.map (fun scor ->
-
-                                            "\tadd("^ scor ^");"
-
-                                        ) (List.rev score_names);)
-
-                ^ "\n\tthis.compose(data);\n"; *)
+        in Bool true, env, ("\n  compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "\n}})")
 
     | MethodCall(name, el) ->
         let locals, globals, fdecls = env in
@@ -1168,7 +1150,7 @@ let rec eval env = function
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "chord") then ("add(" ^ asJava ^ ");")
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let chordsAsJava = String.concat "\n" javaStrList in
@@ -1184,7 +1166,7 @@ let rec eval env = function
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "stanza") then ("add(" ^ asJava ^ ");")
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let stanzasAsJava = String.concat "\n" javaStrList in
@@ -1390,7 +1372,7 @@ and exec env fname = function
             let boolarg, env, javaString = eval env e in
                 if (getType boolarg) = "bool" then (
                     let locals, globals, fdecls = env in
-                        let (locals, globals), jStr = call sl locals globals fdecls fname "" in
+                        let (locals, globals), jStr = call (List.rev sl) locals globals fdecls fname "" in
                             (locals, globals, fdecls), ("while(" ^ javaString ^ ") {\n" ^ jStr ^ "}\n")
                 )
                 else raise (Failure ("while loop argument must decompose to a boolean value"))
@@ -1411,21 +1393,23 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                 (locals, globals), jStr (*When we are done return the updated globals*)
             | head::tail ->
                 match head with
-                    VDecl2(head) ->
+                    VDecl2(head) -> (print_string ("Working on a vdecl in call\n"));
                         if(fdecl_name = "") then
                             ((if NameMap.mem head.varname globals then raise (Failure ("Variable " ^ head.varname ^ " declared twice")));
                                 (call tail locals (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals) fdecls fdecl_name (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " " ^ head.varname ^ ";\n"))))
                         else
                             ((if NameMap.mem head.varname locals then raise (Failure ("Variable " ^ head.varname ^ " declared twice")));
+                                print_string ("\n\n<" ^ head.varname ^ ">");
                                 call tail (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) locals) globals fdecls fdecl_name
                                 (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " "  ^ head.varname ^ ";\n")))
-                    | FullDecl2(head) ->
+                    | FullDecl2(head) -> (print_string ("Working on a full decl in call\n"));
                         let v, env, rhsJavaString = eval (locals, globals, fdecls) head.fvexpr in
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
+
                                         match vType with
-                                            "int" -> call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            "int" -> print_string ("\n\n<" ^ head.fvname ^ ">"); call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "note" -> call tail (NameMap.add head.fvname (Note (getNote v)) locals) globals fdecls fdecl_name (jStr ^ ("note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "chord" -> call tail (NameMap.add head.fvname (Chord (getChord v)) locals) globals fdecls fdecl_name (jStr ^ ("chord " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "bool" -> call tail (NameMap.add head.fvname (Bool (getBool v)) locals) globals fdecls fdecl_name (jStr ^ ("bool " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
@@ -1435,7 +1419,7 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                                             | _ -> raise (Failure ("Unknown type: " ^ vType))
                                 else
                                     raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ " <> RHS = " ^ vType))
-                    | Stmt2(head) ->
+                    | Stmt2(head) -> (print_string ("Working on a stmt in call\n"));
                         let (locals, globals, fdecls), execJavaString = (exec (locals, globals, fdecls) fdecl_name head) in
                             call tail locals globals fdecls fdecl_name execJavaString
 and translate prog env =
@@ -1452,7 +1436,7 @@ and translate prog env =
                 (print_string run_end);
                 (print_string class_end);
                 let javaOut = open_out ("Cb.java") in
-                Printf.fprintf javaOut "%s" (import_decl ^ class_start ^ globalJava.contents ^ methJava.contents ^ run_start ^ mainJava.contents ^ run_end ^ class_end);
+                Printf.fprintf javaOut "%s" (import_decl ^ class_start ^ globalJava.contents ^ methJava.contents ^ main_start ^ run_start ^ mainJava.contents ^ run_end ^ class_end);
                 (close_out javaOut);
                 Bool true, (locals, globals, fdecls)
             | head::tail ->
@@ -1484,7 +1468,8 @@ and translate prog env =
                     | MDecl(head) ->
                         (if (NameMap.mem head.fname fdecls) then raise (Failure ("Method with same name already defined"))
                         else
-                            let (locals, globals), javaBody = call head.body locals globals (NameMap.add head.fname head fdecls) head.fname "" in
+                            let newlocals = List.fold_left(fun acc arg -> (NameMap.add arg.paramname (initIdentifier (string_of_cbtype arg.paramtype)) acc)) locals head.formals in
+                            let (locals, globals), javaBody = call head.body newlocals globals (NameMap.add head.fname head fdecls) head.fname "" in
                                 (methJava := methJava.contents ^ "\npublic " ^ (string_of_cbtype head.rettype) ^ " " ^ head.fname ^ "(" ^
                                 (String.concat "," (List.map(fun arg -> (string_of_cbtype arg.paramtype) ^ " " ^ arg.paramname)(List.rev head.formals))) ^
                                 ") {" ^ javaBody ^ "\n}\n");

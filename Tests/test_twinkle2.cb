@@ -9,9 +9,3 @@ chord t11 = ([(C, 0, half)], half);
 chord t12 = ([(D, 0, half)], half);
 
 stanza p1 = [t1, t1, t2, t2, t3, t3, t10];
-stanza p2 = [t4, t4, t5, t5, t6, t6, t11]; 
-stanza p3 = [t2, t2, t4, t4, t5, t5, t12]; 
-
-score m = [p1, p2, p3, p3, p1, p2];
-
-compose(m);
