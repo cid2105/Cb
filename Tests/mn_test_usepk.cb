@@ -2,18 +2,32 @@
      return a stanzas with all scales comined.
  ->
 
-method  stanza doremi(int octaves, int duration){
+meth  stanza doremi(int octaves, int duration)
     note do = (C, 0, duration);
     note re = (D, 0, duration);
     note mi = (E, 0, duration);
-    scale s = [do, re, mi, (F,0, duration), (G,0, duration), (A,0, duration), (B,0, duration), (C,1 duration)];
-    stanzas st = [];
+
+    note fa = (F,0, duration); 
+    note so = (G,0, duration); 
+    note la = (A,0, duration); 
+    note ti = (B,0, duration); 
+    note dor = (C,1, duration);
+    scale s = [do, re, mi, fa, so, la, ti, dor ];
+    stanza st;
+    
     int c = 0;
-    while(c < octaves){
-        st.prepend(s);
-        st.prepend((R,0, duration));
-        s^+;
-        c = c +1;
-    }
+    while(c < octaves)
+        st = getsca(s);
+        st = prepend(st, (R,0, duration));
+        c++;
+    end
     return st;
-}
+end
+
+meth stanza getsca(scale s)
+    stanza st;
+    foreach(note n in s)
+        st = prepend(chordOfNote(n), st);
+    end
+    return st;
+end

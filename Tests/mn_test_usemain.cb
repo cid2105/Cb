@@ -1,8 +1,44 @@
-<- include package.pcb->
-use package.pcb
+<- include package.pcb= doremi(oct, dur);->
+
+meth stanza getsca(scale s)
+    stanza st1;
+    foreach(note n in s)
+        st1 = prepend(chordOfNote(n), st1);
+    end
+    return st1;
+end
+
+meth  stanza doremi(int octaves, int duration)
+    note do = (C, 0, duration);
+    note re = (D, 0, duration);
+    note mi = (E, 0, duration);
+
+    note fa = (F,0, duration); 
+    note so = (G,0, duration); 
+    note la = (A,0, duration); 
+    note ti = (B,0, duration); 
+    note dor = (C,1, duration);
+    scale s = [do, re, mi, fa, so, la, ti, dor ];
+
+    
+    
+    int c = 0;
+    stanza st;
+    foreach(note n in s)
+        stanza st2 = getsca(s);
+        print(n);
+        st = prepend(chordOfNote((R,0, duration)), st2);
+        c++;
+        n^+;
+    end
+    return st;
+end
+
+
+
 int dur = 16;
 int oct = 3;
-Stanza drm = doremi(oct, dur);
+stanza drm; 
 score pr = [drm];
 compose(pr);
 
