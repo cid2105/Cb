@@ -1322,7 +1322,7 @@ and exec env fname = function
                 let v, env, evalJavaString = eval env e in
                     if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev s) locals globals fdecls fname "")) ^ "}\n"))
                     else raise (Failure ("If statement must be given boolean expression"))
-        (* | Foreach(par_decl, list_name, sl) ->
+       (*  | Foreach(par_decl, list_name, sl) ->
             let locals, globals, fdecls = env in (* env *)
                 let list1 = (*check for var existence in locals *)
                     if NameMap.mem list_name locals then (*check if list_name is in locals *)
@@ -1337,6 +1337,7 @@ and exec env fname = function
                     match vType with
                         "chord" ->
                             (*notes*)
+
                             if (string_of_cbtype par_decl.paramtype) = "note" then
                                 let llist = (List.rev (getChord list1).notelist) in
                                     List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
