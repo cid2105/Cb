@@ -441,8 +441,8 @@ public class Cb {
                         } else {
                             track[channel].add(createNoteOnEvent(nt, tick, channel, velocity));             //add note to this track
                         }
-                        // tick = tick + duration;  //first number is tick
-                        // track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
+                         tick = tick + duration;  //first number is tick
+                         track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
                     }
                     tick = tick + duration;
                      System.out.println(\"tick:-\" + tick + \"> \\n \" + duration);
@@ -1270,12 +1270,12 @@ and call fdecl_body locals globals fdecls fdecl_name jStr =
                                     then
                                         match vType with
                                             "int" -> (* print_string ("\n\n<" ^ head.fvname ^ ">"); *) call tail (NameMap.add head.fvname (initIdentifier "int") locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "note" -> call tail (NameMap.add head.fvname (initIdentifier "note") locals) globals fdecls fdecl_name (jStr ^ ("note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "chord" -> call tail (NameMap.add head.fvname (initIdentifier "chord") locals) globals fdecls fdecl_name (jStr ^ ("chord " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "bool" -> call tail (NameMap.add head.fvname (initIdentifier "bool") locals) globals fdecls fdecl_name (jStr ^ ("boolean " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "scale" -> call tail (NameMap.add head.fvname (initIdentifier "scale") locals) globals fdecls fdecl_name (jStr ^ ("scale " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "stanza" -> call tail (NameMap.add head.fvname (initIdentifier "stanza") locals) globals fdecls fdecl_name (jStr ^ ("stanza " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "score" -> call tail (NameMap.add head.fvname (initIdentifier "score") locals) globals fdecls fdecl_name (jStr ^ ("score " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "note" -> call tail (NameMap.add head.fvname (initIdentifier "note") locals) globals fdecls fdecl_name (jStr ^ ("final note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "chord" -> call tail (NameMap.add head.fvname (initIdentifier "chord") locals) globals fdecls fdecl_name (jStr ^ ("final chord " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "bool" -> call tail (NameMap.add head.fvname (initIdentifier "bool") locals) globals fdecls fdecl_name (jStr ^ ("final boolean " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "scale" -> call tail (NameMap.add head.fvname (initIdentifier "scale") locals) globals fdecls fdecl_name (jStr ^ ("final scale " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "stanza" -> call tail (NameMap.add head.fvname (initIdentifier "stanza") locals) globals fdecls fdecl_name (jStr ^ ("final stanza " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "score" -> call tail (NameMap.add head.fvname (initIdentifier "score") locals) globals fdecls fdecl_name (jStr ^ ("final score " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | _ -> raise (Failure ("Unknown type: " ^ vType))
                                 else
                                     raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ " <> RHS = " ^ vType))
