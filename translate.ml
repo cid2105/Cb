@@ -162,6 +162,7 @@ class note {
         this.octave--;
     }
 
+    
     public boolean isValid() {
         return -1 <= pitch && 11 >= pitch && -5 <= octave && 5 <= octave;
     }
@@ -415,6 +416,10 @@ public class Cb {
                 for (int cl = 0; cl < chl.size(); cl++) { //chord list
 
                     ArrayList<note> tnote = chl.get(cl).notelist;
+                    
+                    for(note noted: tnote)
+                        System.out.println(noted);
+
                     for (int nti = 0; nti < tnote.size(); nti++) { //note list
 
                         duration = (int) ((chl.get(cl).chord_duration / 4) );  //second number is duration

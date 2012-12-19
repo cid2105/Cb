@@ -1,129 +1,168 @@
-C_chord = ([C, E, G], whole);
-Cm_chord= ([C, Eb, G], whole);
-C7_chord =([C, E, G, Bb], whole);
-CM7_chord =([C, E, G, B], whole);
-Cm7_chord =([C, Eb G Bb], whole);
-Csus_chord =([C, F, G], whole);
-Csus7_chord =([C, F, G, Bb], whole);
-C6_chord =([C, E, G, A], whole);
-C2_chord =([C, D, E, G], whole);
-
-C#_chord =([C#, E#, G#], whole);
-C#m_chord =([C#, E, G#], whole);
-C#7_chord =([C#, E#, G#, B], whole);
-C#M7_chord =([C,# E#, G#, B#], whole);
-C#m7_chord =([C#, E, G#, B], whole);
-C#sus_chord =([C, #F, #G#], whole);
-C#sus7_chord =([C#, F#, G#, B], whole);
-C#6_chord =([C#, E#, G#, A#], whole);
-C#2_chord =([C#, D#, E#, G#], whole);
-
-Db_chord = ([Db F Ab], whole);
-Dbm_chord = ([Db Fb Ab], whole);
-Db7_chord = ([Db F Ab Cb], whole);
-DbM7_chord = ([Db F Ab C], whole);
-Dbm7_chord = ([Db Fb Ab Cb], whole);
-Dbsus_chord = ([Db Gb Ab], whole);
-Dbsus7_chord = ([Db Gb Ab Cb], whole);
-Db6_chord = ([Db F Ab Bb], whole);
-Db2_chord = ([Db Eb F Ab], whole);
-
-D_chord = ([D, F#, A], whole);
-Dm_chord = ([D, F, A], whole);
-D7_chord  = ([D, F#, A, C], whole);
-DM7_chord = ([D, F#, A, C#], whole);
-Dm7_chord = ([D, F, A, C], whole);
-Dsus_chord = ([D, G, A], whole);
-Dsus7_chord = ([D, G, A, C], whole);
-D6_chord = ([D, F#, A, B ], whole);
-D2_chord = ([D, E, F#, A], whole);
-
-Eb_chord=([E,b G Bb], whole);
-Ebm_chord=([E,b Gb Bb], whole);
-Eb7_chord =([E,b G Bb Db], whole);
-EbM7_chord =([E,b G Bb D], whole);
-Ebm7_chord =([E,b Gb Bb Db], whole);
-Ebsus_chord =([E,b Ab Bb], whole);
-Ebsus7_chord =([E,b Ab Bb Db], whole);
-Eb6_chord =([E,b G Bb C], whole);
-Eb2_chord =([E,b F G Bb], whole);
-
-E_chord =([E, G# B], whole);
-Em_chord =([E, G B], whole);
-E7_chord =([E, G# B D], whole);
-EM7_chord =([E, G# B D#], whole);
-Em7_chord =([E, G B D], whole);
-Esus_chord =([E, A B], whole);
-Esus7_chord =([E, A B D], whole);
-E6_chord =([E, G# B C#], whole);
-E2_chord =([E, F# G# B], whole);
-
-F_chord =([F, A C], whole);
-Fm_chord =([F, Ab C], whole);
-F7_chord =([F, A C Eb], whole);
-FM7_chord =([F, A C E ], whole);
-Fm7_chord =([F, Ab C Eb], whole);
-Fsus_chord =([F, Bb C], whole);
-Fsus7_chord =([F, Bb C Eb], whole);
-F6_chord =([F, A C D], whole);
-F2_chord =([F, G A C], whole);
-
-];F#_chord =([F,# A# C#], whole);
-F#m_chord =([F,# A C#], whole);
-F#7_chord =([F,# A# C# E], whole);
-F#M7_chord =([F,# A# C# E#], whole);
-F#m7_chord =([F,# A C# E], whole);
-F#sus_chord =([F,# B C#], whole);
-F#sus7_chord =([F,# B C# E], whole);
-F#6_chord =([F,# A# C# D#], whole);
-F#2_chord =([F,# G# A# C#], whole);
-
-G_chord =([G, B D], whole);
-Gm_chord =([G, Bb D], whole);
-G7_chord =([G, B D F], whole);
-GM7_chord =([G, B D F#], whole);
-Gm7_chord =([G, Bb D F], whole);
-Gsus_chord =([G, C D], whole);
-Gsus7_chord =([G, C D F], whole);
-G6_chord =([G, B D E], whole);
-G2_chord =([G, A B D], whole);
-
-Ab_chord =([A,b C Eb], whole);
-Abm_chord =([A,b Cb Eb], whole);
-Ab7_chord =([A,b C Eb Gb], whole);
-AbM7_chord =([A,b C Eb G], whole);
-Abm7_chord =([A,b Cb Eb Gb], whole);
-Absus_chord =([A,b Db Eb], whole);
-Absus7_chord =([A,b Db Eb Gb], whole);
-Ab6_chord =([A,b C Eb F], whole);
-Ab2_chord =([A,b Bb C Eb], whole);
-
-A_chord =([A, C# E ], whole);
-Am_chord =([A, C E ], whole);
-A7_chord =([A, C# E G ], whole);
-AM7_chord =([A, C# E G#], whole);
-Am7_chord =([A, C E G ], whole);
-Asus_chord =([A, D E ], whole);
-Asus7_chord =([A, D E G ], whole);
-A6_chord =([A, C# E F# ], whole);
-A2_chord =([A, B C# E ], whole);
+note c = (C, 0, whole);
+note c_sharp = (C#, 0, whole);
+note d = (D, 0, whole);
+note d_flat = (Db, 0, whole);
+note d_sharp = (D#, 0, whole);
+note e = (E, 0, whole);
+note e_flat = (Eb, 0, whole);
+note e_sharp = (E#, 0, whole);
+note f_flat = (E, 0, whole);
+note f = (F, 0, whole);
+note f_sharp = (F#, 0, whole);
+note g_flat = (Gb, 0, whole);
+note g = (G, 0, whole);
+note g_sharp = (G#, 0, whole);
+note a_flat = (Ab, 0, whole);
+note a = (A, 0, whole);
+note a_sharp =  (A#, 0, whole);
+note b_flat = (A#, 0, whole);
+note b = (B, 0, whole);
+note b_sharp = (C, 0, whole);
+note c_flat = (Cb, 0, whole);
 
 
-Bb_chord =([B,b D F], whole);
-Bbm_chord =([B,b Db F], whole);
-Bb7 =([B,b D F Ab], whole);
-BbM7 =([B,b D F A], whole);
-Bbm7 =([B,b Db F Ab], whole);
-Bbsus =([B,b Eb F], whole);
-Bbsus7 =([B,b Eb F Ab], whole);
-Bb6 =([B,b D F G], whole);
-Bb2 =([B,b C D F	Key: B], whole);
-B =([B, D# F#], whole);
-Bm =([B, D F#], whole);
-B7 =([B, D# F# A], whole);
-BM7 =([B, D# F# A#], whole);
-Bm7 =([B, D F# A], whole);
-Bsus =([B, E F#], whole);
-Bsus7 =([B, E F# A], whole);
-B6 =([B, D# F# G#], whole);
-B2 =([B, C# D# F#], whole);
+chord c_chord = ([c, e, g], whole);
+chord cm_chord= ([c, e_flat, g], whole);
+chord c7_chord =([c, e, g, b_flat], whole);
+chord cM7_chord =([c, e, g, b], whole);
+chord cm7_chord =([c, e_flat, g, b_flat], whole);
+
+chord csus_chord =([c, f, g], whole);
+chord csus7_chord =([c, f, g, b_flat], whole);
+chord c6_chord =([c, e, g, a], whole);
+chord c2_chord =([c, d, e, g], whole); 
+
+
+
+chord c_sharp_chord =([c_sharp, e_sharp, g_sharp], whole);
+chord c_sharpm_chord =([c_sharp, e, g_sharp], whole);
+chord c_sharp7_chord =([c_sharp, e_sharp, g_sharp, b], whole);
+chord c_sharpM7_chord =([c_sharp, e_sharp, g_sharp, b_sharp], whole);
+chord c_sharpm7_chord =([c_sharp, e, g_sharp, b], whole);
+chord c_sharp_sus_chord =([c_sharp, f_sharp, g_sharp], whole);
+chord c_sharp_sus7_chord =([c_sharp, f_sharp, g_sharp, b], whole);
+chord c_sharp6_chord =([c_sharp, e_sharp, g_sharp, a_sharp], whole);
+chord c_sharp2_chord =([c_sharp, d_sharp, e_sharp, g_sharp], whole); 
+
+
+chord d_flat_chord = ([d_flat, f, a_flat], whole);
+chord d_flatm_chord = ([d_flat, f_flat, a_flat], whole);
+chord d_flat7_chord = ([d_flat, f, a_flat, c_flat], whole);
+chord d_flatM7_chord = ([d_flat, f, a_flat, c], whole);
+chord d_flatm7_chord = ([d_flat, f_flat, a_flat, c_flat], whole);
+chord d_flatsus_chord = ([d_flat, g_flat, a_flat], whole);
+chord d_flatsus7_chord = ([d_flat, g_flat, a_flat, c_flat], whole);
+chord d_flat6_chord = ([d_flat, f, a_flat, b_flat], whole);
+chord d_flat2_chord = ([d_flat, e_flat, f, a_flat], whole); 
+
+chord d_chord = ([d, f_sharp, a], whole);
+chord dm_chord = ([d, f, a], whole);
+chord d7_chord  = ([d, f_sharp, a, c], whole);
+chord dM7_chord = ([d, f_sharp, a, c_sharp], whole);
+chord dm7_chord = ([d, f, a, c], whole);
+chord dsus_chord = ([d, g, a], whole);
+chord dsus7_chord = ([d, g, a, c], whole);
+chord d6_chord = ([d, f_sharp, a, b ], whole);
+chord d2_chord = ([d, e, f_sharp, a], whole); 
+
+
+chord e_flat_chord=([e_flat, g, b_flat], whole);
+chord e_flatm_chord=([e_flat, g_flat, b_flat], whole);
+chord e_flat7_chord =([e_flat, g, b_flat, d_flat], whole);
+chord e_flatM7_chord =([e_flat, g, b_flat, d], whole);
+chord e_flatm7_chord =([e_flat, g_flat, b_flat, d_flat], whole);
+chord e_flatsus_chord =([e_flat, a_flat, b_flat], whole);
+chord e_flatsus7_chord =([e_flat, a_flat, b_flat, d_flat], whole);
+chord e_flat6_chord =([e_flat, g, b_flat, c], whole);
+chord e_flat2_chord =([e_flat, f, g, b_flat], whole); 
+
+
+chord e_chord =([e, g_sharp, b], whole);
+chord em_chord =([e, g, b], whole);
+chord e7_chord =([e, g_sharp, b, d], whole);
+chord eM7_chord =([e, g_sharp, b, d_sharp], whole);
+chord em7_chord =([e, g, b, d], whole);
+chord esus_chord =([e, a, b], whole);
+chord esus7_chord =([e, a, b, d], whole);
+chord e6_chord =([e, g_sharp, b, c_sharp], whole);
+chord e2_chord =([e, f_sharp, g_sharp, b], whole); 
+
+
+chord f_chord =([f, a, c], whole);
+chord fm_chord =([f, a_flat, c], whole);
+chord f7_chord =([f, a, c, e_flat], whole);
+chord fM7_chord =([f, a, c, e ], whole);
+chord fm7_chord =([f, a_flat, c, e_flat], whole);
+chord fsus_chord =([f, b_flat, c], whole);
+chord fsus7_chord =([f, b_flat, c, e_flat], whole);
+chord f6_chord =([f, a, c, d], whole);
+chord f2_chord =([f, g, a, c], whole); 
+
+
+chord f_sharp_chord =([f_sharp, a_sharp, c_sharp], whole);
+chord f_sharpm_chord =([f_sharp, a, c_sharp], whole);
+chord f_sharp7_chord =([f_sharp, a_sharp, c_sharp, e], whole);
+chord f_sharpM7_chord =([f_sharp, a_sharp, c_sharp, e_sharp], whole);
+chord f_sharpm7_chord =([f_sharp, a, c_sharp, e], whole);
+chord f_sharp_sus_chord =([f_sharp, b, c_sharp], whole);
+chord f_sharp_sus7_chord =([f_sharp, b, c_sharp, e], whole);
+chord f_sharp6_chord =([f_sharp, a_sharp, c_sharp, d_sharp], whole);
+chord f_sharp2_chord =([f_sharp, g_sharp, a_sharp, c_sharp], whole); 
+
+
+chord g_chord =([g, b, d], whole);
+chord gm_chord =([g, b_flat, d], whole);
+chord g7_chord =([g, b, d, f], whole);
+chord gM7_chord =([g, b, d, f_sharp], whole);
+chord gm7_chord =([g, b_flat, d, f], whole);
+chord gsus_chord =([g, c, d], whole);
+chord gsus7_chord =([g, c, d, f], whole);
+chord g6_chord =([g, b, d, e], whole);
+chord g2_chord =([g, a, b, d], whole); 
+
+
+chord a_flat_chord =([a, b, c, e_flat], whole);
+chord a_flatm_chord =([a, b, c_flat, e_flat], whole);
+chord a_flat7_chord =([a, b, c, e_flat, g_flat], whole);
+chord a_flatM7_chord =([a, b, c, e_flat, g], whole);
+chord a_flatm7_chord =([a, b, c_flat, e_flat, g_flat], whole);
+chord a_flatsus_chord =([a, b, d_flat, e_flat], whole);
+chord a_flatsus7_chord =([a, b, d_flat, e_flat, g_flat], whole);
+chord a_flat6_chord =([a, b, c, e_flat, f], whole);
+chord a_flat2_chord =([a, b, b_flat, c, e_flat], whole); 
+
+
+chord a_chord =([a, c_sharp, e ], whole);
+chord am_chord =([a, c, e ], whole);
+chord a7_chord =([a, c_sharp, e, g ], whole);
+chord aM7_chord =([a, c_sharp, e, g_sharp], whole);
+chord am7_chord =([a, c, e, g ], whole);
+chord asus_chord =([a, d, e], whole);
+chord asus7_chord =([a, d, e, g], whole);
+chord a6_chord =([a, c_sharp, e, f_sharp ], whole);
+chord a2_chord =([a, b, c_sharp, e ], whole); 
+
+
+chord b_flat_chord =([b_flat, d, f], whole);
+chord b_flatm_chord =([b_flat, d_flat, f], whole);
+chord b_flat7 =([b_flat, d, f, a_flat], whole);
+chord b_flatM7 =([b_flat, d, f, a], whole);
+chord b_flatm7 =([b_flat, d_flat, f, a_flat], whole);
+chord b_flatsus =([b_flat, e_flat, f], whole);
+chord b_flatsus7 =([b_flat, e_flat, f, a_flat], whole);
+chord b_flat6 =([b_flat, d, f, g], whole);
+chord b_flat2 =([b_flat, c, d, f], whole);
+
+
+chord b_chord =([b, d_sharp, f_sharp], whole);
+chord bm_chord =([b, d, f_sharp], whole);
+chord b7_chord =([b, d_sharp, f_sharp, a], whole);
+chord bM7_chord =([b, d_sharp, f_sharp, a_sharp], whole);
+chord bm7_chord =([b, d, f_sharp, a], whole);
+chord bsus_chord =([b, e, f_sharp], whole);
+chord bsus7_chord =([b, e, f_sharp, a], whole);
+chord b6_chord =([b, d_sharp, f_sharp, g_sharp], whole);
+chord b2_chord =([b, c_sharp, d_sharp, f_sharp], whole);
+
+
+

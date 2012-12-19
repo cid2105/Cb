@@ -1,0 +1,12 @@
+use lib/stdlib;
+
+
+chord asdf = ([c, e, g], whole);
+
+stanza p1 = [asdf];
+
+score m = [p1];
+
+m.instrument = 30;
+
+compose(m);
