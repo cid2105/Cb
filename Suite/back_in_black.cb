@@ -1,10 +1,15 @@
-use lib/stdlib;
 
 
-chord asdf = ([c, e, g], whole);
+int triplet = quarter / 3; 
+int eighth = quarter / 2;
 
-stanza p1 = [asdf];
+chord chord_1 = ([(Bb, -1, quarter), (Eb, -1, quarter), (Eb, 1, quarter)], quarter);
+chord rest_1 = rest(eighth);
+chord chord_2 = ([(F#, -1, quarter/4), (C#, 0, quarter), (F#, 1, quarter)], quarter/4);
+chord chord_3 = chord_2;
 
+
+stanza p1 = [chord_1, rest_1, chord_2, chord_3];
 score m = [p1];
 
 m.instrument = 30;
