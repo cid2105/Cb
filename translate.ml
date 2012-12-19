@@ -763,12 +763,12 @@ let rec eval env = function
     | BoolLiteral(b) -> (* (print_string ("Evaluating a bool literal: " ^ (string_of_bool b) ^ "\n")); *)
         (initIdentifier "bool"), env, (string_of_bool b)
     | ChordExpr(el, e) -> (* (print_string ("Evaluating a chordexpr\n")); *)
-        let note_list = List.map (fun (note_elem) ->
+(*         let note_list = List.map (fun (note_elem) ->
             (let chord_elem, env, asJava = eval env note_elem in
                 let vType = (getType chord_elem) in
                     if ( vType = "note") then (getNote (chord_elem))
                     else raise (Failure ("Chord must be composed of notes "))
-            )) el in
+            )) el in *)
                 let javaStrList = List.map (fun (note_elem) ->
                     (let chord_elem, env, asJava = eval env note_elem in
                         let vType = (getType chord_elem) in
@@ -856,7 +856,7 @@ let rec eval env = function
                     if v1Type = "int" then
                         (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " >= " ^ v2Type))
-                | _ -> raise (Failure ("Unknown binary operation"))
+             (*    | _ -> raise (Failure ("Unknown binary operation")) *)
             ), env, (v1AsJava ^ (string_of_op o) ^ v2AsJava)
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
     | MethodCall("print", [e]) ->
@@ -1183,13 +1183,18 @@ and exec env fname = function
         | If(e, ibl, s) -> (* (print_string ("If stmt with else in exec\n")); *)
             let (locals, globals, fdecls) = env in
                 let v, env, evalJavaString = eval env e in
-                    if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev ibl) locals globals fdecls fname "")) ^ "}\n else {\n" ^ (snd ((exec env fname) s)) ^ "}\n"))
-                    else raise (Failure ("If statement must be given boolean expression"))
-        | If(e, s, Block([])) -> (* (print_string ("If stmt without else in exec\n")); *)
+                    if (snd ((exec env fname) s)) = "" then
+                        if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev ibl) locals globals fdecls fname "")) ^ "}\n"))
+                        else raise (Failure ("If statement must be given boolean expression"))
+                    else 
+                        if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev ibl) locals globals fdecls fname "")) ^ "}\n else {\n" ^ (snd ((exec env fname) s)) ^ "}\n"))
+                    
+                        else raise (Failure ("If statement must be given boolean expression"))
+       (*  | If(e, s, Block([])) -> (* (print_string ("If stmt without else in exec\n")); *)
             let (locals, globals, fdecls) = env in
                 let v, env, evalJavaString = eval env e in
                     if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev s) locals globals fdecls fname "")) ^ "}\n"))
-                    else raise (Failure ("If statement must be given boolean expression"))
+                    else raise (Failure ("If statement must be given boolean expression")) *)
        | Foreach(par_decl, list_name, sl) ->
             let locals, globals, fdecls = env in (* env *)
                 let list1 = (*check for var existence in locals *)
@@ -1242,7 +1247,7 @@ and exec env fname = function
                             (locals, globals, fdecls), ("while(" ^ javaString ^ ") {\n" ^ jStr ^ "}\n")
                 )
                 else raise (Failure ("while loop argument must decompose to a boolean value"))
-        | _ -> raise (Failure ("Unable to match the statment"))
+       (*  | _ -> raise (Failure ("Unable to match the statment")) *)
 (* Execute the body of a method and return an updated global map *)
 and call fdecl_body locals globals fdecls fdecl_name jStr =
        (*  (print_string ("Call jStr = " ^ jStr ^ "\n")); *)

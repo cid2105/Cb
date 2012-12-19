@@ -1,0 +1,54 @@
+<- 
+ - plays doremifasolati n times
+ - with increasing pitch
+->
+
+meth stanza getsca(scale s)
+    stanza st1;
+    foreach(note n in s)
+        n^+;
+        st1 = append(chordOfNote(n), st1);
+    end
+    return st1;
+end
+
+meth  stanza doremi(int octaves, int duration)
+    note dos = (C, -2, duration);
+    note re = (D, -2, duration);
+    note mi = (E, -2, duration);
+
+    note fa = (F,-2, duration); 
+    note so = (G,-2, duration); 
+    note la = (A,-2, duration); 
+    note ti = (B,-2, duration); 
+    note dor = (C,-1, duration);
+    scale s = [dos, re, mi, fa, so, la, ti, dor ];
+
+    
+    
+    int c = 0;
+    stanza st;
+    while(c < octaves)
+    	stanza st2 = getsca(s);
+    	foreach(note n in s)
+        	st = append(chordOfNote(n), st);
+        	print(c);
+        	
+        	
+   		end
+   		st = append(chordOfNote((R,0, duration)), st);
+   		c++;
+        	<- n^+; ->
+    end
+    return st;
+end
+
+
+
+int dur = 16;
+int oct = 3;
+stanza drm = doremi(3,half); 
+score pr = [drm];
+pr.instrument = 60;
+compose(pr);
+
