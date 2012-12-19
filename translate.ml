@@ -747,6 +747,7 @@ let rec eval env = function
                 (NameMap.find name globals), env, name
             else raise (Failure ("undeclared identifier: " ^ name))
     | MemberAccess(vname, memname) ->
+
         let v, env, asJava = eval env (Id vname) in
             let vType = getType v in
             (match vType with
@@ -803,6 +804,7 @@ let rec eval env = function
     | NoteExpr(s,e,e1) ->
         let oct, env, octAsJava = eval env e in
             let octType = getType oct in
+
                 if octType = "int" then (let dur, env, durAsJava = eval env e1 in
                                     let durType = getType dur in
                                         if durType = "int" then
@@ -812,6 +814,7 @@ let rec eval env = function
                                             (" new note(" ^ (string_of_int (NameMap.find s noteMap)) ^ "," ^ octAsJava ^ "," ^ durAsJava ^ ")"));
                                         end
                                         else raise (Failure ("Duration does not evaluate to an integer")))
+
                 else  raise (Failure ("Octave does not evaluate to an integer"))
     | BinOp(e1,o,e2) ->
         let v1, env, v1AsJava = eval env e1 in
@@ -1058,6 +1061,7 @@ let rec eval env = function
         );
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
                                             "\tadd("^ scor ^");"
+
                                         ) (List.rev score_names);)
         in Bool true, env, ("compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "}})")
 (*         composeJava :=
@@ -1464,7 +1468,9 @@ and translate prog env =
                                             | "scale" -> translate tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals), fdecls)
                                             | "stanza" -> translate tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals), fdecls)
                                             | "score" -> translate tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals), fdecls)
+
                                             | _ -> raise (Failure ("Unknown type: " ^ vType)))
+
                                 else
                                     (raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType)))
                     | MDecl(head) ->
