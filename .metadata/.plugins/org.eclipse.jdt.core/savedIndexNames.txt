@@ -1,1 +1,0 @@
-INDEX VERSION 1.126+/Users/colediamond/Documents/7th_sem/plt/Cb/.metadata/.plugins/org.eclipse.jdt.core
