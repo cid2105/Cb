@@ -91,59 +91,6 @@ let initIdentifier t =
     | "score" -> Score({stanzalist=[]; instrument=0})
     | _ -> Bool(false)
 
-let setOctave v a = ((getNote v).octave <- a); v
-let setPitch v a = ((getNote v).pitch <- a); v
-let setDuration v a = ((getNote v).duration <- a); v
-let setPitch v a = ((getNote v).pitch <- a); v
-
-let incrementNote v =
-    let note_pitch = (getNote v).pitch in
-    let note_octave = (getNote v).octave in
-    let note_duration = (getNote v).duration in
-        if note_pitch < 11 then
-            Note({pitch=note_pitch+1; octave=note_octave; duration=note_duration})
-        else
-            if note_octave < 5 then
-                Note({pitch=0; octave=note_octave+1; duration=note_duration})
-            else
-                raise (Failure ("Cannot increment note: already at highest pitch" ))
-
-let decrementNote v =
-    let note_pitch = (getNote v).pitch in
-    let note_octave = (getNote v).octave in
-    let note_duration = (getNote v).duration in
-        if note_pitch > 0 then
-            Note({pitch=note_pitch - 1; octave=note_octave; duration=note_duration})
-        else
-            if note_octave > -5 then
-                Note({pitch=11; octave=note_octave-1; duration=note_duration})
-            else
-                raise (Failure ("Cannot decrement note: already at highest pitch" ))
-
-let minorChord v dur =
-    let scale_notes = (getScale v).scale_notelist in
-        if List.length scale_notes = 8 then
-            let first_note = Note (List.nth scale_notes 0) in
-            let third_note = Note (List.nth scale_notes 2) in
-            let fifth_note = Note (List.nth scale_notes 4) in
-            let eight_note = Note (List.nth scale_notes 7) in
-                let chord_notes =(List.map (fun e -> getNote e) [first_note;  (decrementNote (third_note)); fifth_note; eight_note]) in
-                    Chord ({notelist=chord_notes; chord_duration = (getInt dur) })
-        else
-            raise (Failure ("Can only apply the minor function to scales of 8 notes" ))
-
-let majorChord v dur =
-    let scale_notes = (getScale v).scale_notelist in
-        if List.length scale_notes = 8 then
-            let first_note = Note (List.nth scale_notes 0) in
-            let third_note = Note (List.nth scale_notes 2) in
-            let fifth_note = Note (List.nth scale_notes 4) in
-            let eight_note = Note (List.nth scale_notes 7) in
-                let chord_notes =(List.map (fun e -> getNote e) [first_note;  (incrementNote (third_note)); fifth_note; eight_note]) in
-                    Chord ({notelist=chord_notes; chord_duration= (getInt dur) })
-        else
-            raise (Failure ("Can only apply the minor function to scales of 8 notes" ))
-
  let noteMap =
      NameMap.add "R" (-1) NameMap.empty
     let noteMap = NameMap.add "C" 0 noteMap
@@ -767,11 +714,11 @@ let rec eval env = function
                   | _ -> raise (Failure ("invalid property of score: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env, (asJava ^ "." ^ memname ^ " ")
     | IntLiteral(i) -> (print_string ("Evaluating an intlit: " ^ (string_of_int i) ^ "\n"));
-        Int i, env, (string_of_int i)
+        (initIdentifier "int"), env, (string_of_int i)
     | NoteConst(s) -> (print_string ("Evaluating a noteConst: " ^ s ^ "\n"));
-        Int (NameMap.find s noteMap), env, (string_of_int (NameMap.find s noteMap))
+        (initIdentifier "int"), env, (string_of_int (NameMap.find s noteMap))
     | BoolLiteral(b) -> (print_string ("Evaluating a bool literal: " ^ (string_of_bool b) ^ "\n"));
-        Bool b, env, (string_of_bool b)
+        (initIdentifier "bool"), env, (string_of_bool b)
     | ChordExpr(el, e) -> (print_string ("Evaluating a chordexpr\n"));
         let note_list = List.map (fun (note_elem) ->
             (let chord_elem, env, asJava = eval env note_elem in
@@ -887,80 +834,60 @@ let rec eval env = function
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
     | MethodCall("print", [e]) ->
         let arg, env, eAsJava = eval env e in
-(*             (if getType arg = "int" then
-                print_endline (string_of_int (getInt arg))
-            else if getType arg = "bool" then
-                print_endline (string_of_bool (getBool arg))
-            else if getType arg = "note" then
-                print_endline ("(" ^ (string_of_int (getNote arg).pitch) ^ "," ^ (string_of_int (getNote arg).octave) ^ "," ^ (string_of_int (getNote arg).duration) ^ ")")
-            else
-                print_endline(getType arg)); *)
-            (Bool false), env, ("System.out.println(" ^ eAsJava ^ ")")
+            (Bool true), env, ("System.out.println(" ^ eAsJava ^ ")")
     | MethodCall("major", [e; dur]) ->
         let arg, env, eAsJava = eval env e in
         let arg2, env, durAsJava = eval env dur in
             if getType arg = "scale" && getType arg2 = "int" then
-                (majorChord arg  arg2), env, ("major(" ^ eAsJava ^ "," ^ durAsJava ^ ")")
+                (initIdentifier "chord"), env, ("major(" ^ eAsJava ^ "," ^ durAsJava ^ ")")
             else raise (Failure ("argument of major must be a scale"))
     | MethodCall("minor", [e; dur]) ->
         let arg, env, eAsJava = eval env e in
         let arg2, env, durAsJava = eval env dur in
             if (getType arg = "scale") && (getType arg2 = "int") then
-                (minorChord arg  arg2), env, ("minor(" ^ eAsJava ^ "," ^ durAsJava ^ ")")
+                (initIdentifier "chord"), env, ("minor(" ^ eAsJava ^ "," ^ durAsJava ^ ")")
             else raise (Failure ("argument of minor must be a scale"))
     | MethodCall("sharp", [e]) ->
         let arg, env, eAsJava = eval env e in
             if getType arg = "note" then
-                incrementNote arg, env, ("sharp(" ^ eAsJava ^ ")")
+                (initIdentifier "note"), env, ("sharp(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of flat must be a note"))
     | MethodCall("flat", [e]) ->
         let arg, env, eAsJava = eval env e in
             if getType arg = "note" then
-                decrementNote arg, env, ("flat(" ^ eAsJava ^ ")")
+                (initIdentifier "note"), env, ("flat(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of flat must be a note"))
     | MethodCall("randint", [e]) ->
         let v, env, eAsJava = eval env e in
             if getType v = "int" then
-                Int(Random.int (getInt v)), env, ("randint(" ^ eAsJava ^ ")")
+                (initIdentifier "int"), env, ("randint(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of randint must be an integer"))
     | MethodCall("chordOfNote",[e]) ->
         let v, env, eAsJava = eval env e in
             if getType v = "note" then
-                let dur = (getNote v).duration in
-                    let tmp_list = (getNote v)::[] in
-                        Chord ({notelist=tmp_list; chord_duration=dur}), env, ("chordOfNote(" ^ eAsJava ^ ")")
+                (initIdentifier "chord"), env, ("chordOfNote(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of chordOfNote must be a note"))
     | MethodCall("rest", [e]) ->
         let v, env, eAsJava = eval env e in
             if getType v = "int" then
-                let tmp_note = (Note ({pitch=(-1); octave=0; duration=(getInt v)})) in
-                    let tmp_list = (getNote tmp_note)::[] in
-                        Chord ({notelist=tmp_list; chord_duration=(getInt v)}), env, ("rest(" ^ eAsJava ^ ")")
+                (initIdentifier "chord"), env, ("rest(" ^ eAsJava ^ ")")
             else raise (Failure ("argument of rest must be an integer"))
     | MethodCall("prepend", [item; alist]) ->
         let arg1, env, itemAsJava = eval env item in
             let arg2, env, listAsJava = eval env alist in
                 if getType arg1 = "note" then
                     (if getType arg2 = "scale" then
-                        (let tmp_note = arg1 in
-                            let tmp_list = (List.rev ((getNote tmp_note)::(List.rev ((getScale arg2).scale_notelist)))) in
-                                Scale ({scale_notelist=tmp_list}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "scale"), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else if getType arg2 = "chord" then (* Returns a new chord with the note appended *)
-                        (let tmp_note = arg1 in
-                            let tmp_list = (List.rev ((getNote tmp_note)::(List.rev ((getChord arg2).notelist)))) in
-                                Chord ({notelist=(tmp_list); chord_duration=(getChord arg2).chord_duration}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "chord"), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("A note can only be prepended to a chord or scale")))
                 else if getType arg1 = "chord" then
                     (if getType arg2 = "stanza" then
-                        (let tmp_chord = arg1 in
-                            let tmp_list = (List.rev ((getChord tmp_chord)::(List.rev ((getStanza arg2).chordlist)))) in
-                                Stanza ({chordlist=tmp_list}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "stanza"), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("A chord can only be prepended to a stanza")))
                 else if getType arg1 = "stanza" then
                     (if getType arg2 = "score" then
-                        (let tmp_stanza = arg1 in
-                            let tmp_list = (List.rev ((getStanza tmp_stanza)::(List.rev ((getScore arg2).stanzalist)))) in
-                                Score ({stanzalist=tmp_list; instrument=(getScore arg2).instrument}), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")"))
+                        (initIdentifier "score"), env, ("prepend(" ^ itemAsJava ^ "," ^ listAsJava ^ ")")
                     else raise (Failure ("a stanza can only be prepended to a score")))
                 else raise (Failure ("First argument for prepend must be of type note, chord, or stanza"))
     | MethodCall("append", [item; alist]) ->
