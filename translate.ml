@@ -1113,20 +1113,20 @@ let rec eval env = function
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "score" then
                                                 if snd lftName = "instrument" then
-                                                        if snd lftType = "locals" then
-                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                    if snd lftType = "locals" then
+                                                        (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else if snd lftType = "globals" then
                                                         (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else raise (Failure ("fatal error"))
-                                            else raise (Failure ("fatal error"))
+                                                else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                                     | "scale" ->
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
-                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else if snd lftType = "globals" then
-                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else raise (Failure ("fatal error")))
                                         (* MEMBER METHODS *)
                                         else if lftIdType = "member" then
