@@ -1414,6 +1414,8 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                                 call tail (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) locals) globals fdecls fdecl_name
                                 (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " "  ^ head.varname ^ ";\n")))
                     | FullDecl2(head) -> (print_string ("Working on a full decl in call\n"));
+                        (if(fdecl_name = "") then (if NameMap.mem head.fvname globals then raise (Failure ("Variable " ^ head.fvname ^ " declared twice"))));
+                        (if(fdecl_name <> "") then (if NameMap.mem head.fvname locals then raise (Failure ("Variable " ^ head.fvname ^ " declared twice"))));
                         let v, env, rhsJavaString = eval (locals, globals, fdecls) head.fvexpr in
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
