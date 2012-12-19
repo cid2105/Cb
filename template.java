@@ -27,7 +27,7 @@ class note {
     }
 
     public boolean isValid() {
-    	return -1 <= pitch && 11 >= pitch && -5 <= octave && 5 <= octave;
+        return -1 <= pitch && 11 >= pitch && -5 <= octave && 5 <= octave;
     }
 
     public String toString()  {
@@ -227,8 +227,8 @@ public class Cb {
         int nChannels = data.size();
         Sequence sequence = null;
 
-//		for(int i=0;i<data.size();i++)
-//			System.out.println(data.get(i));
+//      for(int i=0;i<data.size();i++)
+//          System.out.println(data.get(i));
 
 
         //***** Read in timing resolution and instruments *****
@@ -251,7 +251,7 @@ public class Cb {
 
 
         //***** Create tracks and notes *****
-		/* Track objects cannot be created by invoking their constructor
+        /* Track objects cannot be created by invoking their constructor
          directly. Instead, the Sequence object does the job. So we
          obtain the Track there. This links the Track to the Sequence
          automatically.
@@ -289,10 +289,10 @@ public class Cb {
                         if (tnote.get(nti).pitch < 0) { // a rest is received -- any negative note is rest
 
                             nt = 0;
-                            track[channel].add(createNoteOffEvent(nt, tick, channel));				//add note to this track
+                            track[channel].add(createNoteOffEvent(nt, tick, channel));              //add note to this track
 
                         } else {
-                            track[channel].add(createNoteOnEvent(nt, tick, channel, velocity));				//add note to this track
+                            track[channel].add(createNoteOnEvent(nt, tick, channel, velocity));             //add note to this track
                         }
                         tick = tick + duration;  //first number is tick
                         track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
@@ -305,17 +305,17 @@ public class Cb {
 
 
         // Print track information
-//		System.out.println();
-//		if ( track != null ) {
-//			for ( int i = 0; i < track.length; i++ ) {
-//				System.out.println( "Track " + i + ":" );
+//      System.out.println();
+//      if ( track != null ) {
+//          for ( int i = 0; i < track.length; i++ ) {
+//              System.out.println( "Track " + i + ":" );
 //
-//     		for ( int j = 0; j < track[i].size(); j++ ) {
-//					MidiEvent event = track[i].get( j );
-// 					System.out.println(" tick "+event.getTick()+", "+MessageInfo.toString(event.getMessage()));
-// 				}
-// 			}
-//		}
+//          for ( int j = 0; j < track[i].size(); j++ ) {
+//                  MidiEvent event = track[i].get( j );
+//                  System.out.println(" tick "+event.getTick()+", "+MessageInfo.toString(event.getMessage()));
+//              }
+//          }
+//      }
 
         /* Now we just save the Sequence to the file we specified.
          The '0' (second parameter) means saving as SMF type 0.
@@ -362,44 +362,69 @@ public class Cb {
     }
 
     // assumes it is passed a minor scale
-    public static chord major(scale s, int duration) throws Exception {
-    	ArrayList<note> notes = new ArrayList<note>();
-    	if(s.scale_notelist.size() >= 5){
+    public static chord major(scale s) throws Exception {
+        ArrayList<note> notes = new ArrayList<note>();
+        if(s.scale_notelist.size() >= 5){
             notes.add(s.scale_notelist.get(0));
             notes.add(flat(s.scale_notelist.get(2)));
             notes.add(s.scale_notelist.get(4));
-    	}
-    	else
+        }
+        else
             throw new Exception("To convert a scale into a major chord, you must pass a scale of at least five notes");
-    	if(duration == null)
-            duration = s.scale_notelist.get(0).duration;
+
+        int duration = s.scale_notelist.get(0).duration;
+
+        return new chord(notes, duration);
+    }
+
+    public static chord major(scale s, int duration) throws Exception {
+        ArrayList<note> notes = new ArrayList<note>();
+        if(s.scale_notelist.size() >= 5){
+            notes.add(s.scale_notelist.get(0));
+            notes.add(flat(s.scale_notelist.get(2)));
+            notes.add(s.scale_notelist.get(4));
+        }
+        else
+            throw new Exception("To convert a scale into a major chord, you must pass a scale of at least five notes");
         return new chord(notes, duration);
     }
 
     public static chord minor(scale s) throws Exception {
-    	ArrayList<note> notes = new ArrayList<note>();
-    	if(s.scale_notelist.size() >= 5){
-    		notes.add(s.scale_notelist.get(0));
-    		notes.add(flat(s.scale_notelist.get(2)));
-    		notes.add(s.scale_notelist.get(4));
-    	}
-    	else
+        ArrayList<note> notes = new ArrayList<note>();
+        if(s.scale_notelist.size() >= 5){
+            notes.add(s.scale_notelist.get(0));
+            notes.add(flat(s.scale_notelist.get(2)));
+            notes.add(s.scale_notelist.get(4));
+        }
+        else
             throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
-    	if(duration == null)
-            duration = s.scale_notelist.get(0).duration;
+        int duration = s.scale_notelist.get(0).duration;
         return new chord(notes, duration);
     }
 
+    public static chord minor(scale s, int duration) throws Exception {
+        ArrayList<note> notes = new ArrayList<note>();
+        if(s.scale_notelist.size() >= 5){
+            notes.add(s.scale_notelist.get(0));
+            notes.add(flat(s.scale_notelist.get(2)));
+            notes.add(s.scale_notelist.get(4));
+        }
+        else
+            throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
+        return new chord(notes, duration);
+    }
+
+
     public static note sharp(note n) throws Exception {
-    	note sharped = new note();
-    	if(n.pitch == 11)
-    		sharped = new note(0, n.octave+1, n.duration);
-    	else
-    		sharped = new note(n.pitch + 1, n.octave, n.duration);
-    	if(sharped.isValid())
-    		return sharped;
-    	else
-    		throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
+        note sharped = new note();
+        if(n.pitch == 11)
+            sharped = new note(0, n.octave+1, n.duration);
+        else
+            sharped = new note(n.pitch + 1, n.octave, n.duration);
+        if(sharped.isValid())
+            return sharped;
+        else
+            throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
     }
 
     public static note flat(note n) {

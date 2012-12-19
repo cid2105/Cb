@@ -157,6 +157,10 @@ let assign r x = r.content <- x; x *)
 
 (*this will need to be passed around*)
 let composeJava = ref ""
+let methjava = ref ""
+let globaljava = ref ""
+let mainjava = ref ""
+
 let csv_head = "Timing Resolution (pulses per quarter note)\n4\n\n"  (* always 4 for now*)
 
 let import_decl =
