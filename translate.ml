@@ -459,7 +459,7 @@ public class Cb {
 
                     MidiEvent event = track[i].get(j);
 
-                    System.out.println(\" tick \" + event.getTick() + \", \" + MessageInfo.toString(event.getMessage()));
+                    // System.out.println(\" tick \" + event.getTick() + \", \" + MessageInfo.toString(event.getMessage()));
 
                 }
 
