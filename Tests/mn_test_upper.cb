@@ -1,0 +1,24 @@
+meth void harmony(note a)
+
+	a^+;
+
+
+end
+
+note c = (C, 0, half);
+
+note d = (D, 0, half);
+
+note e = (E, 0, half);
+
+chord cc = ([c,d,e], whole);
+stanza p = [cc, cc];
+score s = [p];
+harmony(c);
+harmony(d);
+harmony(e);
+chord cc1 = ([c,d,e], whole);
+stanza p1 = [cc, cc1];
+score s1 = [p1];
+
+compose(s,s1);
