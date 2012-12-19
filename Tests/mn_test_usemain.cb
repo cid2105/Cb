@@ -1,0 +1,8 @@
+<- include package.pcb->
+use package.pcb
+int dur = 16;
+int oct = 3;
+Stanza drm = doremi(oct, dur);
+score pr = [drm];
+compose(pr);
+
