@@ -106,7 +106,32 @@ note n75 = (B, 1, sixteenth);
 
 stanza seq6 = [chordOfNote(n62), chordOfNote(n63), chordOfNote(n64), chordOfNote(n65), chordOfNote(n66), chordOfNote(n67), chordOfNote(n68), chordOfNote(n69), chordOfNote(n70), chordOfNote(n71), chordOfNote(n72), chordOfNote(n73), chordOfNote(n74), chordOfNote(n75)];
 
-
 score m = [seq1, seq2, seq3, seq4, seq5, seq6];
 m.instrument = 0;
-compose(m);
+
+
+note b1 = (E, -3, eighth);
+note b2 = (E, -2, eighth);
+note b3 = (F#, -3, eighth);
+note b4 = (F#, -2, eighth);
+note b5 = (Eb, -3, eighth);
+note b6 = (Eb, -2, eighth);
+note b7 = (G#, -3, eighth);
+note b8 = (G#, -2, eighth);
+
+stanza seq7 = [chordOfNote(b1), chordOfNote(b2), chordOfNote(b3), chordOfNote(b4), chordOfNote(b5), chordOfNote(b6), chordOfNote(b7), chordOfNote(b8)];
+
+note b9 = (C#, -3, eighth);
+note b10 = (C#, -2, eighth);
+note b11 = (F#, -3, eighth);
+note b12 = (F#, -2, eighth);
+note b13 = (B, -3, eighth);
+note b14 = (B, -2, eighth);
+note b15 = (B, -3, eighth);
+note b16  = (B, -2, eighth);
+
+stanza seq8 = [chordOfNote(b9), chordOfNote(b10), chordOfNote(b11), chordOfNote(b12), chordOfNote(b13), chordOfNote(b14), chordOfNote(b15), chordOfNote(b16)];
+
+score n = [rest(64), rest(64), seq7, seq8, seq7, seq8];
+n.instrument = 0;
+compose(m, n);
