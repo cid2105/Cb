@@ -365,14 +365,14 @@ public class Cb {
     public static chord major(scale s, int duration) throws Exception {
     	ArrayList<note> notes = new ArrayList<note>();
     	if(s.scale_notelist.size() >= 5){
-    		notes.add(s.scale_notelist.get(0));
-    		notes.add(flat(s.scale_notelist.get(2)));
-    		notes.add(s.scale_notelist.get(4));
+            notes.add(s.scale_notelist.get(0));
+            notes.add(flat(s.scale_notelist.get(2)));
+            notes.add(s.scale_notelist.get(4));
     	}
     	else
-    		throw new Exception("To convert a scale into a major chord, you must pass a scale of at least five notes");
+            throw new Exception("To convert a scale into a major chord, you must pass a scale of at least five notes");
     	if(duration == null)
-    		duration = s.scale_notelist.get(0).duration;
+            duration = s.scale_notelist.get(0).duration;
         return new chord(notes, duration);
     }
 

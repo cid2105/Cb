@@ -44,7 +44,6 @@ let getType v =
         | Scale(v) -> "scale"
         | Stanza(v) -> "stanza"
         | Score(v) -> "score"
-        (* | Notelist(v) -> "note list" *)
 
 let getInt v =
     match v with
@@ -97,7 +96,7 @@ let setPitch v a = ((getNote v).pitch <- a); v
 let setDuration v a = ((getNote v).duration <- a); v
 let setPitch v a = ((getNote v).pitch <- a); v
 
-let incrementNote v = 
+let incrementNote v =
     let note_pitch = (getNote v).pitch in
     let note_octave = (getNote v).octave in
     let note_duration = (getNote v).duration in
@@ -109,7 +108,7 @@ let incrementNote v =
             else
                 raise (Failure ("Cannot increment note: already at highest pitch" ))
 
-let decrementNote v = 
+let decrementNote v =
     let note_pitch = (getNote v).pitch in
     let note_octave = (getNote v).octave in
     let note_duration = (getNote v).duration in
@@ -160,7 +159,7 @@ let assign r x = r.content <- x; x *)
 let composeJava = ref ""
 let csv_head = "Timing Resolution (pulses per quarter note)\n4\n\n"  (* always 4 for now*)
 
-let import_decl = 
+let import_decl =
 "
 import java.io.File;
 import java.io.IOException;
@@ -295,7 +294,7 @@ class score {
 }
 
 public class Cb {
-    
+
     static long map(long x, long in_min, long in_max, long out_min, long out_max) {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
@@ -305,7 +304,7 @@ public class Cb {
     }
 
     private static MidiEvent createNoteOffEvent(int nKey, long lTick, int channel) {
-        return createNoteEvent(ShortMessage.NOTE_OFF, nKey, 0, lTick, channel); 
+        return createNoteEvent(ShortMessage.NOTE_OFF, nKey, 0, lTick, channel);
     }
 
     private static MidiEvent createNoteEvent(int nCommand, int nKey, int nVelocity, long lTick, int channel) {
@@ -319,7 +318,7 @@ public class Cb {
         MidiEvent event = new MidiEvent(message, lTick);
         return event;
     }
-    
+
     public static void compose(ArrayList<score> data) throws InvalidMidiDataException {
         int nChannels = data.size();
         Sequence sequence = null;
@@ -340,7 +339,7 @@ public class Cb {
 
         Track track[] = new Track[nChannels];
         for (int i = 0; i < nChannels; i++) {
-            track[i] = sequence.createTrack();                 
+            track[i] = sequence.createTrack();
 
             ShortMessage sm = new ShortMessage();
             sm.setMessage(ShortMessage.PROGRAM_CHANGE, i, instrument[i], 0);
@@ -361,12 +360,12 @@ public class Cb {
                     for (int nti = 0; nti < tnote.size(); nti++) {
 
                         duration = (int) (chl.get(cl).chord_duration * (5 / 16));
-                        nt = (int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127); 
+                        nt = (int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127);
 
-                        if (tnote.get(nti).pitch < 0) { 
+                        if (tnote.get(nti).pitch < 0) {
 
                             nt = 0;
-                            track[channel].add(createNoteOffEvent(nt, tick, channel));              
+                            track[channel].add(createNoteOffEvent(nt, tick, channel));
 
                         } else {
                             track[channel].add(createNoteOnEvent(nt, tick, channel, velocity));
@@ -511,7 +510,7 @@ public class Cb {
     }
 "
 
-let main_start = 
+let main_start =
 "
     public static void main(String[] args){
 "
@@ -708,7 +707,7 @@ let rec eval env = function
                 print_endline (string_of_bool (getBool arg))
             else
                 print_endline(getType arg));
-            (Bool false), env    
+            (Bool false), env
     | MethodCall("augment", [e]) ->
         let arg, env = eval env e in
             (if getType arg = "int" then
@@ -749,7 +748,7 @@ let rec eval env = function
 
             ignore(
                   if ( (List.length e) > 16) then
-                     raise (Failure ("only up to 16 scores can be composed at once"));   
+                     raise (Failure ("only up to 16 scores can be composed at once"));
             );
             (*#################*)
             let start = (import_decl ^ class_start) in
@@ -768,7 +767,7 @@ let rec eval env = function
                 in
                 ignore (List.map (fun act -> match (getType act) with (* ids need to be scores *)
                                                 "score" -> act; (* print_string ("score"^ "\n\n"); *)
-                                                
+
                                          (*            if ( !stan_len < (List.length (getScore act).stanzalist)) then
                                                         stan_len := (List.length (getScore act).stanzalist);
                                                     print_string ("score out if"^ "\n\n--");
@@ -778,16 +777,16 @@ let rec eval env = function
                                                      act; *)
                                                 | _ -> raise (Failure ("compose takes a score only"));
 
-                                    ) (List.rev actuals); 
+                                    ) (List.rev actuals);
                 );
-                composeJava := 
+                composeJava :=
                 "\tArrayList<score> data = new ArrayList<score>();\n"^
-                 
-                 String.concat "\n" (List.map (fun scor -> 
+
+                 String.concat "\n" (List.map (fun scor ->
 
                                             "\tdata.add("^ scor ^");"
 
-                                        ) (List.rev score_names);) 
+                                        ) (List.rev score_names);)
 
                 ^ "\n\tthis.compose(data);\n";
                 (*#################*)
@@ -800,24 +799,24 @@ let rec eval env = function
 (*              let ee1, env = eval env (List.hd e) in
                 (if getType (List.hd el) = "score" then *)
                 (*  let csvf = open_out ("musiccb"^ (string_of_int !f) ^".csv"); in (* open file for writting *)
-                 let print_chord cd = 
+                 let print_chord cd =
                      fprintf csvf "%s\n"
                         (String.concat "," List.map (fun nt ->
                                         (* if (nt.pitch <> -1) then *)
-                                           
-                                                 ( (string_of_int !tick) ^ "," ^ 
-                                                            (string_of_int (cd.chord_duration * ( 5 / 16 ))) ^ "," ^ 
+
+                                                 ( (string_of_int !tick) ^ "," ^
+                                                            (string_of_int (cd.chord_duration * ( 5 / 16 ))) ^ "," ^
                                                             (string_of_int ((5 + nt.octave) * 12 + nt.pitch)) ^ "," ^
                                                             (string_of_int 127));
-                                                   
-                                                
+
+
                                        (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
                                         begin   print_note ((List.hd  a));
                                     end *)
                                 ) cd.notelist);
                                 (tick := !tick + (cd.chord_duration * ( 5 / 16 )) );
 
-                in 
+                in
                 let print_stanza stan = a (* modified stanza--this is just supposed to go one line of csv file *)
                     List.map  print_chord (List.rev stan.chordlist);
                 in
@@ -829,10 +828,10 @@ let rec eval env = function
                             let sci = (List.nth scl k); in
                                 begin
                                     if (i < (List.length sci.stanzalist)) then
-                                        (List.nth sci.stanzalist i)::newstl; 
+                                        (List.nth sci.stanzalist i)::newstl;
                                     else
                                         Chord
-                                end 
+                                end
                         done;
                         print_stanza newstl;
                     done;
@@ -840,29 +839,29 @@ let rec eval env = function
 (*                 List.map (fun sc ->
                 let pp = getScore(sc) in
                     (let headers = csv_head ^ "Instrument," ^ (string_of_int pp.instrument) ^ "\n\n"; in (* has to be less than 127 *)
-                       
+
                             (fprintf csvf "%s" headers;
 
                             (* note a = (C, 1, half) csv format => placement(0,4,8...), duration(half), pitch(C) *)
                             let print_note nt =
 
-                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
-                                                    (string_of_int (nt.duration / 4 )) ^ "," ^ 
+                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
+                                                    (string_of_int (nt.duration / 4 )) ^ "," ^
                                                     (string_of_int ((5 + nt.octave) * 12 + nt.pitch)) ^ "," ^
                                                             (string_of_int 127));
 
                                 (tick := !tick + ( nt.duration / 4 ) );
-                            in 
-                            let print_chord cd = 
+                            in
+                            let print_chord cd =
                                 List.map (fun nt ->
                                         if (nt.pitch <> -1) then
-                                           
-                                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^ 
-                                                            (string_of_int (cd.chord_duration / 4)) ^ "," ^ 
+
+                                                fprintf csvf "%s\n" ( (string_of_int !tick) ^ "," ^
+                                                            (string_of_int (cd.chord_duration / 4)) ^ "," ^
                                                             (string_of_int ((5 + nt.octave) * 12 + nt.pitch)) ^ "," ^
                                                             (string_of_int 127));
-                                                   
-                                                
+
+
                                        (*  let a = (List.map (fun nt -> (nt.duration <- cd.chord_duration) ) cd.notelist) in
                                         begin   print_note ((List.hd  a));
                                     end *)
@@ -871,8 +870,8 @@ let rec eval env = function
                             in
                             let print_stanza stan =
                                    (*  if (List.length stan.chordlist = 1) then
-                                        begin 
-                                            let nt = (List.hd stan.chordlist); 
+                                        begin
+                                            let nt = (List.hd stan.chordlist);
                                             in print_note (List.hd nt.notelist );
                                         end
                                     else *)
@@ -891,9 +890,9 @@ let rec eval env = function
                     env
                 (* end *)
                     (* congrats you are done *)
-            
+
                 (* else raise (Failure ("compose takes a score only"))); *)
-         
+
     | MethodCall(name, el) -> print_string ("Calling Method: " ^ name ^ "\n");
         let locals, globals, fdecls = env in
             let fdecl = try (NameMap.find name fdecls)
@@ -1039,7 +1038,7 @@ let rec eval env = function
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getScore (NameMap.find (fst lftName) locals)).instrument <- getInt rht_expr); (locals, globals, fdecls))
                                                     else if snd lftType = "globals" then
-                                                        rht_expr, (((getScore (NameMap.find (fst lftName) globals)).instrument <- getInt rht_expr); (locals, globals, fdecls))           
+                                                        rht_expr, (((getScore (NameMap.find (fst lftName) globals)).instrument <- getInt rht_expr); (locals, globals, fdecls))
                                                     else raise (Failure ("fatal error"))
                                                 else raise (Failure ("invalid score instrument: " ^ string_of_int (getInt rht_expr) ^ ". instrument must be between 0-127."))
                                             else raise (Failure ("fatal error"))
