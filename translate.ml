@@ -994,47 +994,26 @@ let rec eval env = function
             let arg2, env, arg2AsJava = eval env list2 in
                 if getType arg1 = getType arg2 then
                     (if getType arg1 = "stanza" then
-                        (let tmp_chordlist = ((getStanza arg2).chordlist) @ ((getStanza arg1).chordlist) in
-                            Stanza ({chordlist=tmp_chordlist}), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")"))
+                        (initIdentifier "stanza"), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")")
                     else if getType arg1 = "scale" then
-                        (let tmp_notelist = ((getScale arg2).scale_notelist) @ ((getScale arg1).scale_notelist) in
-                            Scale ({scale_notelist=tmp_notelist}), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")"))
+                        (initIdentifier "scale"), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")")
                     else if getType arg1 = "score" then
-                        (let tmp_stanzalist = ((getScore arg2).stanzalist) @ ((getScore arg1).stanzalist) in
-                            Score ({stanzalist=tmp_stanzalist; instrument=(getScore arg1).instrument}), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")"))
-                    else raise (Failure ("concat works only on stanzas and scores")))
+                        (initIdentifier "score"), env, ("concat(" ^ arg1AsJava ^ "," ^ arg2AsJava ^ ")")
+                    else raise (Failure ("concat works only on stanzas, scales, and scores")))
                 else raise (Failure ("Both arguments to concat must be of the same type"))
     | MethodCall("repeat", [e; n]) -> (*Takes the argument and returns its container type with arg repeated n times*)
         let arg1, env, eAsJava = eval env e in
             let arg2, env, nAsJava = eval env n in
                 if getType arg2 = "int" then
-                    (if ((getInt arg2) > 0) then
-                        (if getType arg1 = "note" then
-                            (let rec repeater alist times =
-                                (if times = 0 then
-                                    (alist)
-                                else (repeater (Scale ({scale_notelist=((getNote arg1)::((getScale alist).scale_notelist))})) (times-1)))
-                            in (repeater (Scale ({scale_notelist=[]})) (getInt arg2)), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")"))
-                        else if getType arg1 = "chord" then
-                            (let rec repeater alist times =
-                                (if times = 0 then
-                                    (alist)
-                                else (repeater (Stanza ({chordlist=((getChord arg1)::((getStanza alist).chordlist))})) (times-1)))
-                            in (repeater (Stanza ({chordlist=[]})) (getInt arg2)), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")"))
-                        else if getType arg1 = "stanza" then
-                            (let rec repeater alist times =
-                                (if times = 0 then
-                                    (alist)
-                                else (repeater (Score ({stanzalist=((getStanza arg1)::((getScore alist).stanzalist)); instrument=0})) (times-1)))
-                            in (repeater (Score ({stanzalist=[]; instrument=0})) (getInt arg2)), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")"))
-                        else if getType arg1 = "score" then
-                            (let rec repeater alist times =
-                                (if times = 0 then
-                                    (alist)
-                                else (repeater (Score ({stanzalist=(((getScore arg1).stanzalist) @ ((getScore alist).stanzalist)); instrument=(getScore arg1).instrument})) (times-1)))
-                            in (repeater (Score ({stanzalist=[]; instrument=(getScore arg1).instrument})) (getInt arg2)), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")"))
-                        else raise (Failure ("The first argument must be a note, chord, stanza, or score")))
-                    else raise (Failure ("The number of times to repeat must be 1 or greater, you asked for " ^ (string_of_int (getInt arg2)))))
+                    (if getType arg1 = "note" then
+                        (initIdentifier "scale"), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")")
+                    else if getType arg1 = "chord" then
+                        (initIdentifier "stanza"), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")")
+                    else if getType arg1 = "stanza" then
+                        (initIdentifier "score"), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")")
+                    else if getType arg1 = "score" then
+                        (initIdentifier "score"), env, ("repeat(" ^ eAsJava ^ "," ^ nAsJava ^ ")")
+                    else raise (Failure ("The first argument must be a note, chord, stanza, or score")))
                 else raise (Failure ("The second argument to repeat must be an integer number of times to repeat"))
     | MethodCall("compose", e) ->  (* Writes the specified part to a java file to be written into midi *)
         ignore(
@@ -1073,7 +1052,6 @@ let rec eval env = function
                                         ) (List.rev score_names);)
 
                 ^ "\n\tthis.compose(data);\n"; *)
-
     | MethodCall(name, el) -> (* Check that method exists and passing correct args, do not actually call *)
         (print_string ("User defined method call: " ^ name ^ "\n"));
         let locals, globals, fdecls = env in
@@ -1239,7 +1217,7 @@ let rec eval env = function
                                                     else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between -5-5."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
-                                                if snd lftName = "duration" then 
+                                                if snd lftName = "duration" then
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
@@ -1256,7 +1234,7 @@ let rec eval env = function
                                                     else raise (Failure ("fatal error"))
                                                 else raise (Failure ("invalid score instrument: " ^ string_of_int (getInt rht_expr) ^ ". instrument must be between 0-127."))
                                             else raise (Failure ("fatal error"))
-                                            else raise (Failure ("cannot assign to: " ^ fst lftType)) 
+                                            else raise (Failure ("cannot assign to: " ^ fst lftType))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                                     | "scale" ->
                                         if lftIdType = "id" then
