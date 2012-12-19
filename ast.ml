@@ -123,6 +123,14 @@ let rec string_of_expr = function
       f ^ "(" ^ String.concat " , " (List.map string_of_expr (List.rev el)) ^ " ) " (*?????*)
     | NoExpr -> "";;
 
+let string_of_op op =
+    match op with
+        Add -> "+" | Sub -> "-"
+            (*| DotAdd -> ".+" | DotSub -> ".-" *)
+            | Eq -> "==" | NEq -> "!="
+            | Less -> "<" | LEq -> "<=" | Greater -> ">" | GEq -> ">="
+            | And -> "&&" | Or -> "||" | Mod -> "%" | Mult -> "*" | Div -> "/"
+
 let string_of_fvdl fvdel =
     string_of_cbtype fvdel.fvtype ^ " " ^ fvdel.fvname ^ " = " ^ string_of_expr fvdel.fvexpr ^ ";\n"
 

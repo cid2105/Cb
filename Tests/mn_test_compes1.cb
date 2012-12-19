@@ -5,6 +5,7 @@ compose(p);
 ->
  int inc = 9;
 note a = (C, 3, whole);
+note a = (D,4, whole);
 note b = (D, 3, whole);
 note c = (F, 3, whole);
 
