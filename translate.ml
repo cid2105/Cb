@@ -1043,13 +1043,6 @@ let rec eval env = function
             begin
                 match master_type with (* what is the master type? *)
                     "note" -> (* if it is a note create a scale *)
-                        let note_list = List.map (fun (list_elem) ->  (* apply eval func to each elemnt of el *)
-                            (let evaled, env, _ = eval env list_elem in
-                                let vType = (getType evaled) in
-                                    if (vType = "note") then
-                                        getNote evaled (* return a note *)
-                                    else raise (Failure ("List expressions must contain elements of only 1 type")) (* not a note break *)
-                            )) el in
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
@@ -1057,16 +1050,8 @@ let rec eval env = function
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let notesAsJava = String.concat "\n" (List.rev javaStrList) in
-                                (Scale ({scale_notelist = note_list}), env, ("new scale(new ArrayList<note>() {{\n" ^ notesAsJava ^ "}})"));
+                                (initIdentifier "scale"), env, ("new scale(new ArrayList<note>() {{\n" ^ notesAsJava ^ "}})")
                     | "chord" -> (* if it is a chord create a stanza *)
-                        let chord_list = List.map (fun (list_elem) ->
-                            (let evaled, env, _ = eval env list_elem in
-                                let vType = (getType evaled) in
-                                    if (vType = "chord") then
-                                        (* (Chord (getChord(evaled))) *)
-                                        getChord evaled
-                                    else raise (Failure ("List expressions must contain elements of only 1 type"))
-                            )) el in
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
@@ -1074,15 +1059,8 @@ let rec eval env = function
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let chordsAsJava = String.concat "\n" (List.rev javaStrList) in
-                                (Stanza ({chordlist = chord_list}), env, ("new stanza(new ArrayList<chord>() {{\n" ^ chordsAsJava ^ "}})"));
+                                (initIdentifier "stanza"), env, ("new stanza(new ArrayList<chord>() {{\n" ^ chordsAsJava ^ "}})")
                     | "stanza" -> (* if it is a stanza create a score *)
-                        let stanza_list = List.map (fun (list_elem) ->
-                            (let evaled, env, _ = eval env list_elem in
-                                let vType = (getType evaled) in
-                                    if (vType = "stanza") then
-                                        getStanza evaled
-                                    else raise (Failure ("List expressions must contain elements of only 1 type"))
-                            )) el in
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
@@ -1090,7 +1068,7 @@ let rec eval env = function
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let stanzasAsJava = String.concat "\n" (List.rev javaStrList) in
-                                (Score ({stanzalist = stanza_list; instrument = 0}), env, ("new score(new ArrayList<stanza>() {{\n" ^ stanzasAsJava ^ "}})"));
+                                (initIdentifier "score"), env, ("new score(new ArrayList<stanza>() {{\n" ^ stanzasAsJava ^ "}})")
                     | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
             end
     | Assign(toE, fromE) ->
@@ -1148,7 +1126,7 @@ let rec eval env = function
                                                     else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between -5-5."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
-                                                if snd lftName = "chord_duration" then 
+                                                if snd lftName = "chord_duration" then
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
@@ -1178,13 +1156,13 @@ let rec eval env = function
                                         else if lftIdType = "member" then
                                             (* NOTE MEMBER METHODS *)
                                             if fst lftType = "scale" then
-                                                let str_len = (String.length rht_expr_jString) in 
+                                                let str_len = (String.length rht_expr_jString) in
 
                                                 if snd lftName = "scale_notelist" then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 (String.length rht_expr_jString)) ) 
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 (String.length rht_expr_jString)) )
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len ) ) 
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len ) )
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
