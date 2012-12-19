@@ -1109,18 +1109,27 @@ let rec eval env = function
         let v, env, eAsJava = eval env e in
         let vType = getType v in
         if ( vType = "note" or vType = "chord" ) then
-(*             (match uo with (* Only accept notes for now *)
+            (match uo with (* Only accept notes for now *)
                 Raise ->
                     if vType = "note" then
-                        setOctave v ((getNote v).octave + 1)
+                        if (getNote v).octave > 4 then raise (Failure ("Octave maximum of 5 already reached, can't raise"))
+                        else Bool false, env, (eAsJava ^ ".inc_oct()")
+                    else if vType = "chord" then
+                        if (List.fold_left(fun acc elem -> acc && ((getNote elem).octave < 5)) true (getChord v).notelist) then
+                            Bool false, env, (eAsJava ^ ".inc_oct()")
+                        else raise (Failure ("Octave maximum of 5 already reached on a note in chord, can't raise"))
                     else
                         raise (Failure ("cannot raise: " ^ vType))
                 | Lower ->
                     if vType = "note" then
-                        setOctave v ((getNote v).octave - 1)
+                        if (getNote v).octave < -4 then raise (Failure ("Octave minimum of -5 already reached, can't lower"))
+                        else Bool false, env, (eAsJava ^ ".dec_oct()")
+                    else if vType = "chord" then
+                        if (List.fold_left(fun acc elem -> acc && ((getNote elem).octave > -4)) true (getChord v).notelist) then
+                            Bool false, env, (eAsJava ^ ".dec_oct()")
+                        else raise (Failure ("Octave minimum of -5 already reached on a note in chord, can't lower"))
                     else
-                        raise (Failure ("cannot lower: " ^ vType)) *)
-            Bool false, env, ()
+                        raise (Failure ("cannot raise: " ^ vType)))
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
     | ListExpr(el) -> (*  el is elment list *)
         let master, _ = (eval env (List.hd el)) in (* pull of the first element in el and evalute *)
