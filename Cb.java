@@ -544,17 +544,17 @@ add(n);}});
 
 stanza st = new stanza(new ArrayList<chord>() {{
 add(c);}});
+
+stanza st2 = new stanza(new ArrayList<chord>() {{
+add(c);}});
+
+score sc = new score(new ArrayList<stanza>() {{
+add(st);
+add(st2);
+add(st2);}});
 
     public static void main(String[] args) throws Exception { Cb runner = new Cb(); runner.run(); }
-public void run() throws Exception {System.out.println(a);
-System.out.println(n);
-System.out.println(c);
-System.out.println(s);
-System.out.println(st);
-while(true) {
-k+m;
-}
-
+public void run() throws Exception {
     }
 
 }
