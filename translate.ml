@@ -459,7 +459,7 @@ public class Cb {
 
                     MidiEvent event = track[i].get(j);
 
-                    System.out.println(\" tick \" + event.getTick() + \", \" + MessageInfo.toString(event.getMessage()));
+                    // System.out.println(\" tick \" + event.getTick() + \", \" + MessageInfo.toString(event.getMessage()));
 
                 }
 
@@ -1213,14 +1213,14 @@ and exec env fname = function
                         "chord" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
+                                let (locals, globals), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
                                     (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".notelist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with chord list"))
                         | "scale" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
+                                let (locals, globals), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
                                     (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".scale_notelist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with scale list"))
@@ -1228,13 +1228,13 @@ and exec env fname = function
                        | "stanza" ->
                             (*chords*)
                             if (string_of_cbtype par_decl.paramtype) = "chord" then
-                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "chord") locals) globals fdecls fname "") in                                    
+                                let (locals, globals), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "chord") locals) globals fdecls fname "") in                                    
                                     (env, "for (chord " ^ par_decl.paramname ^ " : " ^ list_name ^ ".chordlist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with stanza list"))
                         | "score" ->
                              if (string_of_cbtype par_decl.paramtype) = "stanza" then
-                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "stanza") locals) globals fdecls fname "") in                                    
+                                let (locals, globals), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "stanza") locals) globals fdecls fname "") in                                    
                                     (env, "for (stanza " ^ par_decl.paramname ^ " : " ^ list_name ^ ".stanzalist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with score list"))
