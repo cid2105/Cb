@@ -417,8 +417,6 @@ public class Cb {
 
                     ArrayList<note> tnote = chl.get(cl).notelist;
                     
-                    for(note noted: tnote)
-                        System.out.println(noted);
 
                     for (int nti = 0; nti < tnote.size(); nti++) { //note list
 
@@ -436,8 +434,8 @@ public class Cb {
                         } else {
                             track[channel].add(createNoteOnEvent(nt, tick, channel, velocity));             //add note to this track
                         }
-                        tick = tick + duration;  //first number is tick
-                        track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
+                        // tick = tick + duration;  //first number is tick
+                        // track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
                     }
                     tick = tick + duration;
                      System.out.println(\"tick:-\" + tick + \"> \\n \" + duration);
