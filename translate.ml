@@ -155,6 +155,13 @@ class note {
         duration = d;
     }
 
+    public void inc_oct(){
+        this.octave++;
+    }
+    public void dec_oct(){
+        this.octave--;
+    }
+
     public boolean isValid() {
         return -1 <= pitch && 11 >= pitch && -5 <= octave && 5 <= octave;
     }
@@ -277,6 +284,10 @@ class score {
         stanzalist = new ArrayList<stanza>();
         instrument = 0;
     }
+    public score(ArrayList<stanza> sl) {
+        stanzalist = sl;
+        instrument = 0;
+    }
 
     public score(ArrayList<stanza> sl, int i) {
         stanzalist = sl;
@@ -350,8 +361,10 @@ public class Cb {
         int nChannels = data.size();
         Sequence sequence = null;
 
-//      for(int i=0;i<data.size();i++)
-//          System.out.println(data.get(i));
+
+        for (int i = 0; i < data.size(); i++) {
+            System.out.println(data.get(i));
+        }
 
 
         //***** Read in timing resolution and instruments *****
@@ -391,7 +404,7 @@ public class Cb {
         int nt = 0,
                 tick = 0,
                 duration = 5,
-                velocity = 90; // this is the volume of the sound
+                velocity = 100; // this is the volume of the sound
 
         for (int channel = 0; channel < data.size(); channel++) {
             //populating the ith track
@@ -404,7 +417,8 @@ public class Cb {
                     ArrayList<note> tnote = chl.get(cl).notelist;
                     for (int nti = 0; nti < tnote.size(); nti++) { //note list
 
-                        duration = (int) (chl.get(cl).chord_duration * (5 / 16));  //second number is duration
+                        duration = (int) (chl.get(cl).chord_duration / 4);  //second number is duration
+                        System.out.println(\"dur:-\" + duration + \"> \\n \" );
                         // octave (-5 to 5); pitch (0 to 11)
                         nt = (int) map((long) (tnote.get(nti).pitch + tnote.get(nti).octave), -5, 16, 0, 127); //this is the pitch representation; middle c = c_4 = 60
                         velocity = 127;  //velocity can not be changed for now
@@ -421,6 +435,7 @@ public class Cb {
                         track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
                     }
                     tick = tick + duration;
+                     System.out.println(\"tick:-\" + tick + \"> \\n \" + duration);
                 }
             }
             tick = 0;
@@ -428,17 +443,30 @@ public class Cb {
 
 
         // Print track information
-//      System.out.println();
-//      if ( track != null ) {
-//          for ( int i = 0; i < track.length; i++ ) {
-//              System.out.println(\"Track \" + i + \":\" );
-//
-//          for ( int j = 0; j < track[i].size(); j++ ) {
-//                  MidiEvent event = track[i].get( j );
-//                  System.out.println(\" tick \"+event.getTick()+\", \"+MessageInfo.toString(event.getMessage()));
-//              }
-//          }
-//      }
+        // Print track information
+
+        System.out.println();
+
+        if (track != null) {
+
+            for (int i = 0; i < track.length; i++) {
+
+                System.out.println(\"Track \" + i + \":\");
+
+
+
+                for (int j = 0; j < track[i].size(); j++) {
+
+                    MidiEvent event = track[i].get(j);
+
+                    System.out.println(\" tick \" + event.getTick() + \", \" + MessageInfo.toString(event.getMessage()));
+
+                }
+
+            }
+
+        }
+
 
         /* Now we just save the Sequence to the file we specified.
          The '0' (second parameter) means saving as SMF type 0.
@@ -777,62 +805,56 @@ let rec eval env = function
             (match o with (* Only accept ints for now *)
                 Add ->
                     if v1Type = "int" then
-                        Int (getInt v1 + getInt v2)
+                         (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " + " ^ v2Type))
                 | Sub ->
                     if v1Type = "int" then
-                    Int (getInt v1 - getInt v2)
+                     (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " - " ^ v2Type))
                 | Mult ->
                     if v1Type = "int" then
-                    Int (getInt v1 * getInt v2)
+                        (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " * " ^ v2Type))
                 | Div ->
                     if v1Type = "int" then
-                    Int (getInt v1 / getInt v2)
+                        (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " / " ^ v2Type))
                 | Mod -> (print_string ("Doing a mod binop\n"));
                     if v1Type = "int" then
-                    Int (getInt v1 mod getInt v2)
+                        (initIdentifier "int")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " % " ^ v2Type))
                 | And ->
                     if v1Type = "bool" then
-                    Bool (getBool v1 && getBool v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " and " ^ v2Type))
                 | Or ->
                     if v1Type = "bool" then
-                    if (getBool v1 || getBool v2)
-                    then Bool true
-                    else Bool false
+                        (initIdentifier "bool")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " or " ^ v2Type))
                 | Eq ->
                     if v1Type = "int" then
-                        if getInt v1 = getInt v2
-                        then Bool true
-                        else Bool false
+                        (initIdentifier "bool")
                     else raise (Failure ("incorrect type: " ^ v1Type ^ " is " ^ v2Type))
                 | NEq ->
                     if v1Type = "int" then
-                        if (getInt v1 <> getInt v2)
-                        then Bool true
-                        else Bool false
+                        (initIdentifier "bool")
                     else
                         raise (Failure ("incorrect type: " ^ v1Type ^ " isnt " ^ v2Type))
                 | Less ->
                     if v1Type = "int" then
-                        Bool (getInt v1 < getInt v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " < " ^ v2Type))
                 | LEq ->
                     if v1Type = "int" then
-                        Bool (getInt v1 <= getInt v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " <= " ^ v2Type))
                 | Greater ->
                     if v1Type = "int" then
-                        Bool (getInt v1 > getInt v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " > " ^ v2Type))
                 | GEq ->
                     if v1Type = "int" then
-                        Bool (getInt v1 >= getInt v2)
+                        (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " >= " ^ v2Type))
                 | _ -> raise (Failure ("Unknown binary operation"))
             ), env, (v1AsJava ^ (string_of_op o) ^ v2AsJava)
@@ -962,20 +984,9 @@ let rec eval env = function
                         ) (List.rev actuals);
         );
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
-                                            "\tadd("^ scor ^");"
-
+                                            "\n\tadd("^ scor ^");"
                                         ) (List.rev score_names);)
-        in Bool true, env, ("compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "}})")
-(*         composeJava :=
-            "\tArrayList<score> data = new ArrayList<score>();\n"^
-
-            String.concat "\n" (List.map (fun scor ->
-
-                                            "\tadd("^ scor ^");"
-
-                                        ) (List.rev score_names);)
-
-                ^ "\n\tthis.compose(data);\n"; *)
+        in Bool true, env, ("\n  compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "\n}})")
     | MethodCall(name, el) -> (* Check that method exists and passing correct args, do not actually call *)
         (print_string ("User defined method call: " ^ name ^ "\n"));
         let locals, globals, fdecls = env in
@@ -991,18 +1002,12 @@ let rec eval env = function
                     let l1 =
                         try List.fold_left2 (fun locals formal actual ->
                                                 if (getType actual) = (string_of_cbtype formal.paramtype) then
-                                                    (NameMap.add formal.paramname actual locals)
+                                                    (NameMap.add formal.paramname (initIdentifier (getType actual)) locals)
                                                 else
                                                     raise (Failure ("Wrong parameter type in method call to " ^ fdecl.fname))
                                             ) NameMap.empty fdecl.formals (List.rev actuals)
                         with Invalid_argument(_) -> raise (Failure ("wrong number of arguments to: " ^ fdecl.fname))
                     in (initIdentifier (string_of_cbtype fdecl.rettype)), (l1, globals, fdecls), (name ^ "(" ^ actualsAsJava ^ ")")
-(*                     begin *)
-(*                         try *)
-(*                             let l, g = (call fdecl.body l1 globals fdecls name) in *)
-                                 (* This gets hit if you never see a return statement *)
-(*                        with ReturnException(v, g, jStr) -> v, (l1, globals, fdecls), ()  *)(* This gets hit if you hit a return statement *)
-(*                    end *)
     | UnaryOp(uo,e) -> (print_string ("Evaluating a unary op\n"));
         let v, env, eAsJava = eval env e in
         let vType = getType v in
@@ -1010,22 +1015,16 @@ let rec eval env = function
             (match uo with (* Only accept notes for now *)
                 Raise ->
                     if vType = "note" then
-                        if (getNote v).octave > 4 then raise (Failure ("Octave maximum of 5 already reached, can't raise"))
-                        else Bool false, env, (eAsJava ^ ".inc_oct()")
+                        (initIdentifier "note"), env, (eAsJava ^ ".inc_oct()")
                     else if vType = "chord" then
-                        if (List.fold_left(fun acc elem -> acc && (elem.octave < 5)) true (getChord v).notelist) then
-                            Bool false, env, (eAsJava ^ ".inc_oct()")
-                        else raise (Failure ("Octave maximum of 5 already reached on a note in chord, can't raise"))
+                            (initIdentifier "chord"), env, (eAsJava ^ ".inc_oct()")
                     else
                         raise (Failure ("cannot raise: " ^ vType))
                 | Lower ->
                     if vType = "note" then
-                        if (getNote v).octave < -4 then raise (Failure ("Octave minimum of -5 already reached, can't lower"))
-                        else Bool false, env, (eAsJava ^ ".dec_oct()")
+                        (initIdentifier "note"), env, (eAsJava ^ ".dec_oct()")
                     else if vType = "chord" then
-                        if (List.fold_left(fun acc elem -> acc && (elem.octave > -4)) true (getChord v).notelist) then
-                            Bool false, env, (eAsJava ^ ".dec_oct()")
-                        else raise (Failure ("Octave minimum of -5 already reached on a note in chord, can't lower"))
+                        (initIdentifier "chord"), env, (eAsJava ^ ".dec_oct()")
                     else
                         raise (Failure ("cannot raise: " ^ vType)))
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
@@ -1036,13 +1035,6 @@ let rec eval env = function
             begin
                 match master_type with (* what is the master type? *)
                     "note" -> (* if it is a note create a scale *)
-                        let note_list = List.map (fun (list_elem) ->  (* apply eval func to each elemnt of el *)
-                            (let evaled, env, _ = eval env list_elem in
-                                let vType = (getType evaled) in
-                                    if (vType = "note") then
-                                        getNote evaled (* return a note *)
-                                    else raise (Failure ("List expressions must contain elements of only 1 type")) (* not a note break *)
-                            )) el in
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
@@ -1050,16 +1042,8 @@ let rec eval env = function
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let notesAsJava = String.concat "\n" (List.rev javaStrList) in
-                                (Scale ({scale_notelist = note_list}), env, ("new scale(new ArrayList<note>() {{\n" ^ notesAsJava ^ "}})"));
+                                (initIdentifier "scale"), env, ("new scale(new ArrayList<note>() {{\n" ^ notesAsJava ^ "}})")
                     | "chord" -> (* if it is a chord create a stanza *)
-                        let chord_list = List.map (fun (list_elem) ->
-                            (let evaled, env, _ = eval env list_elem in
-                                let vType = (getType evaled) in
-                                    if (vType = "chord") then
-                                        (* (Chord (getChord(evaled))) *)
-                                        getChord evaled
-                                    else raise (Failure ("List expressions must contain elements of only 1 type"))
-                            )) el in
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
@@ -1067,15 +1051,8 @@ let rec eval env = function
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let chordsAsJava = String.concat "\n" (List.rev javaStrList) in
-                                (Stanza ({chordlist = chord_list}), env, ("new stanza(new ArrayList<chord>() {{\n" ^ chordsAsJava ^ "}})"));
+                                (initIdentifier "stanza"), env, ("new stanza(new ArrayList<chord>() {{\n" ^ chordsAsJava ^ "}})")
                     | "stanza" -> (* if it is a stanza create a score *)
-                        let stanza_list = List.map (fun (list_elem) ->
-                            (let evaled, env, _ = eval env list_elem in
-                                let vType = (getType evaled) in
-                                    if (vType = "stanza") then
-                                        getStanza evaled
-                                    else raise (Failure ("List expressions must contain elements of only 1 type"))
-                            )) el in
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
@@ -1083,7 +1060,7 @@ let rec eval env = function
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let stanzasAsJava = String.concat "\n" (List.rev javaStrList) in
-                                (Score ({stanzalist = stanza_list; instrument = 0}), env, ("new score(new ArrayList<stanza>() {{\n" ^ stanzasAsJava ^ "}})"));
+                                (initIdentifier "score"), env, ("new score(new ArrayList<stanza>() {{\n" ^ stanzasAsJava ^ "}})")
                     | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
             end
     | Assign(toE, fromE) ->
@@ -1141,7 +1118,7 @@ let rec eval env = function
                                                     else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between -5-5."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
-                                                if snd lftName = "chord_duration" then 
+                                                if snd lftName = "chord_duration" then
                                                         if snd lftType = "locals" then
                                                             rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
@@ -1171,6 +1148,7 @@ let rec eval env = function
                                         else if lftIdType = "member" then
                                             (* NOTE MEMBER METHODS *)
                                             if fst lftType = "scale" then
+<<<<<<< HEAD
                                                 let str_len = (length rht_expr_jString - 10) in 
 
                                                 if snd lftName = "scale_notelist" then
@@ -1178,6 +1156,15 @@ let rec eval env = function
                                                             rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) ) 
                                                         else if snd lftType = "globals" then
                                                             rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) ) 
+=======
+                                                let str_len = (String.length rht_expr_jString) in
+
+                                                if snd lftName = "scale_notelist" then
+                                                        if snd lftType = "locals" then
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 (String.length rht_expr_jString)) )
+                                                        else if snd lftType = "globals" then
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len ) )
+>>>>>>> 4fe2aac3ea5915e7ba4c4e681a646f12db843532
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
@@ -1252,11 +1239,11 @@ and exec env fname = function
                                         let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
                                                         (l, g, fdecls)
                                                 ) (locals, globals, fdecls) llist  *)
-                                        
 
-                                       
+
+
                                         let (l, g), jStr = (call (List.rev sl) locals globals fdecls fname "")
-                                        in                                    
+                                        in
                                             (env, "for (chord " ^ par_decl.paramname ^ " : " ^ list_name ^ " { " ^ jStr ^ " } ")
 
 
@@ -1273,16 +1260,16 @@ and exec env fname = function
                         | "scale" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                            (* 
+                            (*
                                 let llist = (List.rev (getScale list1).scale_notelist) in
                                     List.fold_left (fun acc x -> let (l1,g1,f1) = acc in
                                         let (l, g) = (call (List.rev sl) (NameMap.add par_decl.paramname (Note x) l1) g1 f1 fname "") in
                                                         (l, g, fdecls)
                                         ) (locals, globals, fdecls) llist *)
-                                        
+
 
                                         let (l, g), jStr = (call (List.rev sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "")
-                                        in                                    
+                                        in
                                             (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".scale_notelist " ^ ") { " ^ jStr ^ " } ")
 
 
@@ -1344,6 +1331,7 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                                 (call tail locals (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals) fdecls fdecl_name (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " " ^ head.varname ^ ";\n"))))
                         else
                             ((if NameMap.mem head.varname locals then raise (Failure ("Variable " ^ head.varname ^ " declared twice")));
+                                print_string ("\n\n<" ^ head.varname ^ ">");
                                 call tail (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) locals) globals fdecls fdecl_name
                                 (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " "  ^ head.varname ^ ";\n")))
                     | FullDecl2(head) -> (print_string ("Working on a full decl in call\n"));
@@ -1353,8 +1341,9 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
                                     then
+
                                         match vType with
-                                            "int" -> call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            "int" -> print_string ("\n\n<" ^ head.fvname ^ ">"); call tail (NameMap.add head.fvname (Int (getInt v)) locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "note" -> call tail (NameMap.add head.fvname (Note (getNote v)) locals) globals fdecls fdecl_name (jStr ^ ("note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "chord" -> call tail (NameMap.add head.fvname (Chord (getChord v)) locals) globals fdecls fdecl_name (jStr ^ ("chord " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | "bool" -> call tail (NameMap.add head.fvname (Bool (getBool v)) locals) globals fdecls fdecl_name (jStr ^ ("bool " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
