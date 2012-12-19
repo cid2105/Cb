@@ -1476,7 +1476,8 @@ and translate prog env =
                     | MDecl(head) ->
                         (if (NameMap.mem head.fname fdecls) then raise (Failure ("Method with same name already defined"))
                         else
-                            let (locals, globals), javaBody = call head.body locals globals (NameMap.add head.fname head fdecls) head.fname "" in
+                            let newlocals = List.fold_left(fun acc arg -> (NameMap.add arg.paramname (initIdentifier (string_of_cbtype arg.paramtype)) acc)) locals head.formals in
+                            let (locals, globals), javaBody = call head.body newlocals globals (NameMap.add head.fname head fdecls) head.fname "" in
                                 (methJava := methJava.contents ^ "\npublic " ^ (string_of_cbtype head.rettype) ^ " " ^ head.fname ^ "(" ^
                                 (String.concat "," (List.map(fun arg -> (string_of_cbtype arg.paramtype) ^ " " ^ arg.paramname)(List.rev head.formals))) ^
                                 ") {" ^ javaBody ^ "\n}\n");
