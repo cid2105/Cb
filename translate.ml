@@ -699,18 +699,18 @@ let rec eval env = function
             (match vType with
               | "note" ->
                 (match memname with
-                  "pitch" -> Int (getNote v).pitch
-                  | "octave" -> Int (getNote v).octave
-                  | "duration" -> Int (getNote v).duration
+                  "pitch" -> (initIdentifier "int")
+                  | "octave" -> (initIdentifier "int")
+                  | "duration" -> (initIdentifier "int")
                   | _ -> raise (Failure ("invalid property of note: " ^ memname)))
               | "chord" ->
                 (match memname with
-                    "chord_duration" -> Int (getChord v).chord_duration
-                    | "notelist" -> Scale ({scale_notelist = (getChord v).notelist })
+                    "chord_duration" -> (initIdentifier "int")
+                    | "notelist" -> (initIdentifier "scale")
                   | _ -> raise (Failure ("invalid property of chord: " ^ memname)))
               | "score" ->
                 (match memname with
-                   "instrument" -> Int (getScore v).instrument
+                   "instrument" -> (initIdentifier "int")
                   | _ -> raise (Failure ("invalid property of score: " ^ memname)))
               | _ -> raise (Failure ("cannot access " ^ vname ^ "." ^ memname))), env, (asJava ^ "." ^ memname ^ " ")
     | IntLiteral(i) -> (print_string ("Evaluating an intlit: " ^ (string_of_int i) ^ "\n"));
