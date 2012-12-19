@@ -10,6 +10,7 @@ print(s);
 print(st);
 
 while(true)
+    k+m;
     int j;
     int k = 5;
     int m = 10;

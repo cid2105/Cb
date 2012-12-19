@@ -1382,7 +1382,7 @@ and exec env fname = function
             let boolarg, env, javaString = eval env e in
                 if (getType boolarg) = "bool" then (
                     let locals, globals, fdecls = env in
-                        let (locals, globals), jStr = call sl locals globals fdecls fname "" in
+                        let (locals, globals), jStr = call (List.rev sl) locals globals fdecls fname "" in
                             (locals, globals, fdecls), ("while(" ^ javaString ^ ") {\n" ^ jStr ^ "}\n")
                 )
                 else raise (Failure ("while loop argument must decompose to a boolean value"))
