@@ -1,5 +1,6 @@
 open Ast
 open Printf
+open String
 
 module NameMap = Map.Make(struct
     type t = string
@@ -1170,13 +1171,13 @@ let rec eval env = function
                                         else if lftIdType = "member" then
                                             (* NOTE MEMBER METHODS *)
                                             if fst lftType = "scale" then
-                                                let str_len = (String.length rht_expr_jString) in 
+                                                let str_len = (length rht_expr_jString - 10) in 
 
                                                 if snd lftName = "scale_notelist" then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 (String.length rht_expr_jString)) ) 
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) ) 
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len ) ) 
+                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) ) 
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
