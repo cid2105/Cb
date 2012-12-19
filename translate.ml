@@ -436,7 +436,7 @@ public class Cb {
 
                         if (tnote.get(nti).pitch < 0) { // a rest is received -- any negative note is rest
                             nt = 0;
-                            track[channel].add(createNoteOffEvent(nt, tick, channel));              //add note to this track
+                            //track[channel].add(createNoteOffEvent(nt, tick, channel));              //add note to this track
 
                         } else {
                             track[channel].add(createNoteOnEvent(nt, tick, channel, velocity));             //add note to this track

@@ -37,5 +37,5 @@ end
 sc = repeat(sc, 2);
 
 foreach(stanza st1 in sc)
-    print(1);
+    print(0);
 end
