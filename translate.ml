@@ -1131,7 +1131,7 @@ let rec eval env = function
                         raise (Failure ("cannot raise: " ^ vType)))
         else raise (Failure ("type mismatch: " ^ vType ^ " is not suitable, must be a note or chord"))
     | ListExpr(el) -> (*  el is elment list *)
-        let master, _ = (eval env (List.hd el)) in (* pull of the first element in el and evalute *)
+        let master, _, _ = (eval env (List.hd el)) in (* pull of the first element in el and evalute *)
             let master_type = (getType master) in (* the type of the first element, everything gets compared to this *)
             begin
                 match master_type with (* what is the master type? *)
@@ -1143,7 +1143,7 @@ let rec eval env = function
                                         getNote evaled (* return a note *)
                                     else raise (Failure ("List expressions must contain elements of only 1 type")) (* not a note break *)
                             )) el in
-                                (Scale ({scale_notelist = note_list}), env);
+                                (Scale ({scale_notelist = note_list}), env, ("new scale(" ));
                     | "chord" -> (* if it is a chord create a stanza *)
                         let chord_list = List.map (fun (list_elem) ->
                             (let evaled, env = eval env list_elem in
@@ -1153,7 +1153,7 @@ let rec eval env = function
                                         getChord evaled
                                     else raise (Failure ("List expressions must contain elements of only 1 type"))
                             )) el in
-                                (Stanza ({chordlist = chord_list}), env);
+                                (Stanza ({chordlist = chord_list}), env, ("new stanza(" ));
                     | "stanza" -> (* if it is a stanza create a score *)
                         let stanza_list = List.map (fun (list_elem) ->
                             (let evaled, env = eval env list_elem in
@@ -1162,7 +1162,7 @@ let rec eval env = function
                                         getStanza evaled
                                     else raise (Failure ("List expressions must contain elements of only 1 type"))
                             )) el in
-                                (Score ({stanzalist = stanza_list; instrument = 0}), env);
+                                (Score ({stanzalist = stanza_list; instrument = 0}), env, ("new score(" ));
                     | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
             end
     | Assign(toE, fromE) ->
