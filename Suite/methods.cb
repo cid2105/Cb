@@ -1,0 +1,6 @@
+meth void test1(bool b)
+    bool c = true;
+    if(c)
+        print(b);
+    end
+end
