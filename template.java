@@ -376,28 +376,26 @@ public class Cb {
         return new chord(notes, duration);
     }
 
-    public static chord minor(scale s) {
-    	ArrayList<Note> notes = new ArrayList<Note>();
+    public static chord minor(scale s) throws Exception {
+    	ArrayList<note> notes = new ArrayList<note>();
     	if(s.scale_notelist.size() >= 5){
     		notes.add(s.scale_notelist.get(0));
     		notes.add(flat(s.scale_notelist.get(2)));
     		notes.add(s.scale_notelist.get(4));
     	}
     	else
-    		throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
-    	if( duration == null)
-    		duration = s.scale_notelist.get(0).duration;
+            throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
+    	if(duration == null)
+            duration = s.scale_notelist.get(0).duration;
         return new chord(notes, duration);
     }
 
-    public static note sharp(note n) {
-    	Note sharped = new Note();
-
+    public static note sharp(note n) throws Exception {
+    	note sharped = new note();
     	if(n.pitch == 11)
-    		sharped = new Note(0, n.octave+1, n.duration);
+    		sharped = new note(0, n.octave+1, n.duration);
     	else
-    		sharped = new Note(n.pitch + 1, n.octave, n.duration);
-
+    		sharped = new note(n.pitch + 1, n.octave, n.duration);
     	if(sharped.isValid())
     		return sharped;
     	else
