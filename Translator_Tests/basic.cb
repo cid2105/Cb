@@ -2,3 +2,15 @@ int a = 5;
 note n = (A,-1,quarter);
 chord c = ([n],half);
 scale s = [n];
+stanza st = [c];
+print(a);
+print(n);
+print(c);
+print(s);
+print(st);
+
+while(true)
+    int j;
+    int k = 5;
+    int m = 10;
+end

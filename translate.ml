@@ -717,10 +717,10 @@ public class Cb {
 
 let main_start =
 "
-    public static void main(String[] args) { Cb runner = new Cb(); runner.run(); }
+    public static void main(String[] args) throws Exception { Cb runner = new Cb(); runner.run(); }
 "
 
-let run_start = "public void run() {"
+let run_start = "public void run() throws Exception {"
 
 let block_start = " {
 "
@@ -1160,7 +1160,7 @@ let rec eval env = function
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "chord") then ("add(" ^ asJava ^ ");")
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let chordsAsJava = String.concat "\n" javaStrList in
@@ -1176,7 +1176,7 @@ let rec eval env = function
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "chord") then ("add(" ^ asJava ^ ");")
                                     else raise (Failure ("List expressions must contain all of same type"))
                             )) el in
                         let stanzasAsJava = String.concat "\n" javaStrList in
@@ -1403,7 +1403,7 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                 (locals, globals), jStr (*When we are done return the updated globals*)
             | head::tail ->
                 match head with
-                    VDecl2(head) ->
+                    VDecl2(head) -> (print_string ("Working on a vdecl in call\n"));
                         if(fdecl_name = "") then
                             ((if NameMap.mem head.varname globals then raise (Failure ("Variable " ^ head.varname ^ " declared twice")));
                                 (call tail locals (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) globals) fdecls fdecl_name (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " " ^ head.varname ^ ";\n"))))
@@ -1411,7 +1411,7 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                             ((if NameMap.mem head.varname locals then raise (Failure ("Variable " ^ head.varname ^ " declared twice")));
                                 call tail (NameMap.add head.varname (initIdentifier (string_of_cbtype head.vartype)) locals) globals fdecls fdecl_name
                                 (jStr ^ ("\n" ^ (string_of_cbtype head.vartype) ^ " "  ^ head.varname ^ ";\n")))
-                    | FullDecl2(head) ->
+                    | FullDecl2(head) -> (print_string ("Working on a full decl in call\n"));
                         let v, env, rhsJavaString = eval (locals, globals, fdecls) head.fvexpr in
                             let vType = getType v in
                                 if vType = (string_of_cbtype head.fvtype)
@@ -1427,7 +1427,7 @@ and call fdecl_body locals globals fdecls fdecl_name jStr=
                                             | _ -> raise (Failure ("Unknown type: " ^ vType))
                                 else
                                     raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ " <> RHS = " ^ vType))
-                    | Stmt2(head) ->
+                    | Stmt2(head) -> (print_string ("Working on a stmt in call\n"));
                         let (locals, globals, fdecls), execJavaString = (exec (locals, globals, fdecls) fdecl_name head) in
                             call tail locals globals fdecls fdecl_name execJavaString
 and translate prog env =

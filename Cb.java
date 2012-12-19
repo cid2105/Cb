@@ -541,7 +541,23 @@ add(n);}}, 32);
 
 scale s = new scale(new ArrayList<note>() {{
 add(n);}});
-public void run() {
+
+stanza st = new stanza(new ArrayList<chord>() {{
+add(c);}});
+
+    public static void main(String[] args) throws Exception { Cb runner = new Cb(); runner.run(); }
+public void run() throws Exception {System.out.println(a);
+System.out.println(n);
+System.out.println(c);
+System.out.println(s);
+System.out.println(st);
+while(true) {
+int m = 10;
+int k = 5;
+
+int j;
+}
+
     }
 
 }
