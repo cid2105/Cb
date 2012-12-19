@@ -1,16 +1,8 @@
 scale s = [(A,0,1),(B,0,2),(C,0,3),(D,0,4),(E,0,5)];
-chord c = ([(A,0,1),(B,0,2),(C,0,3),(D,0,4),(E,0,5)], whole);
-
-stanza st = [c, c];
-
-score p = [st, st, st];
-
-
 
 int check = 0;
 
 foreach (note n in s)
-	print(4);
     check += 1;
     if((n.duration) is check)
         print(0);
@@ -23,19 +15,4 @@ if(check is 5)
     print(0);
 else
     print(3112);
-end
-
-foreach (note n in c)
-	print(5);
-	print(55);
-end
-
-foreach (chord n in st)
-	print(6);
-	print(66);
-end
-
-foreach (stanza n in p)
-	print(7);
-	print(77);
 end

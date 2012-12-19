@@ -1081,63 +1081,57 @@ let rec eval env = function
                                     "int" ->
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
-                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else if snd lftType = "globals" then
-                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else raise (Failure ("fatal error")))
                                         (* MEMBER METHODS *)
                                         else if lftIdType = "member" then
                                             (* NOTE MEMBER METHODS *)
                                             if fst lftType = "note" then
                                                 if snd lftName = "pitch" then
-                                                    if getInt rht_expr >= 0 && getInt rht_expr <= 127 then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) locals)).pitch <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).pitch <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else raise (Failure ("fatal error"))
-                                                    else raise (Failure ("invalid note pitch: " ^ string_of_int (getInt rht_expr) ^ ". pitch must be between 0-127."))
                                                 else if snd lftName = "duration" then (* min max checking *)
                                                     if snd lftType = "locals" then
-                                                        rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                        (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else if snd lftType = "globals" then
-                                                        rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                        (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else if snd lftName = "octave" then (* min max checking *)
-                                                    if getInt rht_expr >= -5 && getInt rht_expr <= 5 then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) locals)).octave <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).octave <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
-                                                    else raise (Failure ("invalid note octave: " ^ string_of_int (getInt rht_expr) ^ ". octave must be between -5-5."))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "chord" then
                                                 if snd lftName = "chord_duration" then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) locals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getNote (NameMap.find (fst lftName) globals)).duration <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                            (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else if fst lftType = "score" then
                                                 if snd lftName = "instrument" then
-                                                    if getInt rht_expr >= 0 && getInt rht_expr <= 127 then
-                                                        if snd lftType = "locals" then
-                                                            rht_expr, (((getScore (NameMap.find (fst lftName) locals)).instrument <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                    if snd lftType = "locals" then
+                                                        (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else if snd lftType = "globals" then
-                                                        rht_expr, (((getScore (NameMap.find (fst lftName) globals)).instrument <- getInt rht_expr); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                        (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                                     else raise (Failure ("fatal error"))
-                                                else raise (Failure ("invalid score instrument: " ^ string_of_int (getInt rht_expr) ^ ". instrument must be between 0-127."))
-                                            else raise (Failure ("fatal error"))
+                                                else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                                     | "scale" ->
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
-                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else if snd lftType = "globals" then
-                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else raise (Failure ("fatal error")))
                                         (* MEMBER METHODS *)
                                         else if lftIdType = "member" then
@@ -1146,9 +1140,9 @@ let rec eval env = function
                                                 let str_len = (length rht_expr_jString - 10) in
                                                 if snd lftName = "scale_notelist" then
                                                         if snd lftType = "locals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
+                                                            (initIdentifier (getType rht_expr)), (((getChord (NameMap.find (fst lftName) locals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
                                                         else if snd lftType = "globals" then
-                                                            rht_expr, (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
+                                                            (initIdentifier (getType rht_expr)), (((getChord (NameMap.find (fst lftName) globals)).notelist <- (getScale rht_expr).scale_notelist); (locals, globals, fdecls)), ("\n\t" ^ lft_expr_jString ^ " = " ^ (String.sub rht_expr_jString 9 str_len) )
                                                         else raise (Failure ("undeclared identifier: " ^ fst lftName))
                                                 else raise (Failure ("fatal error"))
                                             else raise (Failure ("cannot assign to: " ^ fst lftType))
@@ -1156,9 +1150,9 @@ let rec eval env = function
                                     | _ -> (* bool, note, chord, staff, part *)
                                         if lftIdType = "id" then
                                             (if snd lftType = "locals" then
-                                                rht_expr, (NameMap.add (fst lftName) rht_expr locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (NameMap.add (fst lftName) (initIdentifier (getType rht_expr)) locals, globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else if snd lftType = "globals" then
-                                                rht_expr, (locals, NameMap.add (fst lftName) rht_expr globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
+                                                (initIdentifier (getType rht_expr)), (locals, NameMap.add (fst lftName) (initIdentifier (getType rht_expr)) globals, fdecls), ("\n\t" ^ lft_expr_jString ^ " = " ^ rht_expr_jString)
                                             else raise (Failure ("fatal error")))
                                         else raise (Failure ("cannot assign to: " ^ (fst lftType)))
                             else if lftIdType = "id" then
@@ -1207,14 +1201,14 @@ and exec env fname = function
                         "chord" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in
                                     (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".notelist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with chord list"))
                         | "scale" ->
                             (*notes*)
                             if (string_of_cbtype par_decl.paramtype) = "note" then
-                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in                                    
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "note") locals) globals fdecls fname "") in
                                     (env, "for (note " ^ par_decl.paramname ^ " : " ^ list_name ^ ".scale_notelist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with scale list"))
@@ -1222,13 +1216,13 @@ and exec env fname = function
                        | "stanza" ->
                             (*chords*)
                             if (string_of_cbtype par_decl.paramtype) = "chord" then
-                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "chord") locals) globals fdecls fname "") in                                    
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "chord") locals) globals fdecls fname "") in
                                     (env, "for (chord " ^ par_decl.paramname ^ " : " ^ list_name ^ ".chordlist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with stanza list"))
                         | "score" ->
                              if (string_of_cbtype par_decl.paramtype) = "stanza" then
-                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "stanza") locals) globals fdecls fname "") in                                    
+                                let (l, g), jStr = (call (sl) (NameMap.add par_decl.paramname (initIdentifier "stanza") locals) globals fdecls fname "") in
                                     (env, "for (stanza " ^ par_decl.paramname ^ " : " ^ list_name ^ ".stanzalist " ^ ") { " ^ jStr ^ " } ")
                             else
                                 raise (Failure ("failure of type matching with score list"))
