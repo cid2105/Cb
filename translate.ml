@@ -177,8 +177,7 @@ let globalJava = ref ""
 let mainJava = ref ""
 
 let import_decl =
-"
-import java.io.File;
+"import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.sound.midi.InvalidMidiDataException;
@@ -186,8 +185,7 @@ import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
-"
+import javax.sound.midi.Track;"
 
 let class_start =
 "
@@ -355,12 +353,6 @@ class score {
 }
 
 public class Cb {
-    /*
-     * All global variables should be put here once declared
-     * but we still have to check that when you access them they exist
-     * because java won't do that for us
-     */
-
     /**
      * ********************compose helper functions****************************
      * source: http://www.penguinpeepshow.com/CSV2MIDI.php
@@ -755,6 +747,7 @@ let rec eval env = function
                 (NameMap.find name globals), env, name
             else raise (Failure ("undeclared identifier: " ^ name))
     | MemberAccess(vname, memname) ->
+
         let v, env, asJava = eval env (Id vname) in
             let vType = getType v in
             (match vType with
@@ -811,6 +804,7 @@ let rec eval env = function
     | NoteExpr(s,e,e1) ->
         let oct, env, octAsJava = eval env e in
             let octType = getType oct in
+
                 if octType = "int" then (let dur, env, durAsJava = eval env e1 in
                                     let durType = getType dur in
                                         if durType = "int" then
@@ -820,6 +814,7 @@ let rec eval env = function
                                             (" new note(" ^ (string_of_int (NameMap.find s noteMap)) ^ "," ^ octAsJava ^ "," ^ durAsJava ^ ")"));
                                         end
                                         else raise (Failure ("Duration does not evaluate to an integer")))
+
                 else  raise (Failure ("Octave does not evaluate to an integer"))
     | BinOp(e1,o,e2) ->
         let v1, env, v1AsJava = eval env e1 in
@@ -1066,6 +1061,7 @@ let rec eval env = function
         );
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
                                             "\tadd("^ scor ^");"
+
                                         ) (List.rev score_names);)
         in Bool true, env, ("compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "}})")
 (*         composeJava :=
@@ -1438,9 +1434,17 @@ and translate prog env =
     let locals, globals, fdecls = env in
         match prog with
             [] -> (* everything went well, write the java file and quit *)
-                (* print_string( import_decl ^ " " ^ globalJava.contents); *)
+                (print_string ("Finished the program\n"));
+                (* (print_string import_decl); *)
+                (* (print_string class_start); *)
+                (print_string globalJava.contents);
+                (print_string methJava.contents);
+                (print_string run_start);
+                (print_string mainJava.contents);
+                (print_string run_end);
+                (print_string class_end);
                 let javaOut = open_out ("Cb.java") in
-                Printf.fprintf javaOut "%s" (import_decl ^ class_start ^ globalJava.contents ^ methJava.contents ^ run_start ^ mainJava.contents ^ run_end ^ class_end);
+                Printf.fprintf javaOut "%s" (import_decl ^ class_start ^ globalJava.contents ^ methJava.contents ^ main_start ^ run_start ^ mainJava.contents ^ run_end ^ class_end);
                 (close_out javaOut);
                 Bool true, (locals, globals, fdecls)
             | head::tail ->
@@ -1464,7 +1468,9 @@ and translate prog env =
                                             | "scale" -> translate tail (locals, (NameMap.add head.fvname (Scale (getScale v)) globals), fdecls)
                                             | "stanza" -> translate tail (locals, (NameMap.add head.fvname (Stanza (getStanza v)) globals), fdecls)
                                             | "score" -> translate tail (locals, (NameMap.add head.fvname (Score (getScore v)) globals), fdecls)
+
                                             | _ -> raise (Failure ("Unknown type: " ^ vType)))
+
                                 else
                                     (raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ "<> RHS = " ^ vType)))
                     | MDecl(head) ->

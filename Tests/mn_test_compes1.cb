@@ -2,7 +2,7 @@
 <- testing compose method->
 <-note p=(C#,3,half);
 compose(p);
-->
+
  int inc = 9;
 note a = (C, 3, whole);
 note a = (D,4, whole);
@@ -12,13 +12,16 @@ note c = (F, 3, whole);
 inc--;
 chord c1 = ([(Db,4,quarter), (C#, 2, half)], half);
 c^-;
+note mm = (C, -3, half*3);
+
 chord c2 = ([a,b,c], half);
 
 stanza p = [c1, c1, c2];
 
 score m = [p];
-
+->
+int a;
 <- meth do(int w);->
-
+<-
 compose(m);
-
+->
