@@ -441,8 +441,8 @@ public class Cb {
                         } else {
                             track[channel].add(createNoteOnEvent(nt, tick, channel, velocity));             //add note to this track
                         }
-                        // tick = tick + duration;  //first number is tick
-                        // track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
+                         tick = tick + duration;  //first number is tick
+                         track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
                     }
                     tick = tick + duration;
                      System.out.println(\"tick:-\" + tick + \"> \\n \" + duration);
@@ -763,18 +763,18 @@ let rec eval env = function
     | BoolLiteral(b) -> (* (print_string ("Evaluating a bool literal: " ^ (string_of_bool b) ^ "\n")); *)
         (initIdentifier "bool"), env, (string_of_bool b)
     | ChordExpr(el, e) -> (* (print_string ("Evaluating a chordexpr\n")); *)
-        let note_list = List.map (fun (note_elem) ->
+(*         let note_list = List.map (fun (note_elem) ->
             (let chord_elem, env, asJava = eval env note_elem in
                 let vType = (getType chord_elem) in
                     if ( vType = "note") then (getNote (chord_elem))
                     else raise (Failure ("Chord must be composed of notes "))
-            )) el in
+            )) el in *)
                 let javaStrList = List.map (fun (note_elem) ->
                     (let chord_elem, env, asJava = eval env note_elem in
                         let vType = (getType chord_elem) in
-                            if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                            if ( vType = "note") then ("add(" ^ asJava ^ ".deepCopy());")
                             else raise (Failure ("Chord must be composed of notes "))
-                    )) el in
+                    )) (List.rev el) in
                 let chordAsJava = String.concat "\n" javaStrList in
                     let dur, env, durAsJava = eval env e in
                         let durType = getType dur in
@@ -856,7 +856,7 @@ let rec eval env = function
                     if v1Type = "int" then
                         (initIdentifier "bool")
                     else raise (Failure ("cannot compare: " ^ v1Type ^ " >= " ^ v2Type))
-                | _ -> raise (Failure ("Unknown binary operation"))
+             (*    | _ -> raise (Failure ("Unknown binary operation")) *)
             ), env, (v1AsJava ^ (string_of_op o) ^ v2AsJava)
         else raise (Failure ("type mismatch: " ^ v1Type ^ " and " ^ v2Type))
     | MethodCall("print", [e]) ->
@@ -984,7 +984,7 @@ let rec eval env = function
                         ) (List.rev actuals);
         );
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
-                                            "\n\tadd("^ scor ^");"
+                                            "\n\tadd("^ scor ^".deepCopy());"
                                         ) (List.rev score_names);)
         in Bool true, env, ("\n  compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "\n}})")
     | MethodCall(name, el) -> (* Check that method exists and passing correct args, do not actually call *)
@@ -998,7 +998,7 @@ let rec eval env = function
                         let v, env, _ = ((eval env) actual) in (v :: al), env
                     ) ([], env) el
                 in
-                let actualsAsJava = String.concat "," (List.map(fun arg -> let _, _, asJava = eval env arg in asJava)el) in
+                let actualsAsJava = String.concat "," (List.map(fun arg -> let _, _, asJava = eval env arg in asJava) (List.rev el)) in
                     let l1 =
                         try List.fold_left2 (fun locals formal actual ->
                                                 if (getType actual) = (string_of_cbtype formal.paramtype) then
@@ -1038,28 +1038,28 @@ let rec eval env = function
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "note") then ("add(" ^ asJava ^ ".deepCopy());")
                                     else raise (Failure ("List expressions must contain all of same type"))
-                            )) el in
-                        let notesAsJava = String.concat "\n" (List.rev javaStrList) in
+                            )) (List.rev el) in
+                        let notesAsJava = String.concat "\n" javaStrList in
                                 (initIdentifier "scale"), env, ("new scale(new ArrayList<note>() {{\n" ^ notesAsJava ^ "}})")
                     | "chord" -> (* if it is a chord create a stanza *)
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "chord") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "chord") then ("add(" ^ asJava ^ ".deepCopy());")
                                     else raise (Failure ("List expressions must contain all of same type"))
-                            )) el in
-                        let chordsAsJava = String.concat "\n" (List.rev javaStrList) in
+                            )) (List.rev el) in
+                        let chordsAsJava = String.concat "\n" javaStrList in
                                 (initIdentifier "stanza"), env, ("new stanza(new ArrayList<chord>() {{\n" ^ chordsAsJava ^ "}})")
                     | "stanza" -> (* if it is a stanza create a score *)
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "stanza") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "stanza") then ("add(" ^ asJava ^ ".deepCopy());")
                                     else raise (Failure ("List expressions must contain all of same type"))
-                            )) el in
-                        let stanzasAsJava = String.concat "\n" (List.rev javaStrList) in
+                            )) (List.rev el) in
+                        let stanzasAsJava = String.concat "\n"  javaStrList in
                                 (initIdentifier "score"), env, ("new score(new ArrayList<stanza>() {{\n" ^ stanzasAsJava ^ "}})")
                     | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
             end
@@ -1183,13 +1183,18 @@ and exec env fname = function
         | If(e, ibl, s) -> (* (print_string ("If stmt with else in exec\n")); *)
             let (locals, globals, fdecls) = env in
                 let v, env, evalJavaString = eval env e in
-                    if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev ibl) locals globals fdecls fname "")) ^ "}\n else {\n" ^ (snd ((exec env fname) s)) ^ "}\n"))
-                    else raise (Failure ("If statement must be given boolean expression"))
-        | If(e, s, Block([])) -> (* (print_string ("If stmt without else in exec\n")); *)
+                    if (snd ((exec env fname) s)) = "" then
+                        if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev ibl) locals globals fdecls fname "")) ^ "}\n"))
+                        else raise (Failure ("If statement must be given boolean expression"))
+                    else 
+                        if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev ibl) locals globals fdecls fname "")) ^ "}\n else {\n" ^ (snd ((exec env fname) s)) ^ "}\n"))
+                    
+                        else raise (Failure ("If statement must be given boolean expression"))
+       (*  | If(e, s, Block([])) -> (* (print_string ("If stmt without else in exec\n")); *)
             let (locals, globals, fdecls) = env in
                 let v, env, evalJavaString = eval env e in
                     if (getType v) = "bool" then (env, ("if(" ^ evalJavaString ^ ") {\n" ^ (snd (call (List.rev s) locals globals fdecls fname "")) ^ "}\n"))
-                    else raise (Failure ("If statement must be given boolean expression"))
+                    else raise (Failure ("If statement must be given boolean expression")) *)
        | Foreach(par_decl, list_name, sl) ->
             let locals, globals, fdecls = env in (* env *)
                 let list1 = (*check for var existence in locals *)
@@ -1242,7 +1247,7 @@ and exec env fname = function
                             (locals, globals, fdecls), ("while(" ^ javaString ^ ") {\n" ^ jStr ^ "}\n")
                 )
                 else raise (Failure ("while loop argument must decompose to a boolean value"))
-        | _ -> raise (Failure ("Unable to match the statment"))
+       (*  | _ -> raise (Failure ("Unable to match the statment")) *)
 (* Execute the body of a method and return an updated global map *)
 and call fdecl_body locals globals fdecls fdecl_name jStr =
        (*  (print_string ("Call jStr = " ^ jStr ^ "\n")); *)
@@ -1270,12 +1275,12 @@ and call fdecl_body locals globals fdecls fdecl_name jStr =
                                     then
                                         match vType with
                                             "int" -> (* print_string ("\n\n<" ^ head.fvname ^ ">"); *) call tail (NameMap.add head.fvname (initIdentifier "int") locals) globals fdecls fdecl_name (jStr ^ ("int " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "note" -> call tail (NameMap.add head.fvname (initIdentifier "note") locals) globals fdecls fdecl_name (jStr ^ ("note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "chord" -> call tail (NameMap.add head.fvname (initIdentifier "chord") locals) globals fdecls fdecl_name (jStr ^ ("chord " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "bool" -> call tail (NameMap.add head.fvname (initIdentifier "bool") locals) globals fdecls fdecl_name (jStr ^ ("boolean " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "scale" -> call tail (NameMap.add head.fvname (initIdentifier "scale") locals) globals fdecls fdecl_name (jStr ^ ("scale " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "stanza" -> call tail (NameMap.add head.fvname (initIdentifier "stanza") locals) globals fdecls fdecl_name (jStr ^ ("stanza " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
-                                            | "score" -> call tail (NameMap.add head.fvname (initIdentifier "score") locals) globals fdecls fdecl_name (jStr ^ ("score " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "note" -> call tail (NameMap.add head.fvname (initIdentifier "note") locals) globals fdecls fdecl_name (jStr ^ ("final note " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "chord" -> call tail (NameMap.add head.fvname (initIdentifier "chord") locals) globals fdecls fdecl_name (jStr ^ ("final chord " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "bool" -> call tail (NameMap.add head.fvname (initIdentifier "bool") locals) globals fdecls fdecl_name (jStr ^ ("final boolean " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "scale" -> call tail (NameMap.add head.fvname (initIdentifier "scale") locals) globals fdecls fdecl_name (jStr ^ ("final scale " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "stanza" -> call tail (NameMap.add head.fvname (initIdentifier "stanza") locals) globals fdecls fdecl_name (jStr ^ ("final stanza " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
+                                            | "score" -> call tail (NameMap.add head.fvname (initIdentifier "score") locals) globals fdecls fdecl_name (jStr ^ ("final score " ^ head.fvname ^ " = " ^ rhsJavaString ^ ";\n"))
                                             | _ -> raise (Failure ("Unknown type: " ^ vType))
                                 else
                                     raise (Failure ("LHS = " ^ (string_of_cbtype head.fvtype) ^ " <> RHS = " ^ vType))
@@ -1331,7 +1336,7 @@ and translate prog env =
                             let (_, _), javaBody = call head.body newlocals globals (NameMap.add head.fname head fdecls) head.fname "" in
                                 let rtype = if (string_of_cbtype head.rettype) = "bool" then "boolean" else (string_of_cbtype head.rettype) in
                                     (methJava := methJava.contents ^ "\npublic " ^ rtype ^ " " ^ head.fname ^ "(" ^
-                                    (String.concat "," (List.map(fun arg -> (if (string_of_cbtype arg.paramtype) = "bool" then "boolean" else (string_of_cbtype arg.paramtype)) ^ " " ^ arg.paramname)head.formals)) ^
+                                    (String.concat "," (List.map(fun arg -> (if (string_of_cbtype arg.paramtype) = "bool" then "boolean" else (string_of_cbtype arg.paramtype)) ^ " " ^ arg.paramname) (List.rev head.formals))) ^
                                     ") {" ^ javaBody ^ "\n}\n");
                             translate tail (locals, globals, (NameMap.add head.fname head fdecls))
                         )

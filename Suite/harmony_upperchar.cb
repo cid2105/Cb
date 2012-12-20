@@ -1,18 +1,15 @@
-
-<-
- -  
- ->
 meth void harmony(note a)
 
+	a^+;
 	a^+;
 
 end
 
-note c = (C, -1, quarter);
+note c = (C, 0, quarter);
 
-note d = (D, -1, quarter);
+note d = (D, 0, quarter);
 
-note e = (E, -1, quarter);
+note e = (E, 0, quarter);
 
 chord cc = ([c,d,e], quarter);
 

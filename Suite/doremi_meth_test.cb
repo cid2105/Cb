@@ -1,4 +1,7 @@
-<- include package.pcb= doremi(oct, dur);->
+<- 
+ - plays doremifasolati n times
+ - with increasing pitch
+->
 
 meth stanza getsca(scale s)
     stanza st1;

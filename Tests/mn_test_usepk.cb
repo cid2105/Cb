@@ -12,9 +12,9 @@ meth  stanza doremi(int octaves, int duration)
     note la = (A,0, duration); 
     note ti = (B,0, duration); 
     note dor = (C,1, duration);
-    scale s = [do, re, mi, fa, so, la, ti, dor ];
+    scale s = [do, re, mi, fa, so, la, ti, dor];
     stanza st;
-    
+
     int c = 0;
     while(c < octaves)
         st = getsca(s);
