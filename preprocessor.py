@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#Cb language preprocessor, by Matthew Cowan
 
 import sys
 import os

@@ -6,14 +6,25 @@ note d = (D,0,quarter);
 note d_8 = (D,0,eighth);
 note high_D = (D,1,quarter);
 note e = (E,0,quarter);
+note high_E = (E,1,quarter);
 note e_8 = (E,0,eighth);
 note c = (C,-1,quarter);
+note c_8 = (C,-1,eighth);
 note b = (B,0,quarter);
+note high_B = (B,1,quarter);
+note low_b = (B,-1,quarter);
 note a = (A,0,quarter);
+note f = (F,0,quarter);
 
 chord db = ([d,b],eighth);
 chord da = ([d,a],eighth);
 chord dg = ([d,g_16],eighth);
+chord gd_q = ([high_D,g_8],quarter);
+chord gd_e = ([high_D,g_8],eighth);
+chord double_e = ([high_E,e],quarter);
+chord eb = ([high_E,high_B],48);
+chord fb = ([b, f],48);
+chord double_b = ([low_b,b],quarter);
 
 meth stanza startRest()
     stanza tmp = [rest(eighth)];
@@ -31,6 +42,10 @@ stanza bass4 = repeat(chordOfNote(c),4);
 stanza bass5 = repeat(chordOfNote(g_8),8);
 stanza bass6 = repeat(chordOfNote(d_8),8);
 stanza bass7 = repeat(chordOfNote(e_8),8);
+stanza bass8 = repeat(chordOfNote(c_8),4);
+bass8 = concat(bass8, repeat(chordOfNote(c),2));
+stanza bass9 = [double_e,eb];
+stanza bass10 = [double_b,fb];
 
 <-I threw a wish in the well->
 <-Don't ask me, I'll never tell->
@@ -47,7 +62,8 @@ verse2 = concat(verse2, repeat(da, 2));
 <-and now you're in my way->
 stanza verse3 = startRest();
 verse3 = concat(verse3, repeat(dg,3));
-stanza triplet = [([d,g_16],3),([high_D,d],2),([d,b],3)];
+stanza triplet = [([d,g_16],11),([high_D,d],10),([d,b],11),rest(8)];
+verse3 = concat(verse3, triplet);
 
 <-I trade my soul for a wish->
 <-same as verse1->
@@ -58,7 +74,24 @@ stanza triplet = [([d,g_16],3),([high_D,d],2),([d,b],3)];
 <-I wasn't looking for this->
 <-same as verse 2->
 
-piano_bass = [bass1,bass2,bass3,bass4,bass5,bass6,bass7];
-piano_treble = [s1,verse1,verse1,verse2,verse3,triplet,verse1,verse1,verse2];
+<-but now you're in my way->
+<-same as verse3->
+
+<-Your stare was holdin->
+chord accent = chordOfNote(b);
+accent.chord_duration = 4;
+chord dotted_a = chordOfNote(a);
+dotted_a.chord_duration = 12;
+stanza q_rest = [rest(quarter)];
+stanza verse4 = [gd_q,gd_e,accent,dotted_a, chordOfNote(g_8), chordOfNote(g_8)];
+
+<-ripped jeans, skin was showin->
+stanza verse5 = prepend(gd_q, verse4);
+
+<-hot night, wind was blowin->
+<-same as verse 5->
+
+piano_bass = [bass1,bass2,bass3,bass4,bass5,bass6,bass7,bass8,bass9,bass10];
+piano_treble = [s1,verse1,verse1,verse2,verse3,triplet,verse1,verse1,verse2,verse3,q_rest,verse4,verse5,verse5];
 
 compose(piano_bass, piano_treble);

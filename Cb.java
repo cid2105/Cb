@@ -188,7 +188,7 @@ public class Cb {
      * source: http://www.penguinpeepshow.com/CSV2MIDI.php
      * helper function for mapping values of pitch and octave to range 0 - 127
      */
-    static long map(long x, long in_min, long in_max, long out_min, long out_max) {
+    long map(long x, long in_min, long in_max, long out_min, long out_max) {
         return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
     /*
@@ -196,21 +196,21 @@ public class Cb {
      * turns note on
      */
 
-    private static MidiEvent createNoteOnEvent(int nKey, long lTick, int channel, int velocity) {
+    private MidiEvent createNoteOnEvent(int nKey, long lTick, int channel, int velocity) {
         return createNoteEvent(ShortMessage.NOTE_ON, nKey, velocity, lTick, channel);
     }
 
     /*
      * turns note off
      */
-    private static MidiEvent createNoteOffEvent(int nKey, long lTick, int channel) {
+    private MidiEvent createNoteOffEvent(int nKey, long lTick, int channel) {
         return createNoteEvent(ShortMessage.NOTE_OFF, nKey, 0, lTick, channel);  //set note to 0 velocity
     }
 
     /*
      * turns note on or off
      */
-    private static MidiEvent createNoteEvent(int nCommand, int nKey, int nVelocity, long lTick, int channel) {
+    private MidiEvent createNoteEvent(int nCommand, int nKey, int nVelocity, long lTick, int channel) {
         ShortMessage message = new ShortMessage();
         try {
             message.setMessage(nCommand, channel, nKey, nVelocity);
@@ -228,7 +228,7 @@ public class Cb {
      * java take care of that, I am not fully certain)
      * Note: this score list has to hold at most 16 stanzas
      */
-    public static void compose(ArrayList<score> data) throws InvalidMidiDataException {
+    public void compose(ArrayList<score> data) throws InvalidMidiDataException {
         int nChannels = data.size();
         Sequence sequence = null;
 
@@ -330,7 +330,7 @@ public class Cb {
 
                     MidiEvent event = track[i].get(j);
 
-                    // System.out.println(" tick " + event.getTick() + ", " + MessageInfo.toString(event.getMessage()));
+                    //System.out.println(" tick " + event.getTick() + ", " + MessageInfo.toString(event.getMessage()));
 
                 }
 
@@ -352,7 +352,7 @@ public class Cb {
     }
 
     // assumes it is passed a minor scale
-    public static chord major(scale s) throws Exception {
+    public chord major(scale s) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
             notes.add(s.scale_notelist.get(0));
@@ -367,7 +367,7 @@ public class Cb {
         return new chord(notes, duration);
     }
 
-    public static chord major(scale s, int duration) throws Exception {
+    public chord major(scale s, int duration) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
             notes.add(s.scale_notelist.get(0));
@@ -379,7 +379,7 @@ public class Cb {
         return new chord(notes, duration);
     }
 
-    public static chord minor(scale s) throws Exception {
+    public chord minor(scale s) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
             notes.add(s.scale_notelist.get(0));
@@ -392,7 +392,7 @@ public class Cb {
         return new chord(notes, duration);
     }
 
-    public static chord minor(scale s, int duration) throws Exception {
+    public chord minor(scale s, int duration) throws Exception {
         ArrayList<note> notes = new ArrayList<note>();
         if(s.scale_notelist.size() >= 5){
             notes.add(s.scale_notelist.get(0));
@@ -405,7 +405,7 @@ public class Cb {
     }
 
 
-    public static note sharp(note n) throws Exception {
+    public note sharp(note n) throws Exception {
         note sharped = new note();
         if(n.pitch == 11)
             sharped = new note(0, n.octave+1, n.duration);
@@ -417,7 +417,7 @@ public class Cb {
             throw new Exception("To convert a scale into a minor chord, you must pass a scale of at least five notes");
     }
 
-    public static note flat(note n) {
+    public note flat(note n) {
         return new note();
     }
 
@@ -426,69 +426,69 @@ public class Cb {
      * @param i The maximum value for the integer
      * @return A random integer between 0 and i
      */
-    public static int randint(int i) {
+    public int randint(int i) {
         return (int)(Math.random()*i);
     }
 
-    public static chord chordOfNote(note n) {
+    public chord chordOfNote(note n) {
         return n.toChord();
     }
 
-    public static chord rest(int d) {
+    public chord rest(int d) {
         ArrayList<note> temp = new ArrayList<note>(1);
         temp.add(new note(-1, 0, d));
         return new chord(temp, d);
     }
 
-    public static chord prepend(note n, chord c) {
+    public chord prepend(note n, chord c) {
         chord tmp = c.deepCopy();
         tmp.notelist.add(0, n.deepCopy());
         return tmp;
     }
 
-    public static scale prepend(note n, scale s) {
+    public scale prepend(note n, scale s) {
         scale tmp = s.deepCopy();
         tmp.scale_notelist.add(0, n.deepCopy());
         return tmp;
     }
 
-    public static stanza prepend(chord c, stanza s) {
+    public stanza prepend(chord c, stanza s) {
         stanza tmp = s.deepCopy();
         tmp.chordlist.add(0, c.deepCopy());
         return tmp;
     }
 
-    public static score prepend(stanza st, score sc) {
+    public score prepend(stanza st, score sc) {
         score tmp = sc.deepCopy();
         tmp.stanzalist.add(0, st.deepCopy());
         return tmp;
     }
 
-    public static chord append(note n, chord c) {
+    public chord append(note n, chord c) {
         chord tmp = c.deepCopy();
         tmp.notelist.add(n.deepCopy());
         return tmp;
     }
 
-    public static scale append(note n, scale s) {
+    public scale append(note n, scale s) {
         scale tmp = s.deepCopy();
         tmp.scale_notelist.add(n.deepCopy());
         return tmp;
     }
 
-    public static stanza append(chord c, stanza s) {
+    public stanza append(chord c, stanza s) {
         stanza tmp = s.deepCopy();
         tmp.chordlist.add(c.deepCopy());
         return tmp;
     }
 
-    public static score append(stanza st, score sc) {
+    public score append(stanza st, score sc) {
         score tmp = sc.deepCopy();
         tmp.stanzalist.add(st.deepCopy());
         return tmp;
     }
 
-    public static scale concat(scale s1, scale s2) {
+    public scale concat(scale s1, scale s2) {
         scale tmp = s1.deepCopy();
         for(note n : s2.scale_notelist) {
             tmp.scale_notelist.add(n.deepCopy());
@@ -496,7 +496,7 @@ public class Cb {
         return tmp;
     }
 
-    public static stanza concat(stanza s1, stanza s2) {
+    public stanza concat(stanza s1, stanza s2) {
         stanza tmp = s1.deepCopy();
         for(chord c : s2.chordlist) {
             tmp.chordlist.add(c.deepCopy());
@@ -504,7 +504,7 @@ public class Cb {
         return tmp;
     }
 
-    public static score concat(score s1, score s2) {
+    public score concat(score s1, score s2) {
         score tmp = s1.deepCopy();
         for(stanza s : s2.stanzalist) {
             tmp.stanzalist.add(s.deepCopy());
@@ -512,7 +512,7 @@ public class Cb {
         return tmp;
     }
 
-    public static scale repeat(note n, int i) throws Exception {
+    public scale repeat(note n, int i) throws Exception {
         scale tmp = new scale();
         if (i < 1) {
             throw new Exception("repeat function takes an integer that must be 1 or greater");
@@ -520,10 +520,10 @@ public class Cb {
         for(int j = 0; j < i; j++) {
             tmp.scale_notelist.add(n.deepCopy());
         }
-        return new scale();
+        return tmp;
     }
 
-    public static stanza repeat(chord c, int i) throws Exception {
+    public stanza repeat(chord c, int i) throws Exception {
         stanza tmp = new stanza();
         if (i < 1) {
             throw new Exception("repeat function takes an integer that must be 1 or greater");
@@ -531,10 +531,10 @@ public class Cb {
         for(int j = 0; j < i; j++) {
             tmp.chordlist.add(c.deepCopy());
         }
-        return new stanza();
+        return tmp;
     }
 
-    public static score repeat(stanza s, int i) throws Exception{
+    public score repeat(stanza s, int i) throws Exception{
         score tmp = new score();
         if (i < 1) {
             throw new Exception("repeat function takes an integer that must be 1 or greater");
@@ -546,7 +546,7 @@ public class Cb {
         return tmp;
     }
 
-    public static score repeat(score s, int i) throws Exception{
+    public score repeat(score s, int i) throws Exception{
         score tmp = new score();
         if (i < 1) {
             throw new Exception("repeat function takes an integer that must be 1 or greater");
@@ -563,87 +563,225 @@ public class Cb {
 
 int eighth;
 
-note c;
+note g_8;
 
-note e_flat;
+note g_16;
 
-note g;
+note high_g;
 
-note b_flat;
+note low_g;
 
 note d;
 
-note f;
+note d_8;
 
-note b;
+note low_d;
 
-note a;
+note high_D;
 
 note e;
 
-chord cm7_chrd;
+note high_E;
 
-chord cm7_chrd_long;
+note low_e;
 
-chord cm_chrd;
+note low_e_8;
 
-chord cm_chrd_long;
+note e_8;
 
-chord bb_chrd;
+note c;
 
-chord g_chrd;
+note c_8;
 
-chord ab_chrd;
+note b;
 
-chord c_chord;
+note high_B;
 
-stanza score1rests;
+note low_b;
 
-score active;
+note a;
 
-score base;
+note high_a;
 
-public stanza intro() {stanza eott_intro = new stanza(new ArrayList<chord>() {{
-add(rest(24));
-add(cm7_chrd);
-add(rest(4));
-add(bb_chrd);
-add(rest(4));
-add(cm7_chrd_long);
-add(rest(16));
-add(cm7_chrd);
-add(rest(4));
-add(bb_chrd);
-add(rest(4));
-add(cm7_chrd_long);
-add(rest(16));
-add(cm_chrd);
-add(rest(4));
-add(g_chrd);
-add(rest(4));
-add(c_chord);}});
+note f;
 
-	eott_intro = prepend(cm_chrd,eott_intro);
-return eott_intro;
+note low_c;
+
+note bass_low_g;
+
+note bass_mid_d;
+
+note bass_mid_g;
+
+note bass_mid_b;
+
+note b5;
+
+note m1;
+
+note mel_mid_b;
+
+note m3;
+
+note bass_low_d;
+
+note bass_low_a;
+
+note bass_mid_f_sharp;
+
+note bass_low_d_quarter;
+
+note mel_high_b;
+
+note mel_high_c;
+
+note mel_high_b_dotted_eighth;
+
+note bass_low_c;
+
+note bass_mid_c;
+
+note mel_high_a;
+
+note mel_high_a_dotted_eighth;
+
+chord db;
+
+chord da;
+
+chord da_48;
+
+chord dg;
+
+chord gd_48;
+
+chord gd_q;
+
+chord gd_e;
+
+chord double_e;
+
+chord low_double_e;
+
+chord eb;
+
+chord norm_eb;
+
+chord fb;
+
+chord double_b;
+
+chord up_double_b;
+
+chord double_a;
+
+chord double_g;
+
+chord low_double_g;
+
+chord double_c;
+
+chord double_d;
+
+chord cg;
+
+score piano_bass;
+
+score piano_treble;
+
+stanza s1;
+
+stanza bass1;
+
+stanza bass2;
+
+stanza bass3;
+
+stanza bass4;
+
+stanza bass5;
+
+stanza bass6;
+
+stanza bass7;
+
+stanza bass8;
+
+stanza bass9;
+
+stanza bass10;
+
+stanza bass11;
+
+stanza verse1;
+
+stanza verse2;
+
+stanza verse3;
+
+stanza triplet;
+
+chord accent;
+
+chord dotted_a;
+
+stanza q_rest;
+
+stanza verse4;
+
+stanza verse5;
+
+stanza verse6;
+
+int dotted_eight;
+
+int sixteenth;
+
+stanza bm_1;
+
+chord chord_m1;
+
+chord chord_m2;
+
+chord chord_m3;
+
+stanza mm_1;
+
+stanza bm_2;
+
+stanza mm_2;
+
+stanza bm_3;
+
+stanza mm_3;
+
+stanza bm_4;
+
+stanza mm_4;
+
+stanza terminal;
+
+public stanza startRest() {stanza tmp = new stanza(new ArrayList<chord>() {{
+add(rest(eighth));}});
+return tmp;
 
 }
 
-public stanza baseline() {
-	c.duration  = eighth;
+public stanza raise_scale_pitch_by_one(scale s) {
+stanza temp_stanza = new stanza();
+for (note n : s.scale_notelist ) { 
+	n.pitch  = n.pitch +1;
 
-	c.octave  = -1;
-int i = 0;
+	temp_stanza = append(chordOfNote(n),temp_stanza);
+ } return temp_stanza;
 
-stanza bl = new stanza();
-while(i<4) {
-
-	bl = append(chordOfNote(c),bl);
-
-	bl = append(rest(eighth),bl);
-
-	i = i+1;
 }
-return bl;
+
+public stanza make_stanza_from_scale(scale s) {
+stanza temp_stanza = new stanza();
+for (note n : s.scale_notelist ) { 
+	temp_stanza = append(chordOfNote(n),temp_stanza);
+ } return temp_stanza;
 
 }
 
@@ -651,80 +789,395 @@ return bl;
 public void run() throws Exception {
 eighth = 16/2;
 
-c =  new note(0,0,64);
+g_8 =  new note(7,0,16/2);
 
-e_flat =  new note(3,0,64);
+g_16 =  new note(7,0,16);
 
-g =  new note(7,0,64);
+high_g =  new note(7,1,16);
 
-b_flat =  new note(10,0,64);
+low_g =  new note(7,-1,16);
 
-d =  new note(2,0,64);
+d =  new note(2,0,16);
 
-f =  new note(5,0,64);
+d_8 =  new note(2,0,eighth);
 
-b =  new note(11,0,64);
+low_d =  new note(2,-1,16);
 
-a =  new note(9,0,64);
+high_D =  new note(2,1,16);
 
-e =  new note(4,0,64);
+e =  new note(4,0,16);
 
-cm7_chrd = new chord(new ArrayList<note>() {{
-add(b_flat);
-add(g);
-add(e_flat);
-add(c);}}, eighth);
+high_E =  new note(4,1,16);
 
-cm7_chrd_long = new chord(new ArrayList<note>() {{
-add(b_flat);
-add(g);
-add(e_flat);
-add(c);}}, 24);
+low_e =  new note(4,-1,16);
 
-cm_chrd = new chord(new ArrayList<note>() {{
-add(g);
-add(e_flat);
-add(c);}}, eighth);
+low_e_8 =  new note(4,-1,16);
 
-cm_chrd_long = new chord(new ArrayList<note>() {{
-add(g);
-add(e_flat);
-add(c);}}, 24);
+e_8 =  new note(4,0,eighth);
 
-bb_chrd = new chord(new ArrayList<note>() {{
-add(f);
-add(d);
-add(b_flat);}}, eighth);
+c =  new note(0,-1,16);
 
-g_chrd = new chord(new ArrayList<note>() {{
-add(d);
+c_8 =  new note(0,-1,eighth);
+
+b =  new note(11,0,16);
+
+high_B =  new note(11,1,16);
+
+low_b =  new note(11,-1,16);
+
+a =  new note(9,0,16);
+
+high_a =  new note(9,1,16);
+
+f =  new note(5,0,16);
+
+low_c =  new note(0,-1,16);
+
+bass_low_g =  new note(7,-1,eighth);
+
+bass_mid_d =  new note(2,0,eighth);
+
+bass_mid_g =  new note(7,0,eighth);
+
+bass_mid_b =  new note(11,1,16);
+
+b5 =  new note(7,-1,16);
+
+m1 =  new note(7,2,eighth);
+
+mel_mid_b =  new note(11,1,eighth);
+
+m3 =  new note(2,2,eighth);
+
+bass_low_d =  new note(2,-1,eighth);
+
+bass_low_a =  new note(9,0,eighth);
+
+bass_mid_f_sharp =  new note(6,1,16);
+
+bass_low_d_quarter =  new note(2,-1,16);
+
+mel_high_b =  new note(11,2,eighth);
+
+mel_high_c =  new note(0,3,eighth);
+
+mel_high_b_dotted_eighth =  new note(11,2,12);
+
+bass_low_c =  new note(0,-1,eighth);
+
+bass_mid_c =  new note(0,0,eighth);
+
+mel_high_a =  new note(9,2,eighth);
+
+mel_high_a_dotted_eighth =  new note(9,2,eighth);
+
+db = new chord(new ArrayList<note>() {{
 add(b);
-add(g);}}, eighth);
+add(d);}}, eighth);
 
-ab_chrd = new chord(new ArrayList<note>() {{
-add(e_flat);
-add(c);
-add(b);
-add(a);}}, 128);
+da = new chord(new ArrayList<note>() {{
+add(a);
+add(d);}}, eighth);
 
-c_chord = new chord(new ArrayList<note>() {{
-add(g);
+da_48 = new chord(new ArrayList<note>() {{
+add(a);
+add(d);}}, 48);
+
+dg = new chord(new ArrayList<note>() {{
+add(g_16);
+add(d);}}, eighth);
+
+gd_48 = new chord(new ArrayList<note>() {{
+add(g_8);
+add(high_D);}}, 48);
+
+gd_q = new chord(new ArrayList<note>() {{
+add(g_8);
+add(high_D);}}, 16);
+
+gd_e = new chord(new ArrayList<note>() {{
+add(g_8);
+add(high_D);}}, eighth);
+
+double_e = new chord(new ArrayList<note>() {{
 add(e);
-add(c);}}, 64);
+add(high_E);}}, 16);
 
-score1rests = repeat(rest(64),8);
+low_double_e = new chord(new ArrayList<note>() {{
+add(e);
+add(low_e);}}, 16);
 
-active = new score(new ArrayList<stanza>() {{
-add(score1rests);}});
+eb = new chord(new ArrayList<note>() {{
+add(high_B);
+add(high_E);}}, 48);
 
-base = repeat(baseline(),14);
+norm_eb = new chord(new ArrayList<note>() {{
+add(high_B);
+add(e);}}, 48);
 
-	active = append(intro(),active);
+fb = new chord(new ArrayList<note>() {{
+add(f);
+add(b);}}, 48);
+
+double_b = new chord(new ArrayList<note>() {{
+add(b);
+add(low_b);}}, 16);
+
+up_double_b = new chord(new ArrayList<note>() {{
+add(b);
+add(high_B);}}, eighth);
+
+double_a = new chord(new ArrayList<note>() {{
+add(a);
+add(high_a);}}, eighth);
+
+double_g = new chord(new ArrayList<note>() {{
+add(high_g);
+add(g_8);}}, eighth);
+
+low_double_g = new chord(new ArrayList<note>() {{
+add(low_g);
+add(g_8);}}, 16);
+
+double_c = new chord(new ArrayList<note>() {{
+add(c);
+add(low_c);}}, 16);
+
+double_d = new chord(new ArrayList<note>() {{
+add(low_d);
+add(d);}}, 16);
+
+cg = new chord(new ArrayList<note>() {{
+add(high_g);
+add(c);}}, 48);
+
+piano_bass = new score();
+
+piano_treble = new score();
+
+s1 = repeat(chordOfNote(g_8),8);
+
+bass1 = repeat(chordOfNote(g_16),8);
+
+bass2 = repeat(chordOfNote(d),4);
+
+bass3 = repeat(chordOfNote(e),4);
+
+bass4 = repeat(chordOfNote(c),4);
+
+bass5 = repeat(chordOfNote(g_8),8);
+
+bass6 = repeat(chordOfNote(d_8),8);
+
+bass7 = repeat(chordOfNote(e_8),8);
+
+bass8 = repeat(chordOfNote(c_8),4);
+
+	bass8 = concat(bass8,repeat(chordOfNote(c),2));
+
+bass9 = new stanza(new ArrayList<chord>() {{
+add(low_double_g);
+add(gd_48);}});
+
+bass10 = new stanza(new ArrayList<chord>() {{
+add(double_d);
+add(da_48);}});
+
+bass11 = new stanza(new ArrayList<chord>() {{
+add(low_double_e);
+add(norm_eb);}});
+
+verse1 = startRest();
+
+	verse1 = concat(verse1,repeat(db,5));
+
+	verse1 = append(da,verse1);
+
+	verse1 = append(db,verse1);
+
+verse2 = startRest();
+
+	verse2 = concat(verse2,repeat(db,5));
+
+	verse2 = concat(verse2,repeat(da,2));
+
+verse3 = startRest();
+
+	verse3 = concat(verse3,repeat(dg,3));
+
+triplet = new stanza(new ArrayList<chord>() {{
+add(new chord(new ArrayList<note>() {{
+add(g_16);
+add(d);}}, 11));
+add(new chord(new ArrayList<note>() {{
+add(d);
+add(high_D);}}, 10));
+add(new chord(new ArrayList<note>() {{
+add(b);
+add(d);}}, 11));
+add(rest(8));}});
+
+	verse3 = concat(verse3,triplet);
+
+accent = chordOfNote(b);
+
+	accent.chord_duration  = 4;
+
+dotted_a = chordOfNote(a);
+
+	dotted_a.chord_duration  = 12;
+
+q_rest = new stanza(new ArrayList<chord>() {{
+add(rest(16));}});
+
+verse4 = new stanza(new ArrayList<chord>() {{
+add(gd_q);
+add(gd_e);
+add(accent);
+add(dotted_a);
+add(chordOfNote(g_8));}});
+
+verse5 = new stanza(new ArrayList<chord>() {{
+add(gd_q);}});
+
+verse6 = repeat(double_g,6);
+
+	verse6 = append(double_a,verse6);
+
+	verse6 = append(up_double_b,verse6);
+
+dotted_eight = 12;
+
+sixteenth = 16/4;
+
+bm_1 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
+add(bass_low_g);
+add(bass_mid_d);
+add(bass_mid_g);
+add(bass_mid_d);
+add(bass_mid_b);
+add(b5);}}));
+
+chord_m1 = new chord(new ArrayList<note>() {{
+add(mel_mid_b);
+add(m1);}}, 16);
+
+chord_m2 = new chord(new ArrayList<note>() {{
+add(mel_mid_b);}}, eighth);
+
+chord_m3 = new chord(new ArrayList<note>() {{
+add(m3);}}, sixteenth);
+
+mm_1 = new stanza(new ArrayList<chord>() {{
+add(rest(16));
+add(chord_m1);
+add(chord_m2);
+add(chord_m3);
+add(new chord(new ArrayList<note>() {{
+add(mel_mid_b);
+add(m1);}}, 12));
+add(chordOfNote(m3));}});
+
+bm_2 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
+add(bass_low_d);
+add(bass_low_a);
+add(bass_mid_d);
+add(bass_low_a);
+add(bass_mid_f_sharp);
+add(bass_low_d_quarter);}}));
+
+	bm_2 = prepend(rest(eighth*3),bm_2);
+
+mm_2 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
+add( new note(-1,0,24));
+add(mel_mid_b);
+add(mel_mid_b);
+add( new note(2,2,sixteenth));
+add(mel_high_b_dotted_eighth);
+add(m1);}}));
+
+bm_3 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
+add(low_e_8);
+add(b);
+add(e);
+add(b);
+add(g_16);
+add(low_e);}}));
+
+mm_3 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
+add( new note(-1,0,24));
+add( new note(4,2,eighth));
+add(mel_high_b);
+add(mel_high_c);
+add(mel_high_b);
+add(m1);}}));
+
+bm_4 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
+add(bass_low_c);
+add(bass_low_g);
+add(bass_mid_c);
+add(bass_low_g);
+add( new note(4,1,16));
+add( new note(0,-1,16));
+add( new note(-1,0,24));}}));
+
+mm_4 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
+add( new note(-1,0,24));
+add( new note(7,2,eighth));
+add(mel_high_b);
+add(mel_high_a);
+add(mel_high_a_dotted_eighth);
+add( new note(7,2,eighth));
+add( new note(-1,0,24));}}));
+
+terminal = new stanza(new ArrayList<chord>() {{
+add(chordOfNote( new note(4,1,eighth)));}});
+
+	piano_bass = new score(new ArrayList<stanza>() {{
+add(bass1);
+add(bass2);
+add(bass3);
+add(bass4);
+add(bass5);
+add(bass6);
+add(bass7);
+add(bass8);
+add(bass9);
+add(bass10);
+add(bass11);
+add(bm_1);
+add(bm_2);
+add(bm_3);
+add(bm_4);
+add(terminal);}});
+
+	piano_treble = new score(new ArrayList<stanza>() {{
+add(s1);
+add(verse1);
+add(verse1);
+add(verse2);
+add(verse3);
+add(verse1);
+add(verse1);
+add(verse2);
+add(verse3);
+add(q_rest);
+add(verse4);
+add(verse5);
+add(verse4);
+add(verse5);
+add(verse4);
+add(verse6);
+add(mm_1);
+add(mm_2);
+add(mm_3);
+add(mm_4);
+add(terminal);}});
 
   compose(new ArrayList<score>() {{
-	add(active);
+	add(piano_bass);
 
-	add(base);
+	add(piano_treble);
 }});
 
     }

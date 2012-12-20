@@ -7,15 +7,6 @@ import subprocess
 
 verbose = False
 
-# def findOutput(searchFor, fileType):
-#   outputFiles = []
-#   counter = 0
-#   while os.path.isfile(searchFor + str(counter) + fileType):
-#     if verbose: print "Found file: " + searchFor + str(counter) + fileType
-#     outputFiles.append(searchFor + str(counter) + fileType)
-#     counter += 1
-#   return outputFiles
-
 def compile(fName):
   if verbose: print "=====Running The PreProcessor=====\n"
   proc = subprocess.Popen(['python','preprocessor.py', fName],stdout=subprocess.PIPE)
@@ -38,19 +29,22 @@ def compile(fName):
     else:
       break
   if verbose: print "\n=====Ocaml COMPILER COMPLETE=====\n"
-  # if verbose: print "\n=====Finding & Compiling Output\n"
-  # toJava = "Cb.java"
-  # for f in toJava:
-  #   java = subprocess.Popen(['javac', 'Cb.java'],stdout=subprocess.PIPE)
-  #   while True:
-  #     line = java.stdout.readline()
-  #     if line != '':
-  #       if verbose: print line.rstrip()
-  #     else:
-  #       break
-  #   if verbose: print "\n"
-  # if verbose: print "\n=====Java File Compiled=====\n"
-  # if verbose: print "\n=====Compilation Complete=====\n"
+  if os.path.isfile("Cb.java"):
+    if verbose: print "\n=====Finding & Compiling Output\n"
+    toJava = "Cb.java"
+    for f in toJava:
+      java = subprocess.Popen(['javac', 'Cb.java'],stdout=subprocess.PIPE)
+      while True:
+        line = java.stdout.readline()
+        if line != '':
+          if verbose: print line.rstrip()
+        else:
+          break
+      if verbose: print "\n"
+    if verbose: print "\n=====Java File Compiled=====\n"
+    if verbose: print "\n=====Compilation Complete=====\n"
+  else:
+    print "\n=====Failed to find Cb.java, Translator likely failed=====\n"
 
 def ast(fName):
   print "=====Running The PreProcessor=====\n"
