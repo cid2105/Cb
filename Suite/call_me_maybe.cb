@@ -1,30 +1,6 @@
 int eighth = quarter / 2;
 
-note g_8 = (G,0,quarter/2);
-note g_16 = (G,0,quarter);
-note d = (D,0,quarter);
-note d_8 = (D,0,eighth);
-note high_D = (D,1,quarter);
-note e = (E,0,quarter);
-note high_E = (E,1,quarter);
-note e_8 = (E,0,eighth);
-note c = (C,-1,quarter);
-note c_8 = (C,-1,eighth);
-note b = (B,0,quarter);
-note high_B = (B,1,quarter);
-note low_b = (B,-1,quarter);
-note a = (A,0,quarter);
-note f = (F,0,quarter);
-
-chord db = ([d,b],eighth);
-chord da = ([d,a],eighth);
-chord dg = ([d,g_16],eighth);
-chord gd_q = ([high_D,g_8],quarter);
-chord gd_e = ([high_D,g_8],eighth);
-chord double_e = ([high_E,e],quarter);
-chord eb = ([high_E,high_B],48);
-chord fb = ([b, f],48);
-chord double_b = ([low_b,b],quarter);
+use Suite/call_me.cblib;
 
 meth stanza startRest()
     stanza tmp = [rest(eighth)];
@@ -44,8 +20,9 @@ stanza bass6 = repeat(chordOfNote(d_8),8);
 stanza bass7 = repeat(chordOfNote(e_8),8);
 stanza bass8 = repeat(chordOfNote(c_8),4);
 bass8 = concat(bass8, repeat(chordOfNote(c),2));
-stanza bass9 = [double_e,eb];
-stanza bass10 = [double_b,fb];
+stanza bass9 = [low_double_g,gd_48];
+stanza bass10 = [double_d,da_48];
+stanza bass11 = [low_double_e,norm_eb];
 
 <-I threw a wish in the well->
 <-Don't ask me, I'll never tell->
@@ -83,15 +60,58 @@ accent.chord_duration = 4;
 chord dotted_a = chordOfNote(a);
 dotted_a.chord_duration = 12;
 stanza q_rest = [rest(quarter)];
-stanza verse4 = [gd_q,gd_e,accent,dotted_a, chordOfNote(g_8), chordOfNote(g_8)];
+stanza verse4 = [gd_q,gd_e,accent,dotted_a, chordOfNote(g_8)];
 
 <-ripped jeans, skin was showin->
-stanza verse5 = prepend(gd_q, verse4);
+stanza verse5 = [gd_q];
 
 <-hot night, wind was blowin->
 <-same as verse 5->
 
-piano_bass = [bass1,bass2,bass3,bass4,bass5,bass6,bass7,bass8,bass9,bass10];
-piano_treble = [s1,verse1,verse1,verse2,verse3,triplet,verse1,verse1,verse2,verse3,q_rest,verse4,verse5,verse5];
+<-Where you think you're goin baby->
+stanza verse6 = repeat(double_g,6);
+verse6 = append(double_a, verse6);
+verse6 = append(up_double_b, verse6);
+
+<-CHORUS->
+meth stanza raise_scale_pitch_by_one(scale s)
+    stanza temp_stanza;
+    foreach(note n in s)
+        n.pitch += 1;
+        temp_stanza = append(chordOfNote(n), temp_stanza);
+    end
+    return temp_stanza;
+end
+
+meth stanza make_stanza_from_scale(scale s)
+    stanza temp_stanza;
+    foreach(note n in s)
+        temp_stanza = append(chordOfNote(n), temp_stanza);
+    end
+    return temp_stanza;
+end
+
+int dotted_eight = 12;
+int sixteenth = quarter / 4;
+stanza bm_1 = make_stanza_from_scale([bass_low_g, bass_mid_d, bass_mid_g, bass_mid_d, bass_mid_b, b5]);
+chord chord_m1 = ([m1, mel_mid_b], quarter);
+chord chord_m2 = ([mel_mid_b], eighth);
+chord chord_m3 = ([m3], sixteenth);
+
+stanza mm_1 = [rest(quarter), chord_m1, chord_m2, chord_m3, ([m1, mel_mid_b], 12), chordOfNote(m3) ];
+stanza bm_2 = make_stanza_from_scale([bass_low_d, bass_low_a, bass_mid_d, bass_low_a, bass_mid_f_sharp, bass_low_d_quarter]);
+
+bm_2 = prepend(rest(eighth*3), bm_2);
+
+stanza mm_2 =  make_stanza_from_scale([(R,0,24),mel_mid_b, mel_mid_b, (D, 2, sixteenth), mel_high_b_dotted_eighth, m1]);
+stanza bm_3 = make_stanza_from_scale([low_e_8,b,e,b,g_16,low_e]);
+stanza mm_3 =  make_stanza_from_scale([(R,0,24),(E, 2, eighth), mel_high_b, mel_high_c, mel_high_b, m1]);
+stanza bm_4 = make_stanza_from_scale([bass_low_c, bass_low_g, bass_mid_c, bass_low_g, (E, 1, quarter), (C, -1, quarter), (R,0,24)]);
+stanza mm_4 = make_stanza_from_scale([(R,0,24),(G, 2, eighth), mel_high_b, mel_high_a, mel_high_a_dotted_eighth, (G, 2, eighth),(R,0,24)]);
+
+stanza terminal = [chordOfNote((E,1,eighth))];
+
+piano_bass = [bass1,bass2,bass3,bass4,bass5,bass6,bass7,bass8,bass9,bass10,bass11,bm_1,bm_2,bm_3,bm_4,terminal];
+piano_treble = [s1,verse1,verse1,verse2,verse3,verse1,verse1,verse2,verse3,q_rest,verse4,verse5,verse4,verse5,verse4,verse6,mm_1,mm_2,mm_3,mm_4,terminal];
 
 compose(piano_bass, piano_treble);

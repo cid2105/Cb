@@ -302,8 +302,8 @@ public class Cb {
                         } else {
                             track[channel].add(createNoteOnEvent(nt, tick, channel, velocity));             //add note to this track
                         }
-                        // tick = tick + duration;  //first number is tick
-                        // track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
+                         tick = tick + duration;  //first number is tick
+                         track[channel].add(createNoteOffEvent(nt, tick + duration, channel));
                     }
                     tick = tick + duration;
                      System.out.println("tick:-" + tick + "> \n " + duration);
@@ -761,8 +761,8 @@ stanza mm_4;
 
 stanza terminal;
 
-public stanza startRest() {stanza tmp = new stanza(new ArrayList<chord>() {{
-add(rest(eighth));}});
+public stanza startRest() {final stanza tmp = new stanza(new ArrayList<chord>() {{
+add(rest(eighth).deepCopy());}});
 return tmp;
 
 }
@@ -872,84 +872,84 @@ mel_high_a =  new note(9,2,eighth);
 mel_high_a_dotted_eighth =  new note(9,2,eighth);
 
 db = new chord(new ArrayList<note>() {{
-add(b);
-add(d);}}, eighth);
+add(d.deepCopy());
+add(b.deepCopy());}}, eighth);
 
 da = new chord(new ArrayList<note>() {{
-add(a);
-add(d);}}, eighth);
+add(d.deepCopy());
+add(a.deepCopy());}}, eighth);
 
 da_48 = new chord(new ArrayList<note>() {{
-add(a);
-add(d);}}, 48);
+add(d.deepCopy());
+add(a.deepCopy());}}, 48);
 
 dg = new chord(new ArrayList<note>() {{
-add(g_16);
-add(d);}}, eighth);
+add(d.deepCopy());
+add(g_16.deepCopy());}}, eighth);
 
 gd_48 = new chord(new ArrayList<note>() {{
-add(g_8);
-add(high_D);}}, 48);
+add(high_D.deepCopy());
+add(g_8.deepCopy());}}, 48);
 
 gd_q = new chord(new ArrayList<note>() {{
-add(g_8);
-add(high_D);}}, 16);
+add(high_D.deepCopy());
+add(g_8.deepCopy());}}, 16);
 
 gd_e = new chord(new ArrayList<note>() {{
-add(g_8);
-add(high_D);}}, eighth);
+add(high_D.deepCopy());
+add(g_8.deepCopy());}}, eighth);
 
 double_e = new chord(new ArrayList<note>() {{
-add(e);
-add(high_E);}}, 16);
+add(high_E.deepCopy());
+add(e.deepCopy());}}, 16);
 
 low_double_e = new chord(new ArrayList<note>() {{
-add(e);
-add(low_e);}}, 16);
+add(low_e.deepCopy());
+add(e.deepCopy());}}, 16);
 
 eb = new chord(new ArrayList<note>() {{
-add(high_B);
-add(high_E);}}, 48);
+add(high_E.deepCopy());
+add(high_B.deepCopy());}}, 48);
 
 norm_eb = new chord(new ArrayList<note>() {{
-add(high_B);
-add(e);}}, 48);
+add(e.deepCopy());
+add(high_B.deepCopy());}}, 48);
 
 fb = new chord(new ArrayList<note>() {{
-add(f);
-add(b);}}, 48);
+add(b.deepCopy());
+add(f.deepCopy());}}, 48);
 
 double_b = new chord(new ArrayList<note>() {{
-add(b);
-add(low_b);}}, 16);
+add(low_b.deepCopy());
+add(b.deepCopy());}}, 16);
 
 up_double_b = new chord(new ArrayList<note>() {{
-add(b);
-add(high_B);}}, eighth);
+add(high_B.deepCopy());
+add(b.deepCopy());}}, eighth);
 
 double_a = new chord(new ArrayList<note>() {{
-add(a);
-add(high_a);}}, eighth);
+add(high_a.deepCopy());
+add(a.deepCopy());}}, eighth);
 
 double_g = new chord(new ArrayList<note>() {{
-add(high_g);
-add(g_8);}}, eighth);
+add(g_8.deepCopy());
+add(high_g.deepCopy());}}, eighth);
 
 low_double_g = new chord(new ArrayList<note>() {{
-add(low_g);
-add(g_8);}}, 16);
+add(g_8.deepCopy());
+add(low_g.deepCopy());}}, 16);
 
 double_c = new chord(new ArrayList<note>() {{
-add(c);
-add(low_c);}}, 16);
+add(low_c.deepCopy());
+add(c.deepCopy());}}, 16);
 
 double_d = new chord(new ArrayList<note>() {{
-add(low_d);
-add(d);}}, 16);
+add(d.deepCopy());
+add(low_d.deepCopy());}}, 16);
 
 cg = new chord(new ArrayList<note>() {{
-add(high_g);
-add(c);}}, 48);
+add(c.deepCopy());
+add(high_g.deepCopy());}}, 48);
 
 piano_bass = new score();
 
@@ -976,16 +976,16 @@ bass8 = repeat(chordOfNote(c_8),4);
 	bass8 = concat(bass8,repeat(chordOfNote(c),2));
 
 bass9 = new stanza(new ArrayList<chord>() {{
-add(low_double_g);
-add(gd_48);}});
+add(low_double_g.deepCopy());
+add(gd_48.deepCopy());}});
 
 bass10 = new stanza(new ArrayList<chord>() {{
-add(double_d);
-add(da_48);}});
+add(double_d.deepCopy());
+add(da_48.deepCopy());}});
 
 bass11 = new stanza(new ArrayList<chord>() {{
-add(low_double_e);
-add(norm_eb);}});
+add(low_double_e.deepCopy());
+add(norm_eb.deepCopy());}});
 
 verse1 = startRest();
 
@@ -1007,15 +1007,15 @@ verse3 = startRest();
 
 triplet = new stanza(new ArrayList<chord>() {{
 add(new chord(new ArrayList<note>() {{
-add(g_16);
-add(d);}}, 11));
+add(d.deepCopy());
+add(g_16.deepCopy());}}, 11).deepCopy());
 add(new chord(new ArrayList<note>() {{
-add(d);
-add(high_D);}}, 10));
+add(high_D.deepCopy());
+add(d.deepCopy());}}, 10).deepCopy());
 add(new chord(new ArrayList<note>() {{
-add(b);
-add(d);}}, 11));
-add(rest(8));}});
+add(d.deepCopy());
+add(b.deepCopy());}}, 11).deepCopy());
+add(rest(8).deepCopy());}});
 
 	verse3 = concat(verse3,triplet);
 
@@ -1028,17 +1028,17 @@ dotted_a = chordOfNote(a);
 	dotted_a.chord_duration  = 12;
 
 q_rest = new stanza(new ArrayList<chord>() {{
-add(rest(16));}});
+add(rest(16).deepCopy());}});
 
 verse4 = new stanza(new ArrayList<chord>() {{
-add(gd_q);
-add(gd_e);
-add(accent);
-add(dotted_a);
-add(chordOfNote(g_8));}});
+add(gd_q.deepCopy());
+add(gd_e.deepCopy());
+add(accent.deepCopy());
+add(dotted_a.deepCopy());
+add(chordOfNote(g_8).deepCopy());}});
 
 verse5 = new stanza(new ArrayList<chord>() {{
-add(gd_q);}});
+add(gd_q.deepCopy());}});
 
 verse6 = repeat(double_g,6);
 
@@ -1051,133 +1051,133 @@ dotted_eight = 12;
 sixteenth = 16/4;
 
 bm_1 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
-add(bass_low_g);
-add(bass_mid_d);
-add(bass_mid_g);
-add(bass_mid_d);
-add(bass_mid_b);
-add(b5);}}));
+add(bass_low_g.deepCopy());
+add(bass_mid_d.deepCopy());
+add(bass_mid_g.deepCopy());
+add(bass_mid_d.deepCopy());
+add(bass_mid_b.deepCopy());
+add(b5.deepCopy());}}));
 
 chord_m1 = new chord(new ArrayList<note>() {{
-add(mel_mid_b);
-add(m1);}}, 16);
+add(m1.deepCopy());
+add(mel_mid_b.deepCopy());}}, 16);
 
 chord_m2 = new chord(new ArrayList<note>() {{
-add(mel_mid_b);}}, eighth);
+add(mel_mid_b.deepCopy());}}, eighth);
 
 chord_m3 = new chord(new ArrayList<note>() {{
-add(m3);}}, sixteenth);
+add(m3.deepCopy());}}, sixteenth);
 
 mm_1 = new stanza(new ArrayList<chord>() {{
-add(rest(16));
-add(chord_m1);
-add(chord_m2);
-add(chord_m3);
+add(rest(16).deepCopy());
+add(chord_m1.deepCopy());
+add(chord_m2.deepCopy());
+add(chord_m3.deepCopy());
 add(new chord(new ArrayList<note>() {{
-add(mel_mid_b);
-add(m1);}}, 12));
-add(chordOfNote(m3));}});
+add(m1.deepCopy());
+add(mel_mid_b.deepCopy());}}, 12).deepCopy());
+add(chordOfNote(m3).deepCopy());}});
 
 bm_2 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
-add(bass_low_d);
-add(bass_low_a);
-add(bass_mid_d);
-add(bass_low_a);
-add(bass_mid_f_sharp);
-add(bass_low_d_quarter);}}));
+add(bass_low_d.deepCopy());
+add(bass_low_a.deepCopy());
+add(bass_mid_d.deepCopy());
+add(bass_low_a.deepCopy());
+add(bass_mid_f_sharp.deepCopy());
+add(bass_low_d_quarter.deepCopy());}}));
 
 	bm_2 = prepend(rest(eighth*3),bm_2);
 
 mm_2 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
-add( new note(-1,0,24));
-add(mel_mid_b);
-add(mel_mid_b);
-add( new note(2,2,sixteenth));
-add(mel_high_b_dotted_eighth);
-add(m1);}}));
+add( new note(-1,0,24).deepCopy());
+add(mel_mid_b.deepCopy());
+add(mel_mid_b.deepCopy());
+add( new note(2,2,sixteenth).deepCopy());
+add(mel_high_b_dotted_eighth.deepCopy());
+add(m1.deepCopy());}}));
 
 bm_3 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
-add(low_e_8);
-add(b);
-add(e);
-add(b);
-add(g_16);
-add(low_e);}}));
+add(low_e_8.deepCopy());
+add(b.deepCopy());
+add(e.deepCopy());
+add(b.deepCopy());
+add(g_16.deepCopy());
+add(low_e.deepCopy());}}));
 
 mm_3 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
-add( new note(-1,0,24));
-add( new note(4,2,eighth));
-add(mel_high_b);
-add(mel_high_c);
-add(mel_high_b);
-add(m1);}}));
+add( new note(-1,0,24).deepCopy());
+add( new note(4,2,eighth).deepCopy());
+add(mel_high_b.deepCopy());
+add(mel_high_c.deepCopy());
+add(mel_high_b.deepCopy());
+add(m1.deepCopy());}}));
 
 bm_4 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
-add(bass_low_c);
-add(bass_low_g);
-add(bass_mid_c);
-add(bass_low_g);
-add( new note(4,1,16));
-add( new note(0,-1,16));
-add( new note(-1,0,24));}}));
+add(bass_low_c.deepCopy());
+add(bass_low_g.deepCopy());
+add(bass_mid_c.deepCopy());
+add(bass_low_g.deepCopy());
+add( new note(4,1,16).deepCopy());
+add( new note(0,-1,16).deepCopy());
+add( new note(-1,0,24).deepCopy());}}));
 
 mm_4 = make_stanza_from_scale(new scale(new ArrayList<note>() {{
-add( new note(-1,0,24));
-add( new note(7,2,eighth));
-add(mel_high_b);
-add(mel_high_a);
-add(mel_high_a_dotted_eighth);
-add( new note(7,2,eighth));
-add( new note(-1,0,24));}}));
+add( new note(-1,0,24).deepCopy());
+add( new note(7,2,eighth).deepCopy());
+add(mel_high_b.deepCopy());
+add(mel_high_a.deepCopy());
+add(mel_high_a_dotted_eighth.deepCopy());
+add( new note(7,2,eighth).deepCopy());
+add( new note(-1,0,24).deepCopy());}}));
 
 terminal = new stanza(new ArrayList<chord>() {{
-add(chordOfNote( new note(4,1,eighth)));}});
+add(chordOfNote( new note(4,1,eighth)).deepCopy());}});
 
 	piano_bass = new score(new ArrayList<stanza>() {{
-add(bass1);
-add(bass2);
-add(bass3);
-add(bass4);
-add(bass5);
-add(bass6);
-add(bass7);
-add(bass8);
-add(bass9);
-add(bass10);
-add(bass11);
-add(bm_1);
-add(bm_2);
-add(bm_3);
-add(bm_4);
-add(terminal);}});
+add(bass1.deepCopy());
+add(bass2.deepCopy());
+add(bass3.deepCopy());
+add(bass4.deepCopy());
+add(bass5.deepCopy());
+add(bass6.deepCopy());
+add(bass7.deepCopy());
+add(bass8.deepCopy());
+add(bass9.deepCopy());
+add(bass10.deepCopy());
+add(bass11.deepCopy());
+add(bm_1.deepCopy());
+add(bm_2.deepCopy());
+add(bm_3.deepCopy());
+add(bm_4.deepCopy());
+add(terminal.deepCopy());}});
 
 	piano_treble = new score(new ArrayList<stanza>() {{
-add(s1);
-add(verse1);
-add(verse1);
-add(verse2);
-add(verse3);
-add(verse1);
-add(verse1);
-add(verse2);
-add(verse3);
-add(q_rest);
-add(verse4);
-add(verse5);
-add(verse4);
-add(verse5);
-add(verse4);
-add(verse6);
-add(mm_1);
-add(mm_2);
-add(mm_3);
-add(mm_4);
-add(terminal);}});
+add(s1.deepCopy());
+add(verse1.deepCopy());
+add(verse1.deepCopy());
+add(verse2.deepCopy());
+add(verse3.deepCopy());
+add(verse1.deepCopy());
+add(verse1.deepCopy());
+add(verse2.deepCopy());
+add(verse3.deepCopy());
+add(q_rest.deepCopy());
+add(verse4.deepCopy());
+add(verse5.deepCopy());
+add(verse4.deepCopy());
+add(verse5.deepCopy());
+add(verse4.deepCopy());
+add(verse6.deepCopy());
+add(mm_1.deepCopy());
+add(mm_2.deepCopy());
+add(mm_3.deepCopy());
+add(mm_4.deepCopy());
+add(terminal.deepCopy());}});
 
   compose(new ArrayList<score>() {{
-	add(piano_bass);
+	add(piano_bass.deepCopy());
 
-	add(piano_treble);
+	add(piano_treble.deepCopy());
 }});
 
     }
