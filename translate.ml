@@ -772,9 +772,9 @@ let rec eval env = function
                 let javaStrList = List.map (fun (note_elem) ->
                     (let chord_elem, env, asJava = eval env note_elem in
                         let vType = (getType chord_elem) in
-                            if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                            if ( vType = "note") then ("add(" ^ asJava ^ ".deepCopy());")
                             else raise (Failure ("Chord must be composed of notes "))
-                    )) el in
+                    )) (List.rev el) in
                 let chordAsJava = String.concat "\n" javaStrList in
                     let dur, env, durAsJava = eval env e in
                         let durType = getType dur in
@@ -984,7 +984,7 @@ let rec eval env = function
                         ) (List.rev actuals);
         );
         let scoreListAsJava = String.concat "\n" (List.map (fun scor ->
-                                            "\n\tadd("^ scor ^");"
+                                            "\n\tadd("^ scor ^".deepCopy());"
                                         ) (List.rev score_names);)
         in Bool true, env, ("\n  compose(new ArrayList<score>() {{" ^ scoreListAsJava ^ "\n}})")
     | MethodCall(name, el) -> (* Check that method exists and passing correct args, do not actually call *)
@@ -998,7 +998,7 @@ let rec eval env = function
                         let v, env, _ = ((eval env) actual) in (v :: al), env
                     ) ([], env) el
                 in
-                let actualsAsJava = String.concat "," (List.map(fun arg -> let _, _, asJava = eval env arg in asJava)el) in
+                let actualsAsJava = String.concat "," (List.map(fun arg -> let _, _, asJava = eval env arg in asJava) (List.rev el)) in
                     let l1 =
                         try List.fold_left2 (fun locals formal actual ->
                                                 if (getType actual) = (string_of_cbtype formal.paramtype) then
@@ -1038,28 +1038,28 @@ let rec eval env = function
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "note") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "note") then ("add(" ^ asJava ^ ".deepCopy());")
                                     else raise (Failure ("List expressions must contain all of same type"))
-                            )) el in
-                        let notesAsJava = String.concat "\n" (List.rev javaStrList) in
+                            )) (List.rev el) in
+                        let notesAsJava = String.concat "\n" javaStrList in
                                 (initIdentifier "scale"), env, ("new scale(new ArrayList<note>() {{\n" ^ notesAsJava ^ "}})")
                     | "chord" -> (* if it is a chord create a stanza *)
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "chord") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "chord") then ("add(" ^ asJava ^ ".deepCopy());")
                                     else raise (Failure ("List expressions must contain all of same type"))
-                            )) el in
-                        let chordsAsJava = String.concat "\n" (List.rev javaStrList) in
+                            )) (List.rev el) in
+                        let chordsAsJava = String.concat "\n" javaStrList in
                                 (initIdentifier "stanza"), env, ("new stanza(new ArrayList<chord>() {{\n" ^ chordsAsJava ^ "}})")
                     | "stanza" -> (* if it is a stanza create a score *)
                         let javaStrList = List.map (fun (note_elem) ->
                             (let chord_elem, env, asJava = eval env note_elem in
                                 let vType = (getType chord_elem) in
-                                    if ( vType = "stanza") then ("add(" ^ asJava ^ ");")
+                                    if ( vType = "stanza") then ("add(" ^ asJava ^ ".deepCopy());")
                                     else raise (Failure ("List expressions must contain all of same type"))
-                            )) el in
-                        let stanzasAsJava = String.concat "\n" (List.rev javaStrList) in
+                            )) (List.rev el) in
+                        let stanzasAsJava = String.concat "\n"  javaStrList in
                                 (initIdentifier "score"), env, ("new score(new ArrayList<stanza>() {{\n" ^ stanzasAsJava ^ "}})")
                     | _ -> raise (Failure ("List expression must only contain notes or chords or stanzas"))
             end
@@ -1336,7 +1336,7 @@ and translate prog env =
                             let (_, _), javaBody = call head.body newlocals globals (NameMap.add head.fname head fdecls) head.fname "" in
                                 let rtype = if (string_of_cbtype head.rettype) = "bool" then "boolean" else (string_of_cbtype head.rettype) in
                                     (methJava := methJava.contents ^ "\npublic " ^ rtype ^ " " ^ head.fname ^ "(" ^
-                                    (String.concat "," (List.map(fun arg -> (if (string_of_cbtype arg.paramtype) = "bool" then "boolean" else (string_of_cbtype arg.paramtype)) ^ " " ^ arg.paramname)head.formals)) ^
+                                    (String.concat "," (List.map(fun arg -> (if (string_of_cbtype arg.paramtype) = "bool" then "boolean" else (string_of_cbtype arg.paramtype)) ^ " " ^ arg.paramname) (List.rev head.formals))) ^
                                     ") {" ^ javaBody ^ "\n}\n");
                             translate tail (locals, globals, (NameMap.add head.fname head fdecls))
                         )

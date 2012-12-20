@@ -2,24 +2,43 @@ meth void harmony(note a)
 
 	a^+;
 	a^+;
-	a^+;
 
 end
 
-note c = (C, 0, half);
+note c = (C, 0, quarter);
 
-note d = (D, 0, half);
+note d = (D, 0, quarter);
 
-note e = (E, 0, half);
+note e = (E, 0, quarter);
 
-chord cc = ([c,d,e], whole);
-stanza p = [cc, cc];
-score s = [p];
-harmony(c);
-harmony(d);
-harmony(e);
-chord cc1 = ([c,d,e], whole);
-stanza p1 = [cc, cc1];
-score s1 = [p1];
+chord cc = ([c,d,e], quarter);
 
-compose(s,s1);
+	harmony(c);
+	harmony(d);
+
+	harmony(e);
+
+chord cc1 = ([c,d,e], quarter);
+
+stanza p = [cc, cc1];
+score s = [p,p];
+
+chord cc2 = ([(R,0,half)], quarter);
+foreach(note a in cc1)
+	harmony(a);
+	cc2 = append(a, cc2);
+end
+
+chord cc3 = ([(R,0,half)], quarter);
+foreach(note a in cc2)
+	harmony(a);
+	cc3 = append(a, cc3);
+end
+<- chord cc3 = ([c,d,e], quarter); ->
+stanza p1 = [cc2, cc3];
+
+
+score s1 = [p1, p1];
+s.instrument = 60;
+s1.instrument = 100;
+compose(s,s1, s, s1,s, s1);

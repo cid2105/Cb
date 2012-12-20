@@ -1,5 +1,8 @@
-
+<-
+  tesing if no else statement
+->
 
 if (true)
   print(22);
 end
+
