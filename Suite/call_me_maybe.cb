@@ -109,9 +109,7 @@ stanza mm_3 =  make_stanza_from_scale([(R,0,24),(E, 2, eighth), mel_high_b, mel_
 stanza bm_4 = make_stanza_from_scale([bass_low_c, bass_low_g, bass_mid_c, bass_low_g, (E, 1, quarter), (C, -1, quarter), (R,0,24)]);
 stanza mm_4 = make_stanza_from_scale([(R,0,24),(G, 2, eighth), mel_high_b, mel_high_a, mel_high_a_dotted_eighth, (G, 2, eighth),(R,0,24)]);
 
-stanza terminal = [chordOfNote((E,1,eighth))];
-
-piano_bass = [bass1,bass2,bass3,bass4,bass5,bass6,bass7,bass8,bass9,bass10,bass11,bm_1,bm_2,bm_3,bm_4,terminal];
-piano_treble = [s1,verse1,verse1,verse2,verse3,verse1,verse1,verse2,verse3,q_rest,verse4,verse5,verse4,verse5,verse4,verse6,mm_1,mm_2,mm_3,mm_4,terminal];
+piano_bass = [bass1,bass2,bass3,bass4,bass5,bass6,bass7,bass8,bass9,bass10,bass11,bm_1,bm_2,bm_3,bm_4];
+piano_treble = [s1,verse1,verse1,verse2,verse3,verse1,verse1,verse2,verse3,q_rest,verse4,verse5,verse4,verse5,verse4,verse6,mm_1,mm_2,mm_3,mm_4];
 
 compose(piano_bass, piano_treble);
